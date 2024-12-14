@@ -1,0 +1,23 @@
+@keyframes blink {
+  from,
+  to {
+    background-color: transparent;
+  }
+  50% {
+    background-color: red;
+  }
+}
+
+.editor-caret {
+    height: 22px;
+    width: 2px;
+    background-color: red;
+    position: absolute;
+    animation: blink 1s ease-in-out infinite;
+}
+
+.editor-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}

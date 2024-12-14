@@ -1,0 +1,23 @@
+div[data-type='editor-block'] {
+  text-align: left;
+  position: relative;
+
+  >div[data-type='block-content'] {
+    span[data-style-color='1'] {
+      color: red;
+    }
+
+    >span.text {
+      white-space: pre-wrap;
+    }
+  }
+
+  >div[data-type='block-background'] {
+    height: 0;
+    .background {
+      position: absolute;
+      opacity: 0.6;
+      background-color: yellowgreen;
+    }
+  }
+}
