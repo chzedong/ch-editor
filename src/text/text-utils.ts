@@ -51,10 +51,9 @@ export function getDocTextLength(ops: DocBlockText) {
 }
 
 export function getTextBlockContentChildTextLength(child: Element) {
-  const text = child.firstChild;
-  if (text instanceof HTMLBRElement) {
+  if (child instanceof HTMLBRElement) {
     return 0;
   }
   assert(child.textContent, "invalid text content");
-  return child.textContent?.length;
+  return child.textContent?.length || 0;
 }

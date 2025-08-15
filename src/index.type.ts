@@ -60,3 +60,7 @@ export interface ShortcutsRecord {
 export interface InputHandler {
   handleKeyDown: (editor: Editor, event: KeyboardEvent) => boolean;
 }
+
+export type BlockElement = HTMLElement;
+
+export type TextBlockContentChild = Element;
