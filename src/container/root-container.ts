@@ -16,7 +16,7 @@ export class RootContainer {
 
     const ele = document.elementFromPoint(clientX, clientY) as HTMLElement;
     const block = getParentBlock(ele);
-    if(!block) {
+    if (!block) {
       // TODO:计算padding区域，重新矫正x, y
 
       return;

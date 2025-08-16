@@ -67,7 +67,7 @@ export function getTextAttributes(
   if (getDocTextLength(blockData.text) === 0) {
     return null;
   }
-  if ((offset = 0)) {
+  if (offset === 0) {
     return undefined;
   }
   //

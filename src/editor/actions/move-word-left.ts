@@ -28,7 +28,7 @@ function findPreWordOffset(ops: DocBlockText, offset: number, isSpan: boolean) {
 
 export function editorGetPreWordStart(ops: DocBlockText, offset: number) {
 
-  if(ops.length === 0) {
+  if (ops.length === 0) {
     return 0;
   }
 

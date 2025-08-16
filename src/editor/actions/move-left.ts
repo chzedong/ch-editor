@@ -13,7 +13,7 @@ export function moveLeft(editor: Editor) {
   const blockLen = blockClass.getBlockTextLength(block);
   assert(focusPos.offset <= blockLen, 'focusPos.offset not <= blockLen');
 
-  if(!range.isCollapsed()) {
+  if (!range.isCollapsed()) {
     editor.selection.setSelection(range.start, range.start);
     return true;
   }

@@ -12,7 +12,7 @@ export function moveRight(editor: Editor) {
   //
   const blockLen = blockClass.getBlockTextLength(block);
 
-  if(!range.isCollapsed()) {
+  if (!range.isCollapsed()) {
     editor.selection.setSelection(range.end, range.end);
     return true;
   }

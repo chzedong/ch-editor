@@ -83,7 +83,7 @@ export function getFirstBlock(container: HTMLElement) {
 
 export function getBlockBackground(block: HTMLElement) {
   let bgElem = block.querySelector(':scope >div[data-type=block-background]');
-  if(!bgElem) {
+  if (!bgElem) {
     bgElem = createElement('div', [], block);
     bgElem.setAttribute('data-type', 'block-background');
   }
@@ -93,7 +93,7 @@ export function getBlockBackground(block: HTMLElement) {
 
 export function removeBackgrounds(block: HTMLElement) {
   const bgElem = block.querySelector(':scope >div[data-type=block-background]');
-  if(bgElem) {
+  if (bgElem) {
     Array.from(bgElem.children).forEach(child => child.remove());
   }
 }

@@ -115,13 +115,13 @@ export class Editor extends TypedEmitter<any> {
     this.doc.localDeleteBlock(containerId, blockIndex);
 
     const blockClass = this.editorBlocks.getBlockClass(blockData.type);
-    if(blockClass.deleteBlock) {
+    if (blockClass.deleteBlock) {
       return blockClass.deleteBlock(this, blockElement);
     }
     blockElement.remove();
 
     const curIndexBlock = this.findBlockByIndex(containerId, blockIndex);
-    if(curIndexBlock) {
+    if (curIndexBlock) {
       const curIndexBlockId = getBlockId(curIndexBlock);
       const pos = new EditorBlockPosition(curIndexBlockId, 0);
       this.selection.setSelection(pos, pos);

@@ -5,7 +5,7 @@ import { setupEditorDebug } from './debug/example';
 
 
 let doc = localStorage.getItem('doc');
-if(doc) {
+if (doc) {
   // doc = JSON.parse(doc);
   doc = undefined;
 }

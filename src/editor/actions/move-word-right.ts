@@ -30,7 +30,7 @@ function findNextWordEnd(ops: DocBlockText, offset: number, isSpan: boolean, len
 
 export function editorGetNextWordEnd(ops: DocBlockText, offset: number, len: number) {
 
-  if(ops.length === 0) {
+  if (ops.length === 0) {
     return 0;
   }
 
