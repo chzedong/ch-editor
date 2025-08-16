@@ -1,12 +1,12 @@
-import { cloneDeep } from "lodash-es";
-import { assert } from "../utils/assert";
+import { cloneDeep } from 'lodash-es';
+import { assert } from '../utils/assert';
 
-import { DocBlockText, DocBlockTextOp } from "../index.type";
-import { getTextBlockContentChildren } from "../line";
+import { DocBlockText, DocBlockTextOp } from '../index.type';
+import { getTextBlockContentChildren } from '../line';
 
 export function splitText(docText: DocBlockText, offset: number) {
-  let left: DocBlockText = [];
-  let right: DocBlockText = [];
+  const left: DocBlockText = [];
+  const right: DocBlockText = [];
   let preOffset = 0;
   const ops = cloneDeep(docText);
   for (const op of ops) {
@@ -19,12 +19,12 @@ export function splitText(docText: DocBlockText, offset: number) {
       const splitLen = offset - preOffset;
       const leftOp: DocBlockTextOp = {
         ...op,
-        insert: op.insert.substring(0, splitLen),
+        insert: op.insert.substring(0, splitLen)
       };
       const cloneOp = cloneDeep(op);
       const rightOp: DocBlockTextOp = {
         ...cloneOp,
-        insert: op.insert.substring(splitLen),
+        insert: op.insert.substring(splitLen)
       };
       left.push(leftOp);
       right.push(rightOp);
@@ -55,7 +55,7 @@ export function getTextBlockContentChildTextLength(child: Element) {
   if (child instanceof HTMLBRElement) {
     return 0;
   }
-  assert(typeof child.textContent === 'string', "invalid text content");
+  assert(typeof child.textContent === 'string', 'invalid text content');
   return child.textContent?.length || 0;
 }
 

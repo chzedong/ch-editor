@@ -1,8 +1,8 @@
-import { Editor } from "./editor";
-import { clientType } from "../utils/client";
-import { parseShortcut } from "../utils/key";
+import { Editor } from './editor';
+import { clientType } from '../utils/client';
+import { parseShortcut } from '../utils/key';
 
-import { InputHandler, ShortcutsRecord } from "../index.type";
+import { InputHandler, ShortcutsRecord } from '../index.type';
 
 function isMatchKey(key: string, event: KeyboardEvent) {
   const parser = parseShortcut(key);
@@ -19,7 +19,7 @@ function isMatchKey(key: string, event: KeyboardEvent) {
     return false;
   }
   if (parser.key.toLocaleUpperCase() === event.key.toLocaleUpperCase()) {
-    return true
+    return true;
   }
   return false;
 }
@@ -33,7 +33,7 @@ export class EditorShortcuts implements InputHandler {
       for (const [key, callback] of Object.entries(record)) {
         if (isMatchKey(key, event)) {
           if (callback(editor, event)) {
-            return true
+            return true;
           }
         }
 

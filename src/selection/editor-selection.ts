@@ -1,11 +1,11 @@
-import { Editor } from "../editor/editor";
-import { EditorSelectionRange } from "./selection-range";
-import { clearAllSelection, updateSelection } from "./selection-utils";
-import { getBlockId, getBlockIndex, getBlockType } from "../block/block-dom";
-import { Caret } from "../caret/caret";
-import { EditorBlockPosition } from "./block-position";
-import { assert } from "../utils/assert";
-import { getContainerId, getParentContainer } from "../container/container-dom";
+import { Editor } from '../editor/editor';
+import { EditorSelectionRange } from './selection-range';
+import { clearAllSelection, updateSelection } from './selection-utils';
+import { getBlockId, getBlockIndex, getBlockType } from '../block/block-dom';
+import { Caret } from '../caret/caret';
+import { EditorBlockPosition } from './block-position';
+import { assert } from '../utils/assert';
+import { getContainerId, getParentContainer } from '../container/container-dom';
 
 export class EditorSelection {
   readonly caret: Caret;
@@ -32,7 +32,7 @@ export class EditorSelection {
     const block = this.editor.getBlockById(pos.blockId);
     const type = getBlockType(block);
     const ok = pos.offset >= 0 && pos.offset <= this.editor.editorBlocks.getBlockClass(type).getBlockTextLength(block);
-    assert(ok, "invalid block position");
+    assert(ok, 'invalid block position');
   }
 
   setSelection(anchor: EditorBlockPosition, focus: EditorBlockPosition) {
@@ -81,7 +81,7 @@ export class EditorSelection {
 
     while (startIndex < endIndex) {
       const block = this.editor.findBlockByIndex(containerId, startIndex);
-      assert(block, "invalid block");
+      assert(block, 'invalid block');
 
       blocks.push({ block, anchor: 0, focus: this.editor.getBlockTextLength(block) });
 

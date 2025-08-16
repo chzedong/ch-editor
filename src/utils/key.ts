@@ -1,4 +1,4 @@
-import { clientType } from "./client";
+import { clientType } from './client';
 
 export function parseShortcut(shortcut: string) {
   const ret = {
@@ -6,7 +6,7 @@ export function parseShortcut(shortcut: string) {
     alt: false,
     shift: false,
     cmd: false,
-    key: '',
+    key: ''
   };
   //
   const parts = shortcut.toLocaleUpperCase().split('+');

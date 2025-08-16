@@ -1,10 +1,10 @@
-import { getBlockId, getBlockType, getPrevBlock, isFirstBlock } from "../../block/block-dom";
-import { Editor } from "../editor";
-import { DocBlockText } from "../../index.type";
-import { assert } from "../../utils/assert";
-import { EditorBlockPosition } from "../../selection/block-position";
-import { isTextKindBlock } from "../editor-blocks";
-import { editorGetPreWordStart } from "./move-word-left";
+import { getBlockId, getBlockType, getPrevBlock, isFirstBlock } from '../../block/block-dom';
+import { Editor } from '../editor';
+import { DocBlockText } from '../../index.type';
+import { assert } from '../../utils/assert';
+import { EditorBlockPosition } from '../../selection/block-position';
+import { isTextKindBlock } from '../editor-blocks';
+import { editorGetPreWordStart } from './move-word-left';
 
 export function selectWordLeft(editor: Editor) {
   const focusPos = editor.selection.range.focus;
@@ -12,14 +12,14 @@ export function selectWordLeft(editor: Editor) {
   const blockClass = editor.editorBlocks.getBlockClass(getBlockType(block));
   //
   const blockLen = blockClass.getBlockTextLength(block);
-  assert(focusPos.offset <= blockLen, "focusPos.offset not <= blockLen");
+  assert(focusPos.offset <= blockLen, 'focusPos.offset not <= blockLen');
   const blockData = editor.getBlockData(block);
   //
-  assert(isTextKindBlock(editor, block), 'not text kind block')
+  assert(isTextKindBlock(editor, block), 'not text kind block');
   //
   if (focusPos.offset > 0) {
-    assert(blockData.text, "not has text");
-    const offset = editorGetPreWordStart(blockData.text, focusPos.offset)
+    assert(blockData.text, 'not has text');
+    const offset = editorGetPreWordStart(blockData.text, focusPos.offset);
     if (offset !== -1) {
       const newFocusPos = new EditorBlockPosition(
         focusPos.blockId,
@@ -33,7 +33,7 @@ export function selectWordLeft(editor: Editor) {
   if (!isFirstBlock(block)) {
     const prevBlock = getPrevBlock(block);
 
-    assert(isTextKindBlock(editor, prevBlock), "no next block");
+    assert(isTextKindBlock(editor, prevBlock), 'no next block');
 
     const prevBlockClass = editor.editorBlocks.getBlockClass(
       getBlockType(prevBlock)

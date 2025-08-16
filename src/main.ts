@@ -1,17 +1,16 @@
-import { Editor } from './editor/editor'
-import './caret/caret'
-import './style.css'
+import { Editor } from './editor/editor';
+import './caret/caret';
+import './style.css';
 import { setupEditorDebug } from './debug/example';
-
 
 
 let doc = localStorage.getItem('doc');
 if(doc) {
   // doc = JSON.parse(doc);
-  doc = undefined
+  doc = undefined;
 }
 
-const app = document.querySelector<HTMLDivElement>('#app')!
+const app = document.querySelector<HTMLDivElement>('#app')!;
 const editor = new Editor(app, { initDoc: doc });
 editor.focus();
 
@@ -32,7 +31,7 @@ document.body.appendChild(mousePointSign);
 app.addEventListener('mousedown', (e) => {
   const { clientX, clientY } = e;
   mousePointSign.innerText = `${clientX}, ${clientY}`;
-})
+});
 
 
 setInterval(() => {
@@ -42,4 +41,4 @@ setInterval(() => {
 
 (window as any).editor = editor;
 
-setupEditorDebug(app)
+setupEditorDebug(app);

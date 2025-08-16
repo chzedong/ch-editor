@@ -113,7 +113,7 @@ export class LineVisualizer {
         left: lineRect.left - containerRect.left,
         top: lineRect.top - containerRect.top,
         width: lineRect.width,
-        height: lineRect.height,
+        height: lineRect.height
       };
 
       this.ctx.strokeRect(relativeRect.left, relativeRect.top, relativeRect.width, relativeRect.height);

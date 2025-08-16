@@ -1,5 +1,5 @@
-import Delta from "quill-delta";
-import { DocBlockText, DocBlockTextActionOp, DocBlockTextActions } from "../index.type";
+import Delta from 'quill-delta';
+import { DocBlockText, DocBlockTextActionOp, DocBlockTextActions } from '../index.type';
 
 function applyOps(snapshot: DocBlockText, delta: DocBlockTextActions) {
   const snapshotD = new Delta(snapshot);
@@ -9,7 +9,7 @@ function applyOps(snapshot: DocBlockText, delta: DocBlockTextActions) {
 
 export class RichText {
   static apply(text: DocBlockText, ops: DocBlockTextActions) {
-    const resultText = applyOps(text, ops)
+    const resultText = applyOps(text, ops);
     return resultText;
   }
 

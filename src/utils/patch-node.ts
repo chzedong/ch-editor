@@ -1,4 +1,4 @@
-/* eslint-disable max-len */
+
 import { init, classModule, styleModule, propsModule, toVNode, attributesModule, datasetModule } from 'snabbdom';
 
 const patch = init([classModule, styleModule, datasetModule, attributesModule, propsModule]);

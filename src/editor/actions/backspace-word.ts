@@ -1,13 +1,13 @@
-import { getBlockIndex, getBlockType } from "../../block/block-dom";
+import { getBlockIndex, getBlockType } from '../../block/block-dom';
 import {
   getContainerId,
   getParentContainer
-} from "../../container/container-dom";
-import { Editor } from "../editor";
-import { assert } from "../../utils/assert";
-import { EditorBlockPosition } from "../../selection/block-position";
-import { editorGetPreWordStart } from "./move-word-left";
-import { deleteText } from "../../text/delete-text";
+} from '../../container/container-dom';
+import { Editor } from '../editor';
+import { assert } from '../../utils/assert';
+import { EditorBlockPosition } from '../../selection/block-position';
+import { editorGetPreWordStart } from './move-word-left';
+import { deleteText } from '../../text/delete-text';
 
 export function backspaceWord(editor: Editor) {
 
@@ -20,15 +20,15 @@ export function backspaceWord(editor: Editor) {
   const containerId = getContainerId(container);
 
   const blockData = editor.getBlockData(block);
-  assert(blockData.text, "not has text");
+  assert(blockData.text, 'not has text');
   const preOffset = editorGetPreWordStart(blockData.text, focusPos.offset);
 
   const blockLen = blockClass.getBlockTextLength(block);
-  assert(focusPos.offset <= blockLen, "focusPos.offset not <= blockLen");
+  assert(focusPos.offset <= blockLen, 'focusPos.offset not <= blockLen');
 
   const newText = deleteText(editor, block, preOffset, focusPos.offset);
   editor.editorBlocks
-    .getBlockClass("text")
+    .getBlockClass('text')
     .setBlockText(editor, block, newText);
   //
   //

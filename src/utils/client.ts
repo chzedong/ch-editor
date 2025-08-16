@@ -29,7 +29,7 @@ const clientType = {
   isWindows: !!ua.match(/Window/i), // windows
   isIe: newLocal, // IE
   isSafari: isSafari(),
-  isMobileSafari: false,
+  isMobileSafari: false
 };
 
 clientType.isMobileSafari = clientType.isMobile && clientType.isSafari;

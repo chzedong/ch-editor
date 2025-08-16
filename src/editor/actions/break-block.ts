@@ -1,23 +1,23 @@
-import { getBlockIndex } from "../../block/block-dom";
-import { getContainerId, getParentContainer } from "../../container/container-dom";
-import { DocBlock, DocBlockText } from "../../index.type";
-import { deleteText } from "../../text/delete-text";
-import { splitText } from "../../text/text-utils";
-import { assert } from "../../utils/assert";
-import { genId } from "../../utils/get-id";
-import { Editor } from "../editor";
-import { isTextKindBlock } from "../editor-blocks";
-import { cloneDeep } from "lodash-es";
+import { getBlockIndex } from '../../block/block-dom';
+import { getContainerId, getParentContainer } from '../../container/container-dom';
+import { DocBlock, DocBlockText } from '../../index.type';
+import { deleteText } from '../../text/delete-text';
+import { splitText } from '../../text/text-utils';
+import { assert } from '../../utils/assert';
+import { genId } from '../../utils/get-id';
+import { Editor } from '../editor';
+import { isTextKindBlock } from '../editor-blocks';
+import { cloneDeep } from 'lodash-es';
 
 export const breakBlock = (editor: Editor) => {
   const isCollapsed = editor.selection.range.isCollapsed();
-  assert(isCollapsed, "Selection must be collapsed to break block");
+  assert(isCollapsed, 'Selection must be collapsed to break block');
 
   const { blockId, offset } = editor.selection.range.start;
 
   const block = editor.getBlockById(blockId);
 
-  assert(isTextKindBlock(editor, block), "Block must be text kind to break");
+  assert(isTextKindBlock(editor, block), 'Block must be text kind to break');
 
   const blockData = editor.getBlockData(block);
   const text = blockData.text as DocBlockText;
@@ -37,7 +37,7 @@ export const breakBlock = (editor: Editor) => {
   const newBlockData: DocBlock = {
     ...cloneDeep(blockData),
     id: genId(),
-    text: right,
+    text: right
   };
   editor.insertBlock(containerId, blockIndex + 1, newBlockData);
 

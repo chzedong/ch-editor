@@ -198,7 +198,7 @@ function tryPrecisePositioning(targetTextNode: Node, x: number, y: number): { te
 
   // 首先遍历所有位置，找到在正确y范围内的候选位置
   const validCandidates: { offset: number; rect: DOMRect; distance: number }[] = [];
-  
+
   for (let offset = 0; offset <= textLength; offset++) {
     const rect = getRangeRectAtOffset(targetTextNode, offset);
     if (rect && y >= rect.top && y <= rect.bottom) {
@@ -214,13 +214,13 @@ function tryPrecisePositioning(targetTextNode: Node, x: number, y: number): { te
     if (startRect && y < startRect.top) {
       return { textNode: targetTextNode, offset: 0 };
     }
-    
+
     // 检查是否在文本结束之后
     const endRect = getRangeRectAtOffset(targetTextNode, textLength);
     if (endRect && y > endRect.bottom) {
       return { textNode: targetTextNode, offset: textLength };
     }
-    
+
     // 默认返回文本中间位置
     return { textNode: targetTextNode, offset: Math.floor(textLength / 2) };
   }
@@ -262,7 +262,7 @@ function getRangeRectAtOffset(textNode: Node, offset: number): DOMRect | null {
         return new DOMRect(charRect.left, charRect.top, 0, charRect.height);
       }
     }
-    
+
     // 如果还是没有矩形，尝试获取前一个字符的位置
     if (offset > 0) {
       range.setStart(textNode, offset - 1);
@@ -329,7 +329,7 @@ export class TextLine {
       child,
       startBlockOffset: startOffset,
       endBlockOffset: endOffset,
-      contentRect,
+      contentRect
     });
 
     this._endOffset = endOffset;
@@ -465,7 +465,7 @@ export class LineBreaker {
         offsetInfo.textNode,
         rect.right,
         rect.bottom - 1
-      )
+      );
       assert(offsetInfo.textNode === textNode, '偏移量计算应返回同一文本节点');
 
       const segmentLength = offsetInfo.offset - processedOffset;
@@ -585,7 +585,7 @@ export class LineBreaker {
             return {
               offset: Math.min(absoluteOffset, item.endBlockOffset),
               type,
-              blockId: this._blockId,
+              blockId: this._blockId
             };
           }
         }

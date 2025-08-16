@@ -1,13 +1,13 @@
-import { Editor } from "../editor/editor";
+import { Editor } from '../editor/editor';
 import {
   getContainerId,
   getParentContainer
-} from "../container/container-dom";
-import { getBlockIndex } from "../block/block-dom";
-import { getDocTextLength } from "./text-utils";
-import { assert } from "../utils/assert";
+} from '../container/container-dom';
+import { getBlockIndex } from '../block/block-dom';
+import { getDocTextLength } from './text-utils';
+import { assert } from '../utils/assert';
 
-import { DocBlockAttributes, DocBlockTextActionOp } from "../index.type";
+import { DocBlockAttributes, DocBlockTextActionOp } from '../index.type';
 
 export function editorInsertText(editor: Editor, text: string) {
   const pos = editor.selection.range.start;
@@ -39,15 +39,15 @@ export function createInsertOp(
   const ops = [];
   if (offset > 0) {
     ops.push({
-      retain: offset,
+      retain: offset
     });
   }
   const newText = text
-    .replaceAll("\r\n", " ")
-    .replaceAll("\n", " ")
-    .replaceAll("\r", " ");
+    .replaceAll('\r\n', ' ')
+    .replaceAll('\n', ' ')
+    .replaceAll('\r', ' ');
   const textOp: DocBlockTextActionOp = {
-    insert: newText,
+    insert: newText
   };
   if (attributes) {
     textOp.attributes = attributes;
@@ -63,7 +63,7 @@ export function getTextAttributes(
   offset: number
 ) {
   const blockData = editor.doc.getBlockData(containerId, blockIndex);
-  assert(blockData.text, "no block text");
+  assert(blockData.text, 'no block text');
   if (getDocTextLength(blockData.text) === 0) {
     return null;
   }

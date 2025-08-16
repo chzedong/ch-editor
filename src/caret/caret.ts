@@ -1,40 +1,39 @@
-import { Editor } from "../editor/editor";
-import { isTextKindBlock } from "../editor/editor-blocks";
-import { getTextCaretRect } from "../line/index";
-import { createElement } from "../utils/dom";
+import { Editor } from '../editor/editor';
+import { isTextKindBlock } from '../editor/editor-blocks';
+import { getTextCaretRect } from '../line/index';
+import { createElement } from '../utils/dom';
 import './caret.scss';
 
 export class Caret {
-  caret: HTMLElement
+  caret: HTMLElement;
   constructor(private editor: Editor) {
-    this.caret = createElement('div', ['editor-caret'], editor.rootContainer)
+    this.caret = createElement('div', ['editor-caret'], editor.rootContainer);
     // this.update()
   }
 
   private hasCaret() {
     if (!this.editor.selection.range.isCollapsed()) {
-      return false
+      return false;
     }
     const block = this.editor.getBlockById(this.editor.selection.range.start.blockId);
 
     if (!isTextKindBlock(this.editor, block)) {
-      return false
+      return false;
     }
 
-    return true
+    return true;
   }
 
   update() {
     if (!this.hasCaret()) {
-      this.caret.style.display = 'none'
+      this.caret.style.display = 'none';
       return;
     } else {
-      this.caret.style.display = ''
+      this.caret.style.display = '';
     }
-    const { range } = this.editor.selection
-    const pos = range.start
-    let rect: DOMRect;
-    rect = getTextCaretRect(this.editor.getBlockById(pos.blockId), pos);
+    const { range } = this.editor.selection;
+    const pos = range.start;
+    const rect: DOMRect = getTextCaretRect(this.editor.getBlockById(pos.blockId), pos);
 
     const contentRect = this.editor.rootContainer.getBoundingClientRect();
     const x = rect.left - contentRect.left;
@@ -52,5 +51,5 @@ export class Caret {
 }
 
 export const isCaret = (dom: HTMLElement) => {
-  return dom.classList.contains('editor-caret')
-}
+  return dom.classList.contains('editor-caret');
+};

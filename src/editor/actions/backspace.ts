@@ -1,9 +1,9 @@
-import { getBlockIndex } from "../../block/block-dom";
+import { getBlockIndex } from '../../block/block-dom';
 import {
   getContainerId,
   getParentContainer
-} from "../../container/container-dom";
-import { Editor } from "../editor";
+} from '../../container/container-dom';
+import { Editor } from '../editor';
 
 export function backspace(editor: Editor) {
 
@@ -17,13 +17,13 @@ export function backspace(editor: Editor) {
   if (editor.selection.range.isCollapsed()) {
     editor.doc.localUpdateBlockText(containerId, blockIndex, [
       { retain: focusPos.offset - 1 },
-      { delete: 1 },
-    ])
+      { delete: 1 }
+    ]);
     return true;
   } else {
     editor.doc.localUpdateBlockText(containerId, blockIndex, [
       { retain: editor.selection.range.start.offset },
-      { delete: Math.abs(focusPos.offset - anchor.offset) },
+      { delete: Math.abs(focusPos.offset - anchor.offset) }
     ]);
     return true;
   }

@@ -1,10 +1,10 @@
-import { getBlockId, getBlockType, isLastBlock } from "../../block/block-dom";
-import { Editor } from "../editor";
-import { DocBlockText } from "../../index.type";
-import { assert } from "../../utils/assert";
-import { EditorBlockPosition } from "../../selection/block-position";
-import { isTextKindBlock } from "../editor-blocks";
-import { editorGetNextWordEnd } from "./move-word-right";
+import { getBlockId, getBlockType, isLastBlock } from '../../block/block-dom';
+import { Editor } from '../editor';
+import { DocBlockText } from '../../index.type';
+import { assert } from '../../utils/assert';
+import { EditorBlockPosition } from '../../selection/block-position';
+import { isTextKindBlock } from '../editor-blocks';
+import { editorGetNextWordEnd } from './move-word-right';
 
 export function selectWordRight(editor: Editor) {
   const focusPos = editor.selection.range.focus;
@@ -12,13 +12,13 @@ export function selectWordRight(editor: Editor) {
   const blockClass = editor.editorBlocks.getBlockClass(getBlockType(block));
   //
   const blockLen = blockClass.getBlockTextLength(block);
-  assert(focusPos.offset <= blockLen, "focusPos.offset not <= blockLen");
+  assert(focusPos.offset <= blockLen, 'focusPos.offset not <= blockLen');
   const blockData = editor.getBlockData(block);
   //
-  assert(isTextKindBlock(editor, block), "not text kind block");
+  assert(isTextKindBlock(editor, block), 'not text kind block');
   //
   if (focusPos.offset < blockLen) {
-    assert(blockData.text, "not has text");
+    assert(blockData.text, 'not has text');
     const offset = editorGetNextWordEnd(blockData.text, focusPos.offset, blockLen);
     if (offset !== -1) {
       const newFocusPos = new EditorBlockPosition(focusPos.blockId, offset);
@@ -30,7 +30,7 @@ export function selectWordRight(editor: Editor) {
   if (!isLastBlock(block)) {
     const nextBlock = block.nextElementSibling as HTMLElement;
 
-    assert(isTextKindBlock(editor, nextBlock), "not text kind block");
+    assert(isTextKindBlock(editor, nextBlock), 'not text kind block');
 
     const nextBlockData = editor.getBlockData(nextBlock);
     const nextBlockClass = editor.editorBlocks.getBlockClass(getBlockType(nextBlock));

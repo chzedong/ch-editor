@@ -1,5 +1,5 @@
-import { EditorBlockPosition } from "./block-position";
-import { Editor } from "../editor/editor";
+import { EditorBlockPosition } from './block-position';
+import { Editor } from '../editor/editor';
 
 export class EditorSelectionRange {
   readonly editor: Editor;
@@ -13,13 +13,13 @@ export class EditorSelectionRange {
     this._focus = options.focus;
     // TODO: 简单选区是否reverse
     if (this.anchor.blockId === this.focus.blockId) {
-      this.reverse = this.focus.offset < this.anchor.offset
+      this.reverse = this.focus.offset < this.anchor.offset;
     } else {
       const containerId = 'root';
       const anchorBlockIndex = this.editor.doc.getBlockIndexById(containerId, this.anchor.blockId);
       const focusBlockIndex = this.editor.doc.getBlockIndexById(containerId, this.focus.blockId);
 
-      this.reverse = focusBlockIndex < anchorBlockIndex ? true : false
+      this.reverse = focusBlockIndex < anchorBlockIndex ? true : false;
     }
   }
 
