@@ -1,23 +1,18 @@
-import { Editor } from './editor/editor';
-import './caret/caret';
+import { Editor, setupEditorDebug } from '@ch-editor/core';
 import './style.css';
-import { setupEditorDebug } from './debug/example';
-
 
 let doc = localStorage.getItem('doc');
 if (doc) {
-  // doc = JSON.parse(doc);
-  doc = undefined;
+  doc = JSON.parse(doc);
+  // doc = undefined;
 }
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
 const editor = new Editor(app, { initDoc: doc });
 editor.focus();
 
-
 const docElement = document.querySelector<HTMLDivElement>('#doc') as HTMLElement;
 docElement.innerText = JSON.stringify(editor.doc.doc);
-
 
 const mousePointSign = document.createElement('div');
 mousePointSign.id = 'mouse-point-sign';
@@ -33,12 +28,11 @@ app.addEventListener('mousedown', (e) => {
   mousePointSign.innerText = `${clientX}, ${clientY}`;
 });
 
-
 setInterval(() => {
   docElement.innerText = JSON.stringify(editor.doc.doc, undefined, 2);
   localStorage.setItem('doc', JSON.stringify(editor.doc.doc));
-}, 1000);
+}, 1000)
 
-(window as any).editor = editor;
+;(window as any).editor = editor;
 
 setupEditorDebug(app);

@@ -1,31 +1,23 @@
 {
-  "name": "my-editor",
+  "name": "ch-editor-monorepo",
   "version": "0.0.2",
+  "type": "module",
+  "private": true,
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "serve": "vite preview",
-    "lint": "eslint src --ext .ts,.js",
-    "lint:fix": "eslint src --ext .ts,.js --fix"
+    "dev": "pnpm --filter @ch-editor/demo dev",
+    "build": "pnpm --filter @ch-editor/core build && pnpm --filter @ch-editor/demo build",
+    "build:core": "pnpm --filter @ch-editor/core build",
+    "build:demo": "pnpm --filter @ch-editor/demo build",
+    "serve": "pnpm --filter @ch-editor/demo serve",
+    "lint": "eslint . --ext ts,js --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext ts,js --report-unused-disable-directives --max-warnings 0 --fix"
   },
   "devDependencies": {
-    "@eslint/js": "^9.33.0",
-    "@types/events": "^3.0.0",
+    "@eslint/js": "^9.17.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
-    "eslint": "^9.0.0",
-    "globals": "^16.3.0",
-    "sass": "^1.83.0",
-    "typescript": "^4.3.2",
-    "vite": "^2.5.4"
-  },
-  "dependencies": {
-    "@types/lodash-es": "^4.17.12",
-    "events": "^3.3.0",
-    "lodash-es": "^4.17.21",
-    "nanoid": "^4.0.0",
-    "quill-delta": "^4.2.2",
-    "snabbdom": "3.3.1",
-    "tiny-typed-emitter": "^2.1.0"
+    "eslint": "^9.17.0",
+    "globals": "^15.14.0",
+    "typescript": "^4.3.2"
   }
 }
