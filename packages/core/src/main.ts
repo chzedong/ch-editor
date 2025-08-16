@@ -11,7 +11,8 @@ export type {
   Block,
   BlockPath,
   ShortcutsRecord,
-  InputHandler
+  InputHandler,
+  DocObject
 } from './index.type';
 
 // Utils

@@ -9,8 +9,8 @@
     "build:core": "pnpm --filter @ch-editor/core build",
     "build:demo": "pnpm --filter @ch-editor/demo build",
     "serve": "pnpm --filter @ch-editor/demo serve",
-    "lint": "eslint . --ext ts,js --report-unused-disable-directives --max-warnings 0",
-    "lint:fix": "eslint . --ext ts,js --report-unused-disable-directives --max-warnings 0 --fix"
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --report-unused-disable-directives --max-warnings 0 --fix"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

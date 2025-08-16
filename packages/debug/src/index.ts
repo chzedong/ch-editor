@@ -1,4 +1,4 @@
-import { TextLine } from '@ch-editor/core';
+import { DocObject, TextLine } from '@ch-editor/core';
 import { DebugPanel } from './debug-panel';
 
 /**
@@ -6,18 +6,9 @@ import { DebugPanel } from './debug-panel';
  */
 export class DebugManager {
   private debugPanel: DebugPanel | null = null;
-  private isInitialized = false;
 
-  /**
-   * 初始化调试工具
-   */
   init(): void {
-    if (this.isInitialized) {
-      return;
-    }
-
     this.debugPanel = new DebugPanel();
-    this.isInitialized = true;
   }
 
   /**
@@ -32,7 +23,7 @@ export class DebugManager {
   /**
    * 更新文档信息
    */
-  updateDocInfo(docInfo: any): void {
+  updateDocInfo(docInfo: DocObject): void {
     if (this.debugPanel) {
       this.debugPanel.updateDocInfo(docInfo);
     }

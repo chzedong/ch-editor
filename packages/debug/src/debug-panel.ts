@@ -1,4 +1,4 @@
-import { TextLine } from '@ch-editor/core';
+import { DocBlock, DocObject, TextLine } from '@ch-editor/core';
 import { LineModelVisualizer } from './line-model-visualizer';
 import { DocInfoPanel } from './doc-info-panel';
 
@@ -19,7 +19,6 @@ export class DebugPanel {
   private toggleButton: HTMLElement;
   private isOpen: boolean = false;
   private tabs: Map<string, DebugPanelTab> = new Map();
-  private activeTabId: string | null = null;
 
   // 子组件
   private lineModelVisualizer: LineModelVisualizer;
@@ -208,7 +207,6 @@ export class DebugPanel {
     // 更新内容
     this.contentContainer.innerHTML = '';
     this.contentContainer.appendChild(tab.content);
-    this.activeTabId = tabId;
   }
 
   /**
@@ -252,7 +250,7 @@ export class DebugPanel {
   /**
    * 更新文档信息
    */
-  updateDocInfo(docInfo: any): void {
+  updateDocInfo(docInfo: DocObject): void {
     this.docInfoPanel.updateDocInfo(docInfo);
   }
 

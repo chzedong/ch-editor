@@ -54,6 +54,6 @@ export default [
     },
   },
   {
-    ignores: ['dist/', 'node_modules/', '*.min.js', 'vite.config.ts'],
+    ignores: ['**/dist/**', '**/node_modules/**', '**/*.min.js', '**/vite.config.ts'],
   },
 ];

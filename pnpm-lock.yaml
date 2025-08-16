@@ -63,13 +63,6 @@ importers:
       '@ch-editor/core':
         specifier: workspace:*
         version: link:../core
-    devDependencies:
-      typescript:
-        specifier: ^4.3.2
-        version: 4.9.5
-      vite:
-        specifier: ^2.5.4
-        version: 2.9.18(sass@1.90.0)
 
   packages/demo:
     dependencies:
@@ -80,15 +73,9 @@ importers:
         specifier: workspace:*
         version: link:../debug
     devDependencies:
-      '@types/node':
-        specifier: ^18.0.0
-        version: 18.19.123
       sass:
         specifier: ^1.83.0
         version: 1.90.0
-      typescript:
-        specifier: ^4.3.2
-        version: 4.9.5
       vite:
         specifier: ^2.5.4
         version: 2.9.18(sass@1.90.0)
@@ -264,9 +251,6 @@ packages:
 
   '@types/lodash@4.17.20':
     resolution: {integrity: sha512-H3MHACvFUEiujabxhaI/ImO6gUrd8oOurg7LQtS7mbwIXA/cUqWrvBsaeJ23aZEPk1TAYkurjfMbSELfoCXlGA==}
-
-  '@types/node@18.19.123':
-    resolution: {integrity: sha512-K7DIaHnh0mzVxreCR9qwgNxp3MH9dltPNIEddW9MYUlcKAzm+3grKNSTe2vCJHI1FaLpvpL5JGJrz1UZDKYvDg==}
 
   '@typescript-eslint/eslint-plugin@8.39.1':
     resolution: {integrity: sha512-yYegZ5n3Yr6eOcqgj2nJH8cH/ZZgF+l0YIdKILSDjYFRjgYQMgv/lRjV5Z7Up04b9VYUondt8EPMqg7kTWgJ2g==}
@@ -897,9 +881,6 @@ packages:
     engines: {node: '>=4.2.0'}
     hasBin: true
 
-  undici-types@5.26.5:
-    resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
-
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
 
@@ -1076,10 +1057,6 @@ snapshots:
       '@types/lodash': 4.17.20
 
   '@types/lodash@4.17.20': {}
-
-  '@types/node@18.19.123':
-    dependencies:
-      undici-types: 5.26.5
 
   '@typescript-eslint/eslint-plugin@8.39.1(@typescript-eslint/parser@8.39.1(eslint@9.33.0)(typescript@4.9.5))(eslint@9.33.0)(typescript@4.9.5)':
     dependencies:
@@ -1658,8 +1635,6 @@ snapshots:
       prelude-ls: 1.2.1
 
   typescript@4.9.5: {}
-
-  undici-types@5.26.5: {}
 
   uri-js@4.4.1:
     dependencies:

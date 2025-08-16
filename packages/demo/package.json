@@ -12,9 +12,7 @@
     "@ch-editor/debug": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^18.0.0",
     "sass": "^1.83.0",
-    "typescript": "^4.3.2",
     "vite": "^2.5.4"
   }
 }
