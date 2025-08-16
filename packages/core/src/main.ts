@@ -2,7 +2,7 @@
 export { Editor } from './editor/editor';
 export { default as TextBlock } from './text/text-block';
 export { EditorSelection } from './selection/editor-selection';
-export { TextLine } from './line';
+export { TextLine, LineBreaker } from './line';
 
 // Types
 export type {

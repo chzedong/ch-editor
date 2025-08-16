@@ -9,6 +9,8 @@ import { transformSelection } from '../selection/selection-utils';
 export class EditorDoc {
   doc: DocObject;
   constructor(private editor: Editor, doc?: DocObject) {
+
+
     if (doc) {
       this.doc = doc;
     } else {
@@ -50,12 +52,27 @@ export class EditorDoc {
 
     const newRange = transformSelection(this.editor, blockData.id, actions);
     this.editor.selection.setSelection(newRange.anchor, newRange.focus);
+
+    this.editor.emit('docChange', {
+      type: 'update',
+      containerId,
+      blockIndex,
+      blockData
+    });
+
     return newText;
   }
 
   localInsertBlock(containerId: string, blockIndex: number, blockData: DocBlock) {
     const blocks = this.getContainerBlocks(containerId);
     blocks.splice(blockIndex, 0, blockData);
+
+    this.editor.emit('docChange', {
+      type: 'insert',
+      containerId,
+      blockIndex,
+      blockData
+    });
   }
 
   localDeleteBlock(containerId: string, blockIndex: number) {
@@ -64,5 +81,11 @@ export class EditorDoc {
     assert(blocks[blockIndex], 'no block');
 
     blocks.splice(blockIndex, 1);
+
+    this.editor.emit('docChange', {
+      type: 'delete',
+      containerId,
+      blockIndex
+    });
   }
 }

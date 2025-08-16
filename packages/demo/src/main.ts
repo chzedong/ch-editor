@@ -1,39 +1,31 @@
-import { Editor } from '@ch-editor/core';
-// import { setupEditorDebug } from '@ch-editor/debug';
+import { Editor, LineBreaker, TextLine } from '@ch-editor/core';
+import { initDebugTools } from '@ch-editor/debug';
 import './style.css';
 
-let doc = localStorage.getItem('doc');
-if (doc) {
-  doc = JSON.parse(doc);
-  // doc = undefined;
-}
-
 const app = document.querySelector<HTMLDivElement>('#app')!;
-const editor = new Editor(app, { initDoc: doc });
+const editor = new Editor(app, {});
 editor.focus();
-
-const docElement = document.querySelector<HTMLDivElement>('#doc') as HTMLElement;
-docElement.innerText = JSON.stringify(editor.doc.doc);
-
-const mousePointSign = document.createElement('div');
-mousePointSign.id = 'mouse-point-sign';
-mousePointSign.style.position = 'absolute';
-mousePointSign.style.width = '100px';
-mousePointSign.style.height = '22px';
-mousePointSign.style.pointerEvents = 'none';
-mousePointSign.style.zIndex = '9999';
-mousePointSign.style.top = '0';
-document.body.appendChild(mousePointSign);
-app.addEventListener('mousedown', (e) => {
-  const { clientX, clientY } = e;
-  mousePointSign.innerText = `${clientX}, ${clientY}`;
-});
-
-setInterval(() => {
-  docElement.innerText = JSON.stringify(editor.doc.doc, undefined, 2);
-  localStorage.setItem('doc', JSON.stringify(editor.doc.doc));
-}, 1000)
 
 ;(window as any).editor = editor;
 
-// setupEditorDebug(app);
+// 初始化调试工具
+const debugManager = initDebugTools();
+
+// 监听文档变化
+editor.on('docChange', () => {
+  debugManager.updateDocInfo(editor.doc.doc);
+  // debugManager.updateLines(editor.doc.doc.blocks);
+  const blockId = editor.selection.range.start.blockId;
+  const block = editor.findBlockById(blockId)!;
+  const lineBreaker = new LineBreaker(block);
+
+  debugManager.updateLines(lineBreaker.lines as TextLine[]);
+});
+
+editor.on('selectionChange', () => {
+  const blockId = editor.selection.range.start.blockId;
+  const block = editor.findBlockById(blockId)!;
+  const lineBreaker = new LineBreaker(block);
+
+  debugManager.updateLines(lineBreaker.lines as TextLine[]);
+});

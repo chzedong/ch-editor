@@ -55,6 +55,7 @@ export class EditorSelection {
     updateSelection(this.editor);
 
     this.editor.focus();
+    this.editor.emit('selectionChange');
     return this._range;
   }
 
