@@ -58,11 +58,27 @@ importers:
         specifier: ^2.5.4
         version: 2.9.18(sass@1.90.0)
 
+  packages/debug:
+    dependencies:
+      '@ch-editor/core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      typescript:
+        specifier: ^4.3.2
+        version: 4.9.5
+      vite:
+        specifier: ^2.5.4
+        version: 2.9.18(sass@1.90.0)
+
   packages/demo:
     dependencies:
       '@ch-editor/core':
         specifier: workspace:*
         version: link:../core
+      '@ch-editor/debug':
+        specifier: workspace:*
+        version: link:../debug
     devDependencies:
       '@types/node':
         specifier: ^18.0.0

@@ -1,4 +1,4 @@
-import { TextLine } from '../line';
+import { TextLine } from '@ch-editor/core';
 
 /**
  * Line模型可视化调试工具

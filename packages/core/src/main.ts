@@ -2,6 +2,7 @@
 export { Editor } from './editor/editor';
 export { default as TextBlock } from './text/text-block';
 export { EditorSelection } from './selection/editor-selection';
+export { TextLine } from './line';
 
 // Types
 export type {
@@ -19,9 +20,8 @@ export { genId as getId } from './utils/get-id';
 export * from './utils/key';
 export * from './utils/dom';
 
-// Debug
-export { setupEditorDebug } from './debug/example';
-
 // Import styles
 import './caret/caret.scss';
 import './block/block.scss';
+import './style.scss';
+

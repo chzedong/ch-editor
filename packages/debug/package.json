@@ -1,0 +1,26 @@
+{
+  "name": "@ch-editor/debug",
+  "version": "0.0.1",
+  "description": "CH Editor Debug Tools",
+  "main": "src/index.ts",
+  "module": "src/index.ts",
+  "types": "src/index.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@ch-editor/core": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^4.3.2",
+    "vite": "^2.5.4"
+  },
+  "peerDependencies": {},
+  "keywords": [
+    "editor",
+    "debug",
+    "visualization"
+  ],
+  "author": "",
+  "license": "MIT"
+}

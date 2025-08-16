@@ -3,8 +3,6 @@ import { getTextBlockContentChildTextLength } from '../text/text-utils';
 import { BlockElement, TextBlockContentChild } from '../index.type';
 import { SimpleBlockPosition, SimpleBlockPositionType } from '../selection/block-position';
 import { getBlockContent } from '../block/block-dom';
-import { isCaret } from '../caret/caret';
-import { debugManager } from '../debug';
 
 // 背景
 // 编辑器采用自主研发的输入引擎架构，系统基于模块化文档模型
@@ -394,8 +392,6 @@ export class LineBreaker {
     this._block = block;
     this._blockId = block.id;
     this._parseBlockContent();
-    // 通知调试管理器更新line数据
-    this._notifyDebugManager();
   }
 
   get lineCount(): number {
@@ -690,18 +686,6 @@ export class LineBreaker {
       }
     }
     return undefined;
-  }
-
-  /**
-   * 通知调试管理器更新line数据
-   */
-  private _notifyDebugManager(): void {
-    try {
-      debugManager.updateLines([...this._lines]);
-    } catch (error) {
-      // 调试功能不应影响正常功能，静默处理错误
-      console.warn('Debug manager update failed:', error);
-    }
   }
 }
 

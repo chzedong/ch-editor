@@ -16,7 +16,7 @@ body {
 /* 主编辑器容器 */
 #app {
   /* width: calc(100vw - 320px); */
-  width: 400px;
+  width: 500px;
   min-height: 100vh;
   padding: 4rem;
   margin-left: 20px;

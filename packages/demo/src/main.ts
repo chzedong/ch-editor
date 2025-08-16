@@ -1,5 +1,5 @@
-import { Editor, setupEditorDebug } from '@ch-editor/core';
-import '@ch-editor/core/dist/style.css';
+import { Editor } from '@ch-editor/core';
+// import { setupEditorDebug } from '@ch-editor/debug';
 import './style.css';
 
 let doc = localStorage.getItem('doc');
@@ -36,4 +36,4 @@ setInterval(() => {
 
 ;(window as any).editor = editor;
 
-setupEditorDebug(app);
+// setupEditorDebug(app);

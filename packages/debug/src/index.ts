@@ -1,5 +1,5 @@
 import { LineVisualizer } from './line-visualizer';
-import { TextLine } from '../line';
+import { TextLine } from '@ch-editor/core';
 
 /**
  * 调试工具管理器
