@@ -25,4 +25,3 @@ export { setupEditorDebug } from './debug/example';
 // Import styles
 import './caret/caret.scss';
 import './block/block.scss';
-import './style.css';

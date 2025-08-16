@@ -1,4 +1,5 @@
 import { Editor, setupEditorDebug } from '@ch-editor/core';
+import '@ch-editor/core/dist/style.css';
 import './style.css';
 
 let doc = localStorage.getItem('doc');

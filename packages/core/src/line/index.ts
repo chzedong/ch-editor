@@ -746,4 +746,4 @@ export function getTextBlockContentChildren(block: HTMLElement) {
   return children;
 }
 
-window.getOffsetFromPoint = getOffsetFromPoint;
+// window.getOffsetFromPoint = getOffsetFromPoint;

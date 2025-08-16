@@ -2,14 +2,16 @@
   "name": "@ch-editor/core",
   "version": "0.0.2",
   "description": "CH Editor Core Library",
-  "main": "dist/index.js",
-  "module": "dist/index.esm.js",
-  "types": "dist/index.d.ts",
+  "main": "src/main.ts",
+  "module": "src/main.ts",
+  "types": "src/main.ts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsc && vite build",
+    "build": "npm run build:code && npm run build:pkg",
+    "build:code": "vite build && tsc --emitDeclarationOnly",
+    "build:pkg": "node scripts/build-package.js",
     "dev": "tsc --watch"
   },
   "dependencies": {
