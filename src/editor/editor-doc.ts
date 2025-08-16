@@ -17,7 +17,7 @@ export class EditorDoc {
           {
             id: genId(),
             type: "text",
-            text: [{ insert: "hello" }],
+            text: [{ insert: "" }],
           },
         ],
       };
@@ -43,7 +43,6 @@ export class EditorDoc {
   localUpdateBlockText(containerId: string, blockIndex: number, actions: DocBlockTextActions) {
     const blockData = this.getBlockData(containerId, blockIndex);
     assert(blockData.text, "no text");
-    console.log("apply", blockData.text, actions);
     const newText = RichText.apply(blockData.text, actions);
     blockData.text = newText;
     const block = this.editor.getBlockById(blockData.id);

@@ -27,10 +27,15 @@ function findNextWordEnd(ops: DocBlockText, offset: number, isSpan: boolean, len
 
 
 
-  
+
 }
 
-function editorGetNextWordEnd(ops: DocBlockText, offset: number, len: number) {
+export function editorGetNextWordEnd(ops: DocBlockText, offset: number, len: number) {
+
+  if(ops.length === 0) {
+    return 0;
+  }
+
   const { middle } = splitToThree(ops, offset, 1);
   assert(middle.length === 1, "middle not 1");
   assert(middle[0].insert.length === 1, "middle first op length not 1");

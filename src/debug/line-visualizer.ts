@@ -72,7 +72,6 @@ export class LineVisualizer {
    * 设置要可视化的行数据
    */
   setLines(lines: TextLine[]): void {
-    console.log(11122);
     this.lines = lines;
     if (this.isEnabled) {
       this.redraw();

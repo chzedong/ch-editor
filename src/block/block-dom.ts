@@ -106,3 +106,12 @@ export function createBackgroundChild(background: HTMLElement, rect: DOMRect) {
   bkgChild.style.height = `${rect.height}px`;
   return bkgChild
 }
+
+export function getPrevBlock(block: HTMLElement) {
+  const container = getParentContainer(block);
+  const children = getChildBlocks(container);
+  const index = children.indexOf(block);
+  assert(index !== -1, 'invalid block')
+  assert(index > 0, 'no prev block')
+  return children[index - 1];
+}

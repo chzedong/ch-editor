@@ -137,8 +137,34 @@ function getTextBlockLength(block: BlockElement): number {
 
 /**
  * 从坐标点获取偏移量信息
+ * @param targetTextNode 目标文本节点，用于验证快速定位结果
+ * @param x 坐标x
+ * @param y 坐标y
+ * @returns 文本节点和偏移量信息
  */
-function getOffsetFromPoint(x: number, y: number): { textNode: Node | null; offset: number } {
+function getOffsetFromPoint(targetTextNode: Node | null, x: number, y: number): { textNode: Node | null; offset: number } {
+  // 第一步：尝试快速定位
+  const fastResult = tryFastPositioning(x, y);
+
+  // 如果快速定位成功且节点匹配，直接返回
+  if (fastResult.textNode && targetTextNode &&
+      (fastResult.textNode === targetTextNode || fastResult.textNode.parentNode === targetTextNode)) {
+    return fastResult;
+  }
+
+  // 第二步：降级使用精确定位
+  if (targetTextNode) {
+    return tryPrecisePositioning(targetTextNode, x, y);
+  }
+
+  // 如果没有目标节点，返回快速定位结果
+  return fastResult;
+}
+
+/**
+ * 快速定位方法
+ */
+function tryFastPositioning(x: number, y: number): { textNode: Node | null; offset: number } {
   let range: any;
   let textNode = null;
   let offset = -1;
@@ -157,74 +183,103 @@ function getOffsetFromPoint(x: number, y: number): { textNode: Node | null; offs
     }
   }
 
-  // 如果返回的不是文本节点（可能是光标div等元素），使用-2px策略重新定位
-  if (textNode instanceof HTMLElement && isCaret(textNode)) {
-    // 尝试向左偏移2px重新获取位置
-    const adjustedX = x - 2;
-    let adjustedRange: any;
-    let adjustedTextNode = null;
-    let adjustedOffset = -1;
+  return { textNode, offset };
+}
 
-    if ((document as any).caretPositionFromPoint) {
-      adjustedRange = (document as any).caretPositionFromPoint(adjustedX, y);
-      if (adjustedRange) {
-        adjustedTextNode = adjustedRange.offsetNode;
-        adjustedOffset = adjustedRange.offset;
-      }
-    } else if (document.caretRangeFromPoint) {
-      adjustedRange = document.caretRangeFromPoint(adjustedX, y);
-      if (adjustedRange) {
-        adjustedTextNode = adjustedRange.startContainer;
-        adjustedOffset = adjustedRange.startOffset;
-      }
-    }
+/**
+ * 精确定位方法，使用Range API进行二分查找
+ */
+function tryPrecisePositioning(targetTextNode: Node, x: number, y: number): { textNode: Node | null; offset: number } {
+  // 获取文本节点的长度
+  const textLength = targetTextNode.textContent?.length || 0;
+  if (textLength === 0) {
+    return { textNode: targetTextNode, offset: 0 };
+  }
 
-    // 如果-2px后获取到了文本节点，则使用该节点进行后续计算
-    if (adjustedTextNode && adjustedTextNode.nodeType === Node.TEXT_NODE) {
-      textNode = adjustedTextNode as Text;
-      const textContent = textNode.textContent || '';
-
-      // 从调整后的偏移量开始，逐步计算到行尾的有效偏移量
-      let currentOffset = Math.max(0, adjustedOffset);
-      const maxOffset = textContent.length;
-
-      // 使用range检测每个偏移量是否还在同一行
-      const testRange = document.createRange();
-      let validOffset = currentOffset;
-
-      try {
-        // 获取起始位置的矩形
-        testRange.setStart(textNode, currentOffset);
-        testRange.setEnd(textNode, currentOffset);
-        const startRect = testRange.getBoundingClientRect();
-
-        // 逐步向后检测，直到换行或到达文本末尾
-        for (let i = currentOffset + 1; i <= maxOffset; i++) {
-          testRange.setStart(textNode, i);
-          testRange.setEnd(textNode, i);
-          const currentRect = testRange.getBoundingClientRect();
-
-          // 如果y坐标发生显著变化，说明换行了
-          if (Math.abs(currentRect.top - startRect.top) > 2) {
-            break;
-          }
-          validOffset = i;
-        }
-
-        offset = validOffset;
-      } catch (e) {
-        // 如果range操作失败，使用调整后的偏移量
-        offset = currentOffset;
-      }
-    } else {
-      // TODO: box 的场景
-      // 如果-2px也没有命中文本节点，说明文本长度不足2px，默认偏移量为0
-      offset = 0;
-      textNode = null;
+  // 首先遍历所有位置，找到在正确y范围内的候选位置
+  const validCandidates: { offset: number; rect: DOMRect; distance: number }[] = [];
+  
+  for (let offset = 0; offset <= textLength; offset++) {
+    const rect = getRangeRectAtOffset(targetTextNode, offset);
+    if (rect && y >= rect.top && y <= rect.bottom) {
+      const distance = Math.abs(rect.left - x) + Math.abs(rect.top + rect.height / 2 - y);
+      validCandidates.push({ offset, rect, distance });
     }
   }
 
-  return { textNode, offset };
+  // 如果没有找到有效候选位置，返回最接近的边界位置
+  if (validCandidates.length === 0) {
+    // 检查是否在文本开始之前
+    const startRect = getRangeRectAtOffset(targetTextNode, 0);
+    if (startRect && y < startRect.top) {
+      return { textNode: targetTextNode, offset: 0 };
+    }
+    
+    // 检查是否在文本结束之后
+    const endRect = getRangeRectAtOffset(targetTextNode, textLength);
+    if (endRect && y > endRect.bottom) {
+      return { textNode: targetTextNode, offset: textLength };
+    }
+    
+    // 默认返回文本中间位置
+    return { textNode: targetTextNode, offset: Math.floor(textLength / 2) };
+  }
+
+  // 找到距离最小的候选位置
+  let bestCandidate = validCandidates[0];
+  for (const candidate of validCandidates) {
+    if (candidate.distance < bestCandidate.distance) {
+      bestCandidate = candidate;
+    }
+  }
+
+  return { textNode: targetTextNode, offset: bestCandidate.offset };
+}
+
+/**
+ * 获取指定偏移量处的Range矩形
+ */
+function getRangeRectAtOffset(textNode: Node, offset: number): DOMRect | null {
+  try {
+    const range = document.createRange();
+    range.setStart(textNode, offset);
+    range.setEnd(textNode, offset);
+
+    const rects = range.getClientRects();
+    if (rects.length > 0) {
+      // 如果有多个矩形（断行处），返回第一个矩形
+      // 这通常是正确的，因为我们要的是光标位置
+      return rects[0];
+    }
+
+    // 如果没有矩形，尝试创建一个包含单个字符的范围
+    if (offset < (textNode.textContent?.length || 0)) {
+      range.setEnd(textNode, offset + 1);
+      const charRects = range.getClientRects();
+      if (charRects.length > 0) {
+        const charRect = charRects[0];
+        // 返回字符左边缘的位置
+        return new DOMRect(charRect.left, charRect.top, 0, charRect.height);
+      }
+    }
+    
+    // 如果还是没有矩形，尝试获取前一个字符的位置
+    if (offset > 0) {
+      range.setStart(textNode, offset - 1);
+      range.setEnd(textNode, offset);
+      const prevRects = range.getClientRects();
+      if (prevRects.length > 0) {
+        const prevRect = prevRects[prevRects.length - 1]; // 取最后一个矩形
+        // 返回前一个字符的右边缘位置
+        return new DOMRect(prevRect.right, prevRect.top, 0, prevRect.height);
+      }
+    }
+  } catch (e) {
+    // 忽略Range创建错误
+    console.warn('getRangeRectAtOffset error:', e);
+  }
+
+  return null;
 }
 /**
  * TextLine 类
@@ -402,7 +457,15 @@ export class LineBreaker {
     let resultLine = currentLine;
 
     for (const [rectIndex, rect] of textRects.entries()) {
-      const offsetInfo = getOffsetFromPoint(rect.right, rect.bottom - 1);
+      const offsetInfo = getOffsetFromPoint(textNode, rect.right, rect.bottom - 1);
+
+      console.log(
+        'offsetInfo',
+        offsetInfo.offset,
+        offsetInfo.textNode,
+        rect.right,
+        rect.bottom - 1
+      )
       assert(offsetInfo.textNode === textNode, '偏移量计算应返回同一文本节点');
 
       const segmentLength = offsetInfo.offset - processedOffset;
@@ -504,14 +567,24 @@ export class LineBreaker {
         // 在当前item内，需要精确计算偏移量
         const textNode = item.child.firstChild;
         if (textNode instanceof Text) {
-          const offsetInfo = getOffsetFromPoint(x, y);
+          const offsetInfo = getOffsetFromPoint(textNode, x, y);
+
           if (offsetInfo.textNode === textNode && offsetInfo.offset >= 0) {
             const relativeOffset = offsetInfo.offset;
             const startBlockOffset = this._findFirstItemForChild(item.child)?.startBlockOffset ?? 0;
             const absoluteOffset = startBlockOffset + relativeOffset;
+
+            // 计算type
+            let type: SimpleBlockPositionType = 'middle';
+            if (offsetInfo.offset === item.startBlockOffset) {
+              type = 'home';
+            } else if (offsetInfo.offset === item.endBlockOffset) {
+              type = 'end';
+            }
+
             return {
               offset: Math.min(absoluteOffset, item.endBlockOffset),
-              type: 'middle',
+              type,
               blockId: this._blockId,
             };
           }
@@ -672,3 +745,5 @@ export function getTextBlockContentChildren(block: HTMLElement) {
   // 可以加断言验证
   return children;
 }
+
+window.getOffsetFromPoint = getOffsetFromPoint;

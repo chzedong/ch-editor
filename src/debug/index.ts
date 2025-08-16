@@ -36,7 +36,6 @@ export class DebugManager {
   toggleLineVisualizer(): void {
     if (this.lineVisualizer) {
       this.lineVisualizer.toggle();
-      console.log('Line visualizer toggled');
     }
   }
 
@@ -46,7 +45,6 @@ export class DebugManager {
   enableLineVisualizer(): void {
     if (this.lineVisualizer) {
       this.lineVisualizer.enable();
-      console.log('Line visualizer enabled');
     }
   }
 
@@ -56,7 +54,6 @@ export class DebugManager {
   disableLineVisualizer(): void {
     if (this.lineVisualizer) {
       this.lineVisualizer.disable();
-      console.log('Line visualizer disabled');
     }
   }
 

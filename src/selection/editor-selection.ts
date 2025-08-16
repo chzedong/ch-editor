@@ -1,10 +1,11 @@
 import { Editor } from "../editor/editor";
 import { EditorSelectionRange } from "./selection-range";
-import { updateSelection } from "./selection-utils";
+import { clearAllSelection, updateSelection } from "./selection-utils";
 import { getBlockId, getBlockIndex, getBlockType } from "../block/block-dom";
 import { Caret } from "../caret/caret";
 import { EditorBlockPosition } from "./block-position";
 import { assert } from "../utils/assert";
+import { getContainerId, getParentContainer } from "../container/container-dom";
 
 export class EditorSelection {
   readonly caret: Caret;
@@ -44,6 +45,9 @@ export class EditorSelection {
     if (this._range.isEqual(newRange)) {
       return this._range;
     }
+
+    clearAllSelection(this.editor);
+
     this._range = newRange;
     this.caret.update();
 
@@ -63,6 +67,8 @@ export class EditorSelection {
     const endBlock = this.editor.getBlockById(end.blockId);
     const endIndex = getBlockIndex(endBlock);
 
+    const container = getParentContainer(startBlock);
+    const containerId = getContainerId(container);
     if (start.blockId === end.blockId) {
       return [{ block: startBlock, anchor: start.offset, focus: end.offset }];
     }
@@ -74,7 +80,8 @@ export class EditorSelection {
     startIndex++;
 
     while (startIndex < endIndex) {
-      const block = this.editor.getBlockById(startBlock.id);
+      const block = this.editor.findBlockByIndex(containerId, startIndex);
+      assert(block, "invalid block");
 
       blocks.push({ block, anchor: 0, focus: this.editor.getBlockTextLength(block) });
 

@@ -42,7 +42,7 @@ function getBlockTextLength(block: HTMLElement) {
 
 function getRangeFormPoint(block: HTMLElement, x: number, y: number) {
   const position = getPositionFromPoint(block, x, y);
-  return new EditorBlockPosition(position.blockId, position.offset);
+  return new EditorBlockPosition(position.blockId, position.offset, position.type);
 }
 
 const TextBlock: Block = {

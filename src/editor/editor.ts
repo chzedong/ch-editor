@@ -34,7 +34,7 @@ export class Editor extends TypedEmitter<any> {
   constructor(parent: HTMLElement, options: unknown) {
     super();
     this.parent = parent;
-    this.doc = new EditorDoc(this);
+    this.doc = new EditorDoc(this, options.initDoc);
     // this.options = options;
     this.editorBlocks.registerBlockClass(TextBlock)
     this.rootContainerObject = createRootContainer(this)

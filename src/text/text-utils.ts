@@ -2,6 +2,7 @@ import { cloneDeep } from "lodash-es";
 import { assert } from "../utils/assert";
 
 import { DocBlockText, DocBlockTextOp } from "../index.type";
+import { getTextBlockContentChildren } from "../line";
 
 export function splitText(docText: DocBlockText, offset: number) {
   let left: DocBlockText = [];
@@ -54,6 +55,15 @@ export function getTextBlockContentChildTextLength(child: Element) {
   if (child instanceof HTMLBRElement) {
     return 0;
   }
-  assert(child.textContent, "invalid text content");
+  assert(typeof child.textContent === 'string', "invalid text content");
   return child.textContent?.length || 0;
+}
+
+export function isEmptyTextBlock(block: HTMLElement) {
+  const children = getTextBlockContentChildren(block);
+  let len = 0;
+  children.forEach((child) => {
+    len += getTextBlockContentChildTextLength(child);
+  });
+  return len === 0;
 }

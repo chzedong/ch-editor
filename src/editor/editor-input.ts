@@ -16,7 +16,6 @@ export class EditorInput {
   }
 
   handleInput = (event: Event) => {
-    console.log('input', event)
     // get text position
     if ((event as InputEvent).data) {
       editorInsertText(this.editor, (event as InputEvent).data as string)
@@ -28,7 +27,6 @@ export class EditorInput {
     // this.editor.
     for (const handler of this.inputHandler) {
       if (handler.handleKeyDown(this.editor, event)) {
-        console.log('prevent keydown event, key is: ', event.key)
         event.preventDefault()
         return
       }

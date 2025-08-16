@@ -6,14 +6,17 @@ import { BlockPath, DocBlockText } from "../index.type";
 
 function multiSplitText(ops: DocBlockText, offsets: number[]) {
   const newOffsets = Array.from(new Set(offsets)).sort((n1, n2) => n1 - n2)
+}
 
 
+const isEmptyBlockText = (blockText: DocBlockText) => {
+  return !blockText.length ||  (blockText.length === 1 && !blockText[0].insert);
 }
 
 export function updateBlockContent(editor: Editor, path: BlockPath, blockId: string, content: Element, blockText: DocBlockText) {
 
-  if (blockText.length === 0) {
-    content.innerHTML = `<br>`;
+  if (isEmptyBlockText(blockText)) {
+    content.innerHTML = `<span><br></span>`;
     return;
   }
 
@@ -27,7 +30,6 @@ export function updateBlockContent(editor: Editor, path: BlockPath, blockId: str
     const op = blockText[i];
 
     const span = createElement('span', ['text'], fragment);
-    console.log('insertText', op.insert)
     span.innerText = op.insert;
 
     if (op.attributes) {
