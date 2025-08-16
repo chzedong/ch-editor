@@ -13,12 +13,12 @@ function multiSplitText(ops: DocBlockText, offsets: number[]) {
 export function updateBlockContent(editor: Editor, path: BlockPath, blockId: string, content: Element, blockText: DocBlockText) {
 
   if (blockText.length === 0) {
-    content.innerHTML = `<span><br></span>`;
+    content.innerHTML = `<br>`;
     return;
   }
 
   const offsets = [];
-  // 
+  //
   const fragment = document.createDocumentFragment();
   let offset = 0;
   // const parts = multiSplitText(blockText, offset);

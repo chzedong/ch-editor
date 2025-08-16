@@ -3,13 +3,13 @@ import { getBlockContent, getBlockId } from "../block/block-dom";
 import { updateBlockContent } from "./update-block-content";
 import { getTextBlockContentChildTextLength } from "./text-utils";
 import { updateSelection } from "./update-selection";
-import { getNodeOffsetFromPoint, getTextBlockContentChildren } from "../selection/offset-rect";
 import { EditorBlockPosition } from "../selection/block-position";
 import { patchNode } from "../utils/patch-node";
 import { assert } from "../utils/assert";
 import { createElement } from "../utils/dom";
 
 import { Block, BlockPath, DocBlock, DocBlockText } from "../index.type";
+import { getTextBlockContentChildren, getPositionFromPoint } from "../line";
 
 function createBlockContent(editor: Editor, path: BlockPath, container: Element, blockElement: Element, blockData: DocBlock) {
   const content = createElement("div", [], null);
@@ -41,24 +41,8 @@ function getBlockTextLength(block: HTMLElement) {
 }
 
 function getRangeFormPoint(block: HTMLElement, x: number, y: number) {
-  const children = getTextBlockContentChildren(block);
-  let offset = 0;
-  let targetChild = null;
-  for (let i = 0; i < children.length; i++) {
-    const child = children[i];
-    const rect = child.getBoundingClientRect();
-    if (rect.left <= x && rect.right >= x && rect.top <= y && rect.bottom >= y) {
-      targetChild = child;
-      break;
-    }
-    offset += getTextBlockContentChildTextLength(child);
-  }
-  assert(targetChild, "no target child");
-
-  const spanOffset = getNodeOffsetFromPoint(targetChild.firstChild as Text, x, y);
-
-  const blockId = getBlockId(block);
-  return new EditorBlockPosition(blockId, offset + spanOffset);
+  const position = getPositionFromPoint(block, x, y);
+  return new EditorBlockPosition(position.blockId, position.offset);
 }
 
 const TextBlock: Block = {

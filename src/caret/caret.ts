@@ -1,6 +1,6 @@
 import { Editor } from "../editor/editor";
 import { isTextKindBlock } from "../editor/editor-blocks";
-import { getTextCaretRect } from "../selection/offset-rect";
+import { getTextCaretRect } from "../line/index";
 import { createElement } from "../utils/dom";
 import './caret.scss';
 
@@ -49,4 +49,8 @@ export class Caret {
     input.style.top = `${y}px`;
 
   }
+}
+
+export const isCaret = (dom: HTMLElement) => {
+  return dom.classList.contains('editor-caret')
 }

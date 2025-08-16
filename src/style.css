@@ -5,9 +5,10 @@
   color: #2c3e50;
   margin-top: 60px;
   border: 1px solid #f0f0f0;
-  padding: 20px;
+  padding: 80px;
   width: 400px;
   border-radius: 5px;
+  margin: auto;
 }
 
 .root {
@@ -17,4 +18,7 @@
 #doc {
   margin-top: 20px;
   width: 400px;
+  border: 1px solid #f0f0f0;
+  word-break: break-word;
+  overflow: hidden;
 }

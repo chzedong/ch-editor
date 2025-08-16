@@ -1,6 +1,6 @@
 import { createBackgroundChild, getBlockBackground, removeBackgrounds } from "../block/block-dom";
 import { Editor } from "../editor/editor";
-import { getTextBlockContentChildren } from "../selection/offset-rect";
+import { getTextBlockContentChildren } from "../line";
 import { assert } from "../utils/assert";
 import { createExpandedRange } from "../utils/dom";
 
@@ -23,7 +23,7 @@ export function updateSelection(editor: Editor, block: HTMLElement, from: number
       start += childLen;
       return;
     }
-    
+
     const childAnchor = Math.max(from - start, 0);
     let childFocus = 0;
     if(to > start + childLen) {

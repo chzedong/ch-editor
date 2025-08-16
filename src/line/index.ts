@@ -1,8 +1,10 @@
 import { assert } from '../utils/assert';
-import { getTextBlockContentChildren } from '../selection/offset-rect';
 import { getTextBlockContentChildTextLength } from '../text/text-utils';
 import { BlockElement, TextBlockContentChild } from '../index.type';
 import { SimpleBlockPosition, SimpleBlockPositionType } from '../selection/block-position';
+import { getBlockContent } from '../block/block-dom';
+import { isCaret } from '../caret/caret';
+import { debugManager } from '../debug';
 
 // 背景
 // 编辑器采用自主研发的输入引擎架构，系统基于模块化文档模型
@@ -155,6 +157,73 @@ function getOffsetFromPoint(x: number, y: number): { textNode: Node | null; offs
     }
   }
 
+  // 如果返回的不是文本节点（可能是光标div等元素），使用-2px策略重新定位
+  if (textNode instanceof HTMLElement && isCaret(textNode)) {
+    // 尝试向左偏移2px重新获取位置
+    const adjustedX = x - 2;
+    let adjustedRange: any;
+    let adjustedTextNode = null;
+    let adjustedOffset = -1;
+
+    if ((document as any).caretPositionFromPoint) {
+      adjustedRange = (document as any).caretPositionFromPoint(adjustedX, y);
+      if (adjustedRange) {
+        adjustedTextNode = adjustedRange.offsetNode;
+        adjustedOffset = adjustedRange.offset;
+      }
+    } else if (document.caretRangeFromPoint) {
+      adjustedRange = document.caretRangeFromPoint(adjustedX, y);
+      if (adjustedRange) {
+        adjustedTextNode = adjustedRange.startContainer;
+        adjustedOffset = adjustedRange.startOffset;
+      }
+    }
+
+    // 如果-2px后获取到了文本节点，则使用该节点进行后续计算
+    if (adjustedTextNode && adjustedTextNode.nodeType === Node.TEXT_NODE) {
+      textNode = adjustedTextNode as Text;
+      const textContent = textNode.textContent || '';
+
+      // 从调整后的偏移量开始，逐步计算到行尾的有效偏移量
+      let currentOffset = Math.max(0, adjustedOffset);
+      const maxOffset = textContent.length;
+
+      // 使用range检测每个偏移量是否还在同一行
+      const testRange = document.createRange();
+      let validOffset = currentOffset;
+
+      try {
+        // 获取起始位置的矩形
+        testRange.setStart(textNode, currentOffset);
+        testRange.setEnd(textNode, currentOffset);
+        const startRect = testRange.getBoundingClientRect();
+
+        // 逐步向后检测，直到换行或到达文本末尾
+        for (let i = currentOffset + 1; i <= maxOffset; i++) {
+          testRange.setStart(textNode, i);
+          testRange.setEnd(textNode, i);
+          const currentRect = testRange.getBoundingClientRect();
+
+          // 如果y坐标发生显著变化，说明换行了
+          if (Math.abs(currentRect.top - startRect.top) > 2) {
+            break;
+          }
+          validOffset = i;
+        }
+
+        offset = validOffset;
+      } catch (e) {
+        // 如果range操作失败，使用调整后的偏移量
+        offset = currentOffset;
+      }
+    } else {
+      // TODO: box 的场景
+      // 如果-2px也没有命中文本节点，说明文本长度不足2px，默认偏移量为0
+      offset = 0;
+      textNode = null;
+    }
+  }
+
   return { textNode, offset };
 }
 /**
@@ -231,6 +300,13 @@ export class TextLine {
   }
 
   /**
+   * 获取行的矩形区域（别名方法，用于调试可视化）
+   */
+  getRect(): DOMRect {
+    return this.getLineRect();
+  }
+
+  /**
    * 检查偏移量是否在当前行范围内
    */
   containsOffset(offset: number, type: SimpleBlockPositionType = 'middle'): boolean {
@@ -263,6 +339,8 @@ export class LineBreaker {
     this._block = block;
     this._blockId = block.id;
     this._parseBlockContent();
+    // 通知调试管理器更新line数据
+    this._notifyDebugManager();
   }
 
   get lineCount(): number {
@@ -429,7 +507,8 @@ export class LineBreaker {
           const offsetInfo = getOffsetFromPoint(x, y);
           if (offsetInfo.textNode === textNode && offsetInfo.offset >= 0) {
             const relativeOffset = offsetInfo.offset;
-            const absoluteOffset = item.startBlockOffset + relativeOffset;
+            const startBlockOffset = this._findFirstItemForChild(item.child)?.startBlockOffset ?? 0;
+            const absoluteOffset = startBlockOffset + relativeOffset;
             return {
               offset: Math.min(absoluteOffset, item.endBlockOffset),
               type: 'middle',
@@ -486,7 +565,11 @@ export class LineBreaker {
         const textNode = item.child.firstChild;
         assert(textNode instanceof Text, `无效的文本子节点，不是有效的文本节点: ${typeof textNode}`);
 
-        const relativeOffset = position.offset - item.startBlockOffset;
+        // 查找同一元素的第一个lineItem，获取真实的起始偏移量
+        const firstItem = this._findFirstItemForChild(item.child);
+        const realStartOffset = firstItem ? firstItem.startBlockOffset : item.startBlockOffset;
+        const relativeOffset = position.offset - realStartOffset;
+
         const range = document.createRange();
         range.setStart(textNode, relativeOffset);
         range.setEnd(textNode, relativeOffset);
@@ -520,6 +603,32 @@ export class LineBreaker {
       }
     }
     return undefined;
+  }
+
+  /**
+   * 查找同一元素的第一个lineItem，获取真实的起始偏移量
+   */
+  private _findFirstItemForChild(targetChild: TextBlockContentChild): LineItem | undefined {
+    for (const line of this._lines) {
+      for (const item of line.items) {
+        if (item.child === targetChild) {
+          return item;
+        }
+      }
+    }
+    return undefined;
+  }
+
+  /**
+   * 通知调试管理器更新line数据
+   */
+  private _notifyDebugManager(): void {
+    try {
+      debugManager.updateLines([...this._lines]);
+    } catch (error) {
+      // 调试功能不应影响正常功能，静默处理错误
+      console.warn('Debug manager update failed:', error);
+    }
   }
 }
 
@@ -557,4 +666,9 @@ export function getLineBreaker(block: BlockElement): LineBreaker {
   return new LineBreaker(block);
 }
 
-
+export function getTextBlockContentChildren(block: HTMLElement) {
+  const content = getBlockContent(block);
+  const children = Array.from(content.children);
+  // 可以加断言验证
+  return children;
+}
