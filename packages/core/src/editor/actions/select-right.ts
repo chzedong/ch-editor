@@ -1,7 +1,8 @@
-import { getBlockType } from '../../block/block-dom';
+import { getBlockId, getBlockType, isLastBlock } from '../../block/block-dom';
 import { Editor } from '../editor';
 import { assert } from '../../utils/assert';
 import { EditorBlockPosition } from '../../selection/block-position';
+import { isTextKindBlock } from '../editor-blocks';
 
 export function selectRight(editor: Editor) {
 
@@ -18,5 +19,19 @@ export function selectRight(editor: Editor) {
     editor.selection.setSelection(editor.selection.range.anchor, newFocusPos);
     return true;
   }
+
+  if (!isLastBlock(block)) {
+    const nextBlock = block.nextElementSibling as HTMLElement;
+
+    assert(isTextKindBlock(editor, nextBlock), 'not text kind block');
+
+    const nextBlockClass = editor.editorBlocks.getBlockClass(getBlockType(nextBlock));
+    const nextBlockLen = nextBlockClass.getBlockTextLength(nextBlock);
+    const offset = Math.min(1, nextBlockLen);
+    const newFocusPos = new EditorBlockPosition(getBlockId(nextBlock), offset === -1 ? nextBlockLen : offset);
+    editor.selection.setSelection(editor.selection.range.anchor, newFocusPos);
+    return true;
+  }
+
   return false;
 }
