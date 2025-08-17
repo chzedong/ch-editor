@@ -5,12 +5,23 @@
   "main": "src/index.ts",
   "module": "src/index.ts",
   "types": "src/index.ts",
+  "scripts": {
+    "build": "npm run build:code && npm run build:pkg",
+    "build:code": "vite build",
+    "build:pkg": "node scripts/build-package.js",
+    "dev": "vite build --watch"
+  },
   "files": [
     "dist"
   ],
   "dependencies": {
     "@ch-editor/core": "workspace:*"
   },
+  "devDependencies": {
+    "typescript": "^4.3.2",
+    "vite": "^2.5.4"
+  },
+  "peerDependencies": {},
   "keywords": [
     "editor",
     "debug",
