@@ -1,3 +1,12 @@
 [data-type="editor-container"] {
   position: relative;
+  user-select: none;
+}
+
+[data-type="editor-block"]:first-child {
+  margin-top: 0;
+}
+
+[data-type="editor-block"] {
+  margin-top: 0.6em;
 }

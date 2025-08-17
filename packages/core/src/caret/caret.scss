@@ -16,6 +16,7 @@
   background-color: red;
   position: absolute;
   animation: blink 1s ease-in-out infinite;
+  pointer-events: none;
 }
 
 .editor-input {
