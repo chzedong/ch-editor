@@ -437,7 +437,7 @@ export class LineBreaker {
    */
   private _processSingleLineChild(child: TextBlockContentChild, childLength: number, currentLine: TextLine): void {
     const rects = child.getClientRects();
-    assert(rects.length === 1, `期望单行子元素只有一个矩形区域，实际获取到 ${rects.length} 个`);
+    // assert(rects.length === 1, `期望单行子元素只有一个矩形区域，实际获取到 ${rects.length} 个`);
     currentLine.addChild(child, childLength, mergeTextRects(rects)[0]);
   }
 
@@ -455,13 +455,6 @@ export class LineBreaker {
     for (const [rectIndex, rect] of textRects.entries()) {
       const offsetInfo = getOffsetFromPoint(textNode, rect.right, rect.bottom - 1);
 
-      console.log(
-        'offsetInfo',
-        offsetInfo.offset,
-        offsetInfo.textNode,
-        rect.right,
-        rect.bottom - 1
-      );
       assert(offsetInfo.textNode === textNode, '偏移量计算应返回同一文本节点');
 
       const segmentLength = offsetInfo.offset - processedOffset;

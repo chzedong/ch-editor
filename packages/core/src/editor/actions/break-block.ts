@@ -8,8 +8,9 @@ import { genId } from '../../utils/get-id';
 import { Editor } from '../editor';
 import { isTextKindBlock } from '../editor-blocks';
 import { cloneDeep } from 'lodash-es';
+import { deleteSelection } from './delete';
 
-export const breakBlock = (editor: Editor) => {
+const breakCollapsedBlock = (editor: Editor) => {
   const isCollapsed = editor.selection.range.isCollapsed();
   assert(isCollapsed, 'Selection must be collapsed to break block');
 
@@ -42,4 +43,14 @@ export const breakBlock = (editor: Editor) => {
   editor.insertBlock(containerId, blockIndex + 1, newBlockData);
 
   return true;
+};
+
+export const breakBlock = (editor: Editor) => {
+  const isCollapsed = editor.selection.range.isCollapsed();
+  if (isCollapsed) {
+    return breakCollapsedBlock(editor);
+  } else {
+    deleteSelection(editor, editor.selection.range);
+    return breakCollapsedBlock(editor);
+  }
 };
