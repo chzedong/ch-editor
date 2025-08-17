@@ -34,7 +34,7 @@ export class EditorSelection {
     assert(ok, 'invalid block position');
   }
 
-  setSelection(anchor: EditorBlockPosition, focus: EditorBlockPosition) {
+  setSelection(anchor: EditorBlockPosition, focus: EditorBlockPosition, isVerticalNavigation?: boolean) {
     if (!focus) {
       focus = anchor;
     }
@@ -52,6 +52,13 @@ export class EditorSelection {
 
     // update selection
     updateSelection(this.editor);
+
+    // 更新目标列位置状态
+    // 如果不是上下键导航，则更新目标列状态
+    // 如果是上下键导航，则保持当前的目标列状态
+    if (!isVerticalNavigation) {
+      this.editor.updateTargetColumnX();
+    }
 
     this.editor.focus();
     this.editor.emit('selectionChange');

@@ -4,7 +4,7 @@ import { createElement } from '../utils/dom';
 import { assert } from '../utils/assert';
 import './block.scss';
 
-import { BlockPath, DocBlock } from '../index.type';
+import { BlockElement, BlockPath, DocBlock } from '../index.type';
 
 export function createBlockElement(editor: Editor, path: BlockPath, data: DocBlock): HTMLElement {
   const elem = createElement('div', [`${data.type}-block`], null);
@@ -114,4 +114,33 @@ export function getPrevBlock(block: HTMLElement) {
   assert(index !== -1, 'invalid block');
   assert(index > 0, 'no prev block');
   return children[index - 1];
+}
+
+export function getNextBlock(block: HTMLElement) {
+  const container = getParentContainer(block);
+  const children = getChildBlocks(container);
+  const index = children.indexOf(block);
+  assert(index !== -1, 'invalid block');
+  assert(index < children.length - 1, 'no next block');
+  return children[index + 1];
+}
+
+export function findPrevBlock(block: BlockElement) {
+  const container = getParentContainer(block);
+  const children = getChildBlocks(container);
+  const index = children.indexOf(block);
+  if (index === 0) {
+    return null;
+  }
+  return children[index - 1] as BlockElement;
+}
+
+export function findNextBlock(block: BlockElement) {
+  const container = getParentContainer(block);
+  const children = getChildBlocks(container);
+  const index = children.indexOf(block);
+  if (index === children.length - 1) {
+    return null;
+  }
+  return children[index + 1] as BlockElement;
 }

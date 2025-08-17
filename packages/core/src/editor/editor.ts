@@ -1,6 +1,6 @@
 import 'events';
 import { TypedEmitter } from 'tiny-typed-emitter';
-import EditorBlocks from './editor-blocks';
+import EditorBlocks, { isTextKindBlock } from './editor-blocks';
 import { EditorDoc } from './editor-doc';
 import { RootContainer } from '../container/root-container';
 import { getChildBlocks, getContainerBlocksElement, getContainerById, getContainerId, getParentContainer } from '../container/container-dom';
@@ -16,6 +16,7 @@ import { assert } from '../utils/assert';
 
 import { DocBlock } from '../index.type';
 import { EditorSelectionRange } from '../selection/selection-range';
+import { LineBreaker } from '../line';
 
 export class Editor extends TypedEmitter<any> {
   parent: HTMLElement;
@@ -31,6 +32,9 @@ export class Editor extends TypedEmitter<any> {
   selection: EditorSelection;
 
   editorBlocks: EditorBlocks = new EditorBlocks(this);
+
+  // 上下键导航的目标列位置状态
+  private _targetColumnX: number | null = null;
 
   constructor(parent: HTMLElement, options: any) {
     super();
@@ -137,5 +141,43 @@ export class Editor extends TypedEmitter<any> {
       const pos = new EditorBlockPosition(lastBlockId, 0);
       this.selection.setSelection(pos, pos);
     }
+  }
+
+  /**
+   * 获取目标列位置的X坐标
+   */
+  getTargetColumnX(): number | null {
+    return this._targetColumnX;
+  }
+
+  /**
+   * 设置目标列位置的X坐标
+   */
+  setTargetColumnX(x: number): void {
+    this._targetColumnX = x;
+  }
+
+  /**
+   * 清除目标列位置状态
+   */
+  clearTargetColumnX(): void {
+    this._targetColumnX = null;
+  }
+
+  /**
+   * 更新目标列位置状态（基于当前光标位置）
+   */
+  updateTargetColumnX(): void {
+    const range = this.selection.range;
+
+    const focusPos = range.focus;
+    const block = this.getBlockById(focusPos.blockId);
+
+    assert(isTextKindBlock(this, block), 'not text kind block');
+
+    const lineBreaker = new LineBreaker(block);
+
+    const position = lineBreaker.getCaretRect(focusPos);
+    this.setTargetColumnX(position.left);
   }
 }
