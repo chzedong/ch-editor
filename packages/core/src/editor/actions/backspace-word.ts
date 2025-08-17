@@ -1,23 +1,29 @@
-import { getBlockIndex, getBlockType } from '../../block/block-dom';
-import {
-  getContainerId,
-  getParentContainer
-} from '../../container/container-dom';
+import { getBlockType } from '../../block/block-dom';
 import { Editor } from '../editor';
 import { assert } from '../../utils/assert';
 import { EditorBlockPosition } from '../../selection/block-position';
 import { editorGetPreWordStart } from './move-word-left';
 import { deleteText } from '../../text/delete-text';
+import { isEmptyTextBlock } from '../../text/text-utils';
+import { deleteEmptyBlock, mergeSiblingBlocks } from './delete';
 
 export function backspaceWord(editor: Editor) {
+
+  if (!editor.selection.range.isCollapsed()) {
+    return false;
+  }
 
   const focusPos = editor.selection.range.focus;
   const block = editor.getBlockById(focusPos.blockId);
   const blockClass = editor.editorBlocks.getBlockClass(getBlockType(block));
-  //
-  const blockIndex = getBlockIndex(block);
-  const container = getParentContainer(block);
-  const containerId = getContainerId(container);
+
+  if (isEmptyTextBlock(block)) {
+    return deleteEmptyBlock(editor, block);
+  }
+
+  if (focusPos.offset === 0) {
+    return mergeSiblingBlocks(editor, block);
+  }
 
   const blockData = editor.getBlockData(block);
   assert(blockData.text, 'not has text');
@@ -30,9 +36,6 @@ export function backspaceWord(editor: Editor) {
   editor.editorBlocks
     .getBlockClass('text')
     .setBlockText(editor, block, newText);
-  //
-  //
-
   //
   if (focusPos.offset > 0) {
     const newFocusPos = new EditorBlockPosition(focusPos.blockId, preOffset);

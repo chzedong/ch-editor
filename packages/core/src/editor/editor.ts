@@ -15,6 +15,7 @@ import { EditorBlockPosition } from '../selection/block-position';
 import { assert } from '../utils/assert';
 
 import { DocBlock } from '../index.type';
+import { EditorSelectionRange } from '../selection/selection-range';
 
 export class Editor extends TypedEmitter<any> {
   parent: HTMLElement;
@@ -107,7 +108,7 @@ export class Editor extends TypedEmitter<any> {
     this.selection.setSelection(pos, pos);
   }
 
-  deleteBlock(blockElement: HTMLElement) {
+  deleteBlock(blockElement: HTMLElement, newRange?: EditorSelectionRange) {
     const blockData = this.getBlockData(blockElement);
     const container = getParentContainer(blockElement);
     const containerId = getContainerId(container);
@@ -119,6 +120,11 @@ export class Editor extends TypedEmitter<any> {
       return blockClass.deleteBlock(this, blockElement);
     }
     blockElement.remove();
+
+    if (newRange) {
+      this.selection.setSelection(newRange.anchor, newRange.focus);
+      return;
+    }
 
     const curIndexBlock = this.findBlockByIndex(containerId, blockIndex);
     if (curIndexBlock) {
