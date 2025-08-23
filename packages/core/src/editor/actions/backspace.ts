@@ -1,7 +1,7 @@
 import { getBlockIndex } from '../../block/block-dom';
 import { getContainerId, getParentContainer } from '../../container/container-dom';
 import { Editor } from '../editor';
-import { deleteEmptyBlock, deleteSelection, mergeSiblingBlocks } from './delete';
+import { deleteEmptyBlock, deleteSelection, mergeSiblingBlocks } from './utils';
 import { isEmptyTextBlock } from '../../text/text-utils';
 import { createDeleteActions } from '../../text/text-op';
 

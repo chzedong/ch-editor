@@ -2,10 +2,9 @@ import { getBlockType } from '../../block/block-dom';
 import { Editor } from '../editor';
 import { assert } from '../../utils/assert';
 import { EditorBlockPosition } from '../../selection/block-position';
-import { editorGetPreWordStart } from './move-word-left';
 import { deleteText } from '../../text/delete-text';
 import { isEmptyTextBlock } from '../../text/text-utils';
-import { deleteEmptyBlock, mergeSiblingBlocks } from './delete';
+import { deleteEmptyBlock, mergeSiblingBlocks, editorGetPreWordStart } from './utils';
 
 export function backspaceWord(editor: Editor) {
 

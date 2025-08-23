@@ -2,7 +2,7 @@ import { getBlockBackground } from '../block/block-background';
 import { createBackgroundChild, removeBackgrounds } from '../block/block-background';
 import { BlockElement } from '../index.type';
 import { LineBreaker } from './line/text-line';
-import { Editor } from '../main';
+import { Editor } from '../editor/editor';
 
 export function updateSelection(editor: Editor, block: BlockElement, from: number, to: number): void {
   const isCollapsed = editor.selection.range.isCollapsed();

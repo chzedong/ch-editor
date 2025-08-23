@@ -2,8 +2,7 @@ import { assert } from '../utils/assert';
 import { Editor } from '../editor/editor';
 import { getBlockType, getParentBlock } from '../block/block-dom';
 import { EditorBlockPosition } from '../selection/block-position';
-import { editorGetPreWordStart } from '../editor/actions/move-word-left';
-import { editorGetNextWordEnd } from '../editor/actions/move-word-right';
+import { editorGetNextWordEnd, editorGetPreWordStart } from '../editor/actions/utils';
 import { isTextKindBlock } from '../editor/editor-blocks';
 import { ContainerElement } from '../index.type';
 

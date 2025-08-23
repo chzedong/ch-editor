@@ -3,6 +3,7 @@ import { Editor } from '../editor';
 import { assert } from '../../utils/assert';
 import { EditorBlockPosition } from '../../selection/block-position';
 import { isTextKindBlock } from '../editor-blocks';
+import { BlockElement } from '../../index.type';
 
 export function selectRight(editor: Editor) {
 
@@ -21,7 +22,7 @@ export function selectRight(editor: Editor) {
   }
 
   if (!isLastBlock(block)) {
-    const nextBlock = block.nextElementSibling as HTMLElement;
+    const nextBlock = block.nextElementSibling as BlockElement;
 
     assert(isTextKindBlock(editor, nextBlock), 'not text kind block');
 

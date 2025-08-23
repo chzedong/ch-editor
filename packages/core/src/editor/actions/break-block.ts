@@ -8,7 +8,7 @@ import { genId } from '../../utils/get-id';
 import { Editor } from '../editor';
 import { isTextKindBlock } from '../editor-blocks';
 import { cloneDeep } from 'lodash-es';
-import { deleteSelection } from './delete';
+import { deleteSelection } from './utils';
 
 const breakCollapsedBlock = (editor: Editor) => {
   const isCollapsed = editor.selection.range.isCollapsed();

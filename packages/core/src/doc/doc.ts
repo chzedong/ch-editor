@@ -1,7 +1,8 @@
-import { DocBlockTextActions } from '../index.type';
-import { DocObject, assert, DocBlock } from '../main';
 import { RichText } from '../text/delta';
 import { createEmptyDoc } from './doc-utils';
+import { assert } from '../utils/assert';
+
+import { DocBlock, DocBlockTextActions, DocObject } from '../index.type';
 
 export class Doc {
   doc: DocObject;

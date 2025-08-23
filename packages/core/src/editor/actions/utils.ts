@@ -1,21 +1,17 @@
-import { getBlockId, getBlockIndex, getBlockType } from '../../block/block-dom';
-import {
-  getContainerId,
-  getParentContainer
-} from '../../container/container-dom';
-import { Editor } from '../editor';
-import { createDeleteActions } from '../../text/text-op';
-import { DocBlockTextActions } from '../../index.type';
-import { assert } from '../../main';
+import { getBlockIndex, getBlockType, getBlockId } from '../../block/block-dom';
+import { getParentContainer, getContainerId } from '../../container/container-dom';
 import { EditorBlockPosition } from '../../selection/block-position';
 import { EditorSelectionRange } from '../../selection/selection-range';
 import { getRangeBlocks } from '../../selection/selection-utils';
 import { RichText } from '../../text/delta';
-import { isEmptyTextBlock } from '../../text/text-utils';
+import { createDeleteActions } from '../../text/text-op';
+import { isEmptyTextBlock, splitToThree } from '../../text/text-utils';
+import { Editor } from '../editor';
+import { assert } from '../../utils/assert';
 
+import { BlockElement, DocBlockText, DocBlockTextActions } from '../../index.type';
 
 export function deleteSelection(editor: Editor, range: EditorSelectionRange): boolean {
-
   // 如果选区已折叠，无需删除
   if (range.isCollapsed()) {
     return false;
@@ -31,7 +27,6 @@ export function deleteSelection(editor: Editor, range: EditorSelectionRange): bo
     const container = getParentContainer(block);
     const containerId = getContainerId(container);
 
-
     const actions = createDeleteActions(start.offset, end.offset - start.offset);
 
     editor.doc.localUpdateBlockText(containerId, blockIndex, actions);
@@ -46,12 +41,13 @@ export function deleteSelection(editor: Editor, range: EditorSelectionRange): bo
   // 多节点选区删除
   return deleteMultiBlockSelection(editor, selectedBlocks, start, end);
 }
+
 /**
  * 处理多节点选区删除
  */
 function deleteMultiBlockSelection(
   editor: Editor,
-  selectedBlocks: Array<{ block: HTMLElement; anchor: number; focus: number; }>,
+  selectedBlocks: Array<{ block: BlockElement; anchor: number; focus: number }>,
   start: EditorBlockPosition,
   end: EditorBlockPosition
 ): boolean {
@@ -93,7 +89,6 @@ function deleteMultiBlockSelection(
     const remainingActions = createDeleteActions(0, end.offset);
     const restText = RichText.apply(lastBlockData.text, remainingActions);
 
-
     // 获取剩余文本内容
     if (restText.length && restText[0].insert && restText[0].insert.length > 0) {
       const insertActions: DocBlockTextActions = [];
@@ -105,7 +100,7 @@ function deleteMultiBlockSelection(
       }
 
       // 插入剩余内容
-      restText.forEach(op => {
+      restText.forEach((op) => {
         if (op.insert) {
           insertActions.push({ insert: op.insert, attributes: op.attributes });
         }
@@ -115,7 +110,6 @@ function deleteMultiBlockSelection(
         editor.doc.localUpdateBlockText(firstContainerId, firstBlockIndex, insertActions);
       }
     }
-
   } else {
     // 如果最后一个块完全被选中，直接删除
     editor.deleteBlock(lastBlock.block);
@@ -128,7 +122,7 @@ function deleteMultiBlockSelection(
   return true;
 }
 
-export function deleteEmptyBlock(editor: Editor, block: HTMLElement) {
+export function deleteEmptyBlock(editor: Editor, block: BlockElement) {
   assert(isEmptyTextBlock(block), 'block must be empty text block');
 
   const blockIndex = getBlockIndex(block);
@@ -140,15 +134,14 @@ export function deleteEmptyBlock(editor: Editor, block: HTMLElement) {
     const blockClass = editor.editorBlocks.getBlockClass(getBlockType(prevBlock));
     const blockLen = blockClass.getBlockTextLength(prevBlock);
     const pos = new EditorBlockPosition(getBlockId(prevBlock), blockLen);
-    editor.deleteBlock(block, new EditorSelectionRange(editor, { anchor: pos,focus: pos }));
+    editor.deleteBlock(block, new EditorSelectionRange(editor, { anchor: pos, focus: pos }));
     return true;
   } else {
     return false;
   }
 }
 
-export function mergeSiblingBlocks(editor: Editor, block: HTMLElement) {
-
+export function mergeSiblingBlocks(editor: Editor, block: BlockElement) {
   if (isEmptyTextBlock(block)) {
     return deleteEmptyBlock(editor, block);
   }
@@ -171,7 +164,7 @@ export function mergeSiblingBlocks(editor: Editor, block: HTMLElement) {
 
   assert(blockData.text, 'block text must be defined');
 
-  blockData.text.forEach(op => {
+  blockData.text.forEach((op) => {
     if (op.insert) {
       insertActions.push({ insert: op.insert, attributes: op.attributes });
     }
@@ -187,3 +180,73 @@ export function mergeSiblingBlocks(editor: Editor, block: HTMLElement) {
 
   return true;
 }
+
+function findPreWordOffset(ops: DocBlockText, offset: number, isSpan: boolean) {
+  let isSpanOffset = isSpan;
+  let tampIsSpan = false;
+  while (offset > 0) {
+    const { middle } = splitToThree(ops, offset - 1, 1);
+
+    assert(middle.length === 1, 'middle not 1');
+    assert(middle[0].insert.length === 1, 'middle first op length not 1');
+    tampIsSpan = middle[0].insert[0] === ' ';
+    if (tampIsSpan && !isSpanOffset) {
+      return offset;
+    }
+    if (!tampIsSpan) {
+      isSpanOffset = false;
+    }
+    offset--;
+  }
+  return tampIsSpan || isSpanOffset ? -1 : 0;
+}
+
+export function editorGetPreWordStart(ops: DocBlockText, offset: number) {
+  if (ops.length === 0) {
+    return 0;
+  }
+
+  const preOffset = Math.max(0, offset - 1);
+  // if (preOffset === 0) {
+  //   return 0;
+  // }
+  const { middle } = splitToThree(ops, preOffset, 1);
+  assert(middle.length === 1, 'middle not 1');
+  assert(middle[0].insert.length === 1, 'middle first op length not 1');
+  const isSpan = middle[0].insert[0] === ' ';
+  return findPreWordOffset(ops, preOffset, isSpan);
+}
+
+function findNextWordEnd(ops: DocBlockText, offset: number, isSpan: boolean, len: number) {
+  let isSpanOffset = isSpan;
+  let tampIsSpan = false;
+  while (offset < len) {
+    const { middle } = splitToThree(ops, offset, 1);
+
+    assert(middle.length === 1, 'middle not 1');
+    assert(middle[0].insert.length === 1, 'middle first op length not 1');
+    tampIsSpan = middle[0].insert[0] === ' ';
+    if (tampIsSpan && !isSpanOffset) {
+      return offset;
+    }
+    if (!tampIsSpan) {
+      isSpanOffset = false;
+    }
+    offset++;
+  }
+  return tampIsSpan ? -1 : len;
+}
+
+export function editorGetNextWordEnd(ops: DocBlockText, offset: number, len: number) {
+
+  if (ops.length === 0) {
+    return 0;
+  }
+
+  const { middle } = splitToThree(ops, offset, 1);
+  assert(middle.length === 1, 'middle not 1');
+  assert(middle[0].insert.length === 1, 'middle first op length not 1');
+  const isSpan = middle[0].insert[0] === ' ';
+  return findNextWordEnd(ops, offset, isSpan, len);
+}
+

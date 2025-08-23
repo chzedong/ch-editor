@@ -3,7 +3,7 @@ import { Editor } from '../editor';
 import { EditorBlockPosition } from '../../selection/block-position';
 import { isTextKindBlock } from '../editor-blocks';
 import { LineBreaker, TextLine } from '../../text/line/text-line';
-import { assert } from '../../main';
+import { assert } from '../../utils/assert';
 import { BlockElement } from '../../index.type';
 
 /**

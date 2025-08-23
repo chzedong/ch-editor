@@ -2,9 +2,9 @@ import { getBlockId, getBlockType, isBlock, isFirstBlock } from '../../block/blo
 import { Editor } from '../editor';
 import { assert } from '../../utils/assert';
 import { EditorBlockPosition } from '../../selection/block-position';
+import { BlockElement } from '../../index.type';
 
 export function moveLeft(editor: Editor) {
-
   const range = editor.selection.range;
   const focusPos = range.focus;
   const block = editor.getBlockById(focusPos.blockId);
@@ -27,7 +27,7 @@ export function moveLeft(editor: Editor) {
 
   if (focusPos.offset === 0) {
     if (!isFirstBlock(block)) {
-      const prevBlock = block.previousElementSibling as HTMLElement;
+      const prevBlock = block.previousElementSibling as BlockElement;
 
       assert(isBlock(prevBlock), 'no next block');
 

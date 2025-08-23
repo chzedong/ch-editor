@@ -2,6 +2,7 @@ import { getBlockId, getBlockType, isBlock, isLastBlock } from '../../block/bloc
 import { Editor } from '../editor';
 import { EditorBlockPosition } from '../../selection/block-position';
 import { assert } from '../../utils/assert';
+import { BlockElement } from '../../index.type';
 
 export function moveRight(editor: Editor) {
 
@@ -25,7 +26,7 @@ export function moveRight(editor: Editor) {
   }
 
   if (!isLastBlock(block)) {
-    const nextBlock = block.nextElementSibling as HTMLElement;
+    const nextBlock = block.nextElementSibling as BlockElement;
     assert(isBlock(nextBlock), 'no next block');
 
     const newFocusPos = new EditorBlockPosition(getBlockId(nextBlock), 0);

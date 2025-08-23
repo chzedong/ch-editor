@@ -4,7 +4,7 @@ import { DocBlockText } from '../../index.type';
 import { assert } from '../../utils/assert';
 import { EditorBlockPosition } from '../../selection/block-position';
 import { isTextKindBlock } from '../editor-blocks';
-import { editorGetPreWordStart } from './move-word-left';
+import { editorGetPreWordStart } from './utils';
 
 export function selectWordLeft(editor: Editor) {
   const focusPos = editor.selection.range.focus;
