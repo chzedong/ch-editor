@@ -28,12 +28,12 @@ export type BlockKind = 'text' | 'embed' | 'complex'
 export interface Block {
   blockType: string;
   blockKing: BlockKind;
-  createBlockContent: (editor: Editor, path: BlockPath, container: Element, blockElement: HTMLElement, block: DocBlock) => Element
-  setBlockText: (editor: Editor, block: HTMLElement, text: DocBlockText) => void;
-  getBlockTextLength: (block: HTMLElement) => number;
-  getRangeFormPoint: (block: HTMLElement, x: number, y: number) => EditorBlockPosition;
-  updateSelection: (editor: Editor, block: HTMLElement, from: number, to: number) => void;
-  deleteBlock?: (editor: Editor, block: HTMLElement) => void;
+  createBlockContent: (editor: Editor, path: BlockPath, container: Element, blockElement: BlockElement, block: DocBlock) => Element
+  setBlockText: (editor: Editor, block: BlockElement, text: DocBlockText) => void;
+  getBlockTextLength: (block: BlockElement) => number;
+  getRangeFormPoint: (block: BlockElement, x: number, y: number) => EditorBlockPosition;
+  updateSelection: (editor: Editor, block: BlockElement, from: number, to: number) => void;
+  deleteBlock?: (editor: Editor, block: BlockElement) => void;
   // ...
 }
 

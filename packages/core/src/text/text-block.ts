@@ -8,7 +8,7 @@ import { patchNode } from '../utils/patch-node';
 import { assert } from '../utils/assert';
 import { createElement } from '../utils/dom';
 
-import { Block, BlockPath, DocBlock, DocBlockText } from '../index.type';
+import { Block, BlockElement, BlockPath, DocBlock, DocBlockText } from '../index.type';
 import { getPositionFromPoint } from '../line';
 import { getTextBlockContentChildren } from './text-utils';
 
@@ -23,7 +23,7 @@ function createBlockContent(editor: Editor, path: BlockPath, container: Element,
   return content;
 }
 
-function updateBlockText(editor: Editor, block: HTMLElement, text: DocBlockText) {
+function updateBlockText(editor: Editor, block: BlockElement, text: DocBlockText) {
   const newBlockContent = createElement('div', [], null);
   newBlockContent.setAttribute('data-type', 'block-content');
   updateBlockContent(editor, [], getBlockId(block), newBlockContent, text);
@@ -31,7 +31,7 @@ function updateBlockText(editor: Editor, block: HTMLElement, text: DocBlockText)
   patchNode(oldContent, newBlockContent);
 }
 
-function getBlockTextLength(block: HTMLElement) {
+function getBlockTextLength(block: BlockElement) {
   const children = getTextBlockContentChildren(block);
   let count = 0;
   children.forEach((child) => {
@@ -41,7 +41,7 @@ function getBlockTextLength(block: HTMLElement) {
   return count;
 }
 
-function getRangeFormPoint(block: HTMLElement, x: number, y: number) {
+function getRangeFormPoint(block: BlockElement, x: number, y: number) {
   const position = getPositionFromPoint(block, x, y);
   return new EditorBlockPosition(position.blockId, position.offset, position.type);
 }

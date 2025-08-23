@@ -92,52 +92,13 @@ export class Editor extends TypedEmitter<any> {
 
   insertBlock(containerId: string, index: number, blockData: DocBlock) {
     this.doc.localInsertBlock(containerId, index, blockData);
-
-    const blockElement = this.editorBlocks.createBlock([{ containerId, blockIndex: index }], this.rootContainer, blockData);
-
-    const container = getContainerById(this, containerId);
-
-    const blocksElements = getChildBlocks(container);
-    const contentElement = getContainerBlocksElement(container);
-    if (index === blocksElements.length || (index === 0 && blocksElements.length === 0)) {
-      contentElement.appendChild(blockElement);
-    } else {
-      contentElement.insertBefore(blockElement, blocksElements[index]);
-    }
-
-    const pos = new EditorBlockPosition(blockData.id, 0);
-    this.selection.setSelection(pos, pos);
   }
 
   deleteBlock(blockElement: BlockElement, newRange?: EditorSelectionRange) {
-    const blockData = this.getBlockData(blockElement);
-    const container = getParentContainer(blockElement);
-    const containerId = getContainerId(container);
+    const containerId = getContainerId(getParentContainer(blockElement));
     const blockIndex = getBlockIndex(blockElement);
-    this.doc.localDeleteBlock(containerId, blockIndex);
 
-    const blockClass = this.editorBlocks.getBlockClass(blockData.type);
-    if (blockClass.deleteBlock) {
-      return blockClass.deleteBlock(this, blockElement);
-    }
-    blockElement.remove();
-
-    if (newRange) {
-      this.selection.setSelection(newRange.anchor, newRange.focus);
-      return;
-    }
-
-    const curIndexBlock = this.findBlockByIndex(containerId, blockIndex);
-    if (curIndexBlock) {
-      const curIndexBlockId = getBlockId(curIndexBlock);
-      const pos = new EditorBlockPosition(curIndexBlockId, 0);
-      this.selection.setSelection(pos, pos);
-    } else {
-      const lastBlock = getLastBlock(container);
-      const lastBlockId = getBlockId(lastBlock);
-      const pos = new EditorBlockPosition(lastBlockId, 0);
-      this.selection.setSelection(pos, pos);
-    }
+    this.doc.localDeleteBlock(containerId, blockIndex, newRange);
   }
 
   /**
