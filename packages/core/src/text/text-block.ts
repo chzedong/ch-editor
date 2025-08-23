@@ -9,7 +9,7 @@ import { assert } from '../utils/assert';
 import { createElement } from '../utils/dom';
 
 import { Block, BlockElement, BlockPath, DocBlock, DocBlockText } from '../index.type';
-import { getPositionFromPoint } from '../line';
+import { getPositionFromPoint } from './line/text-line';
 import { getTextBlockContentChildren } from './text-utils';
 
 function createBlockContent(editor: Editor, path: BlockPath, container: Element, blockElement: Element, blockData: DocBlock) {

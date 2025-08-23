@@ -14,7 +14,7 @@ import { getBlockId, getBlockIndex, getFirstBlock, getLastBlock } from '../block
 import { EditorBlockPosition } from '../selection/block-position';
 import { EditorSelectionRange } from '../selection/selection-range';
 import { assert } from '../utils/assert';
-import { LineBreaker } from '../line';
+import { LineBreaker } from '../text/line/text-line';
 
 import { BlockElement, ContainerElement, DocBlock } from '../index.type';
 

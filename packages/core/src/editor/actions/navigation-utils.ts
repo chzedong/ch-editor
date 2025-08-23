@@ -2,8 +2,9 @@ import { getBlockId, isFirstBlock, isLastBlock, findPrevBlock, findNextBlock } f
 import { Editor } from '../editor';
 import { EditorBlockPosition } from '../../selection/block-position';
 import { isTextKindBlock } from '../editor-blocks';
-import { LineBreaker, TextLine } from '../../line';
+import { LineBreaker, TextLine } from '../../text/line/text-line';
 import { assert } from '../../main';
+import { BlockElement } from '../../index.type';
 
 /**
  * 导航方向枚举
@@ -50,7 +51,7 @@ export function findPositionByX(
  * @returns 目标行，如果块为空则返回null
  */
 export function getTargetLineInBlock(
-  block: HTMLElement,
+  block: BlockElement,
   direction: NavigationDirection
 ): TextLine {
   const lineBreaker = new LineBreaker(block);
@@ -121,7 +122,7 @@ export function findDownPosition(
 /**
  * 移动到下一个块
  */
-function moveDownToNextBlock(editor: Editor, currentBlock: HTMLElement) {
+function moveDownToNextBlock(editor: Editor, currentBlock: BlockElement) {
   const nextBlock = findNextBlock(currentBlock);
   if (!nextBlock) {
     return null;
@@ -178,7 +179,7 @@ export function findUpPosition(editor: Editor, focusPos: EditorBlockPosition) {
 /**
  * 移动到上一个块
  */
-function moveUpToPreviousBlock(editor: Editor, currentBlock: HTMLElement) {
+function moveUpToPreviousBlock(editor: Editor, currentBlock: BlockElement) {
   const prevBlock = findPrevBlock(currentBlock);
   if (!prevBlock) {
     return null;

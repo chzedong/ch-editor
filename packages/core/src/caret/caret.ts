@@ -1,6 +1,6 @@
 import { Editor } from '../editor/editor';
 import { isTextKindBlock } from '../editor/editor-blocks';
-import { getTextCaretRect } from '../line/index';
+import { getTextCaretRect } from '../text/line/text-line';
 import { createElement } from '../utils/dom';
 import './caret.scss';
 

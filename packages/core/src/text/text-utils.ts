@@ -72,6 +72,18 @@ export function getTextBlockContentChildren(block: BlockElement): TextBlockConte
   return children;
 }
 
+/**
+ * 获取文本块的总长度
+ */
+export function getTextBlockLength(block: BlockElement): number {
+  const children = getTextBlockContentChildren(block);
+  let count = 0;
+  children.forEach((child) => {
+    count += getTextBlockContentChildTextLength(child);
+  });
+  return count;
+}
+
 export function isEmptyTextBlock(block: BlockElement) {
   const children = getTextBlockContentChildren(block);
   let len = 0;
@@ -84,3 +96,5 @@ export function isEmptyTextBlock(block: BlockElement) {
 export const isEmptyBlockText = (blockText: DocBlockText) => {
   return !blockText.length || (blockText.length === 1 && !blockText[0].insert);
 };
+
+

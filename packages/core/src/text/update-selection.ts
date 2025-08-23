@@ -1,7 +1,7 @@
 import { getBlockBackground } from '../block/block-background';
 import { createBackgroundChild, removeBackgrounds } from '../block/block-background';
 import { BlockElement } from '../index.type';
-import { LineBreaker } from '../line';
+import { LineBreaker } from './line/text-line';
 import { Editor } from '../main';
 
 export function updateSelection(editor: Editor, block: BlockElement, from: number, to: number): void {

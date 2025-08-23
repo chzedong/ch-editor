@@ -4,7 +4,7 @@ export { EditorDoc } from './editor/editor-doc';
 export { Doc } from './doc/doc';
 export { default as TextBlock } from './text/text-block';
 export { EditorSelection } from './selection/editor-selection';
-export { TextLine, LineBreaker } from './line';
+export { TextLine, LineBreaker } from './text/line/text-line';
 
 // Types
 export type {
