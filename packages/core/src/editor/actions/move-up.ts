@@ -10,7 +10,7 @@ export function moveUp(editor: Editor) {
   if (targetPos) {
     editor.selection.setSelection(targetPos, targetPos, true);
     return true;
-  } else {
-    return false;
   }
+
+  return false;
 }

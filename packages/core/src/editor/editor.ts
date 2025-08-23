@@ -127,14 +127,11 @@ export class Editor extends TypedEmitter<any> {
    */
   updateTargetColumnX(): void {
     const range = this.selection.range;
-
     const focusPos = range.focus;
     const block = this.getBlockById(focusPos.blockId);
-
     assert(isTextKindBlock(this, block), 'not text kind block');
 
     const lineBreaker = new LineBreaker(block);
-
     const position = lineBreaker.getCaretRect(focusPos);
     this.setTargetColumnX(position.left);
   }

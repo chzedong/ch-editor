@@ -10,13 +10,11 @@ export function selectWordRight(editor: Editor) {
   const focusPos = editor.selection.range.focus;
   const block = editor.getBlockById(focusPos.blockId);
   const blockClass = editor.editorBlocks.getBlockClass(getBlockType(block));
-  //
   const blockLen = blockClass.getBlockTextLength(block);
   assert(focusPos.offset <= blockLen, 'focusPos.offset not <= blockLen');
   const blockData = editor.getBlockData(block);
-  //
   assert(isTextKindBlock(editor, block), 'not text kind block');
-  //
+
   if (focusPos.offset < blockLen) {
     assert(blockData.text, 'not has text');
     const offset = editorGetNextWordEnd(blockData.text, focusPos.offset, blockLen);

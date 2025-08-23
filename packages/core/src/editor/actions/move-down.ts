@@ -6,11 +6,10 @@ export function moveDown(editor: Editor) {
   const focusPos = range.focus;
 
   const targetPos = findDownPosition(editor, focusPos);
-
   if (targetPos) {
     editor.selection.setSelection(targetPos, targetPos, true);
     return true;
-  } else {
-    return false;
   }
+
+  return false;
 }

@@ -11,11 +11,10 @@ export function selectDown(editor: Editor) {
   assert(isTextKindBlock(editor, block), 'not text kind block');
 
   const targetPos = findDownPosition(editor, endPos);
-
   if (targetPos) {
     editor.selection.setSelection(range.start, targetPos, true);
     return true;
-  } else {
-    return false;
   }
+
+  return false;
 }

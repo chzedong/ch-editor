@@ -5,19 +5,16 @@ import { assert } from '../../utils/assert';
 import { BlockElement } from '../../index.type';
 
 export function moveRight(editor: Editor) {
-
   const range = editor.selection.range;
   const focusPos = range.focus;
   const block = editor.getBlockById(focusPos.blockId);
   const blockClass = editor.editorBlocks.getBlockClass(getBlockType(block));
-  //
   const blockLen = blockClass.getBlockTextLength(block);
 
   if (!range.isCollapsed()) {
     editor.selection.setSelection(range.end, range.end);
     return true;
   }
-
 
   if (focusPos.offset < blockLen) {
     const newFocusPos = new EditorBlockPosition(focusPos.blockId, focusPos.offset + 1);

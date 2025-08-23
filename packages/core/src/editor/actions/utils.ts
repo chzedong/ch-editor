@@ -5,7 +5,7 @@ import { EditorSelectionRange } from '../../selection/selection-range';
 import { getRangeBlocks } from '../../selection/selection-utils';
 import { RichText } from '../../text/delta';
 import { createDeleteActions } from '../../text/text-op';
-import { isEmptyTextBlock, splitToThree } from '../../text/text-utils';
+import { isEmptyBlockText, isEmptyTextBlock, splitToThree } from '../../text/text-utils';
 import { Editor } from '../editor';
 import { assert } from '../../utils/assert';
 
@@ -28,12 +28,7 @@ export function deleteSelection(editor: Editor, range: EditorSelectionRange): bo
     const containerId = getContainerId(container);
 
     const actions = createDeleteActions(start.offset, end.offset - start.offset);
-
     editor.doc.localUpdateBlockText(containerId, blockIndex, actions);
-
-    // 设置光标到选区起始位置
-    const newPos = new EditorBlockPosition(start.blockId, start.offset);
-    editor.selection.setSelection(newPos, newPos);
 
     return true;
   }
@@ -69,7 +64,6 @@ function deleteMultiBlockSelection(
 
   // 1. 处理第一个块：删除从选区开始到块结束的内容
   const firstBlockActions = createDeleteActions(start.offset, firstBlock.focus - start.offset);
-
   editor.doc.localUpdateBlockText(firstContainerId, firstBlockIndex, firstBlockActions);
 
   // 2. 删除中间的完整块（从后往前删除，避免索引变化）
@@ -81,16 +75,17 @@ function deleteMultiBlockSelection(
   // 3. 处理最后一个块：获取剩余内容并合并到第一个块
   const lastBlockData = editor.getBlockData(lastBlock.block);
   const lastBlockLen = editor.getBlockTextLength(lastBlock.block);
-  if (lastBlockData.text && end.offset < lastBlockLen) {
-    // 删除最后一个块
-    editor.deleteBlock(lastBlock.block);
 
+  // 删除最后一个块
+  editor.deleteBlock(lastBlock.block);
+
+  if (lastBlockData.text && end.offset < lastBlockLen) {
     // 获取最后一个块中选区结束后的剩余内容
     const remainingActions = createDeleteActions(0, end.offset);
     const restText = RichText.apply(lastBlockData.text, remainingActions);
 
     // 获取剩余文本内容
-    if (restText.length && restText[0].insert && restText[0].insert.length > 0) {
+    if (!isEmptyBlockText(restText)) {
       const insertActions: DocBlockTextActions = [];
 
       // 定位到第一个块的末尾
@@ -110,9 +105,6 @@ function deleteMultiBlockSelection(
         editor.doc.localUpdateBlockText(firstContainerId, firstBlockIndex, insertActions);
       }
     }
-  } else {
-    // 如果最后一个块完全被选中，直接删除
-    editor.deleteBlock(lastBlock.block);
   }
 
   // 设置光标到选区起始位置

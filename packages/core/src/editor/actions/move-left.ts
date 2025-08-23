@@ -9,7 +9,6 @@ export function moveLeft(editor: Editor) {
   const focusPos = range.focus;
   const block = editor.getBlockById(focusPos.blockId);
   const blockClass = editor.editorBlocks.getBlockClass(getBlockType(block));
-  //
   const blockLen = blockClass.getBlockTextLength(block);
   assert(focusPos.offset <= blockLen, 'focusPos.offset not <= blockLen');
 
@@ -18,7 +17,6 @@ export function moveLeft(editor: Editor) {
     return true;
   }
 
-  //
   if (focusPos.offset > 0) {
     const newFocusPos = new EditorBlockPosition(focusPos.blockId, focusPos.offset - 1);
     editor.selection.setSelection(newFocusPos, newFocusPos);
