@@ -1,8 +1,7 @@
 import { assert } from '../utils/assert';
-import { getTextBlockContentChildTextLength } from '../text/text-utils';
+import { getTextBlockContentChildren, getTextBlockContentChildTextLength } from '../text/text-utils';
 import { BlockElement, TextBlockContentChild } from '../index.type';
 import { SimpleBlockPosition, SimpleBlockPositionType } from '../selection/block-position';
-import { getBlockContent } from '../block/block-dom';
 
 // 背景
 // 编辑器采用自主研发的输入引擎架构，系统基于模块化文档模型
@@ -34,7 +33,7 @@ import { getBlockContent } from '../block/block-dom';
 //   - 大规模文档的布局分析效率
 
 export interface LineItem {
-  child: Element;
+  child: TextBlockContentChild;
   startBlockOffset: number;
   endBlockOffset: number;
   contentRect: DOMRect;
@@ -680,6 +679,83 @@ export class LineBreaker {
     }
     return undefined;
   }
+
+  /**
+   * 获取选区范围内的所有矩形
+   * @param from 起始偏移量
+   * @param to 结束偏移量
+   * @returns 选区矩形数组
+   */
+  getSelectionRects(from: number, to: number): DOMRect[] {
+    if (from === to) {
+      return [];
+    }
+
+    // 确保 from <= to
+    if (from > to) {
+      [from, to] = [to, from];
+    }
+
+    const rects: DOMRect[] = [];
+
+    for (const line of this._lines) {
+      for (const item of line.items) {
+        // 检查当前 item 是否与选区有重叠
+        const itemStart = item.startBlockOffset;
+        const itemEnd = item.endBlockOffset;
+
+        if (itemEnd <= from || itemStart >= to) {
+          // 没有重叠，跳过
+          continue;
+        }
+
+        // 计算重叠部分
+        const overlapStart = Math.max(itemStart, from);
+        const overlapEnd = Math.min(itemEnd, to);
+
+        if (overlapStart >= overlapEnd) {
+          continue;
+        }
+
+        // 如果整个 item 都被选中
+        if (overlapStart === itemStart && overlapEnd === itemEnd) {
+          rects.push(item.contentRect);
+          continue;
+        }
+
+        // 部分选中，需要计算精确的矩形
+        const textNode = item.child.firstChild;
+        if (textNode instanceof Text) {
+          // 查找同一元素的第一个lineItem，获取真实的起始偏移量
+          const firstItem = this._findFirstItemForChild(item.child);
+          const realStartOffset = firstItem ? firstItem.startBlockOffset : itemStart;
+
+          const relativeStart = overlapStart - realStartOffset;
+          const relativeEnd = overlapEnd - realStartOffset;
+
+          try {
+            const range = document.createRange();
+            range.setStart(textNode, relativeStart);
+            range.setEnd(textNode, relativeEnd);
+
+            const rangeRects = range.getClientRects();
+            for (let i = 0; i < rangeRects.length; i++) {
+              rects.push(rangeRects[i]);
+            }
+          } catch (error) {
+            // 如果 Range 创建失败，使用整个 item 的矩形
+            console.warn('getSelectionRects range error:', error);
+            rects.push(item.contentRect);
+          }
+        } else {
+          // 非文本节点，使用整个 item 的矩形
+          rects.push(item.contentRect);
+        }
+      }
+    }
+
+    return rects;
+  }
 }
 
 // 关键函数
@@ -716,11 +792,3 @@ export function getLineBreaker(block: BlockElement): LineBreaker {
   return new LineBreaker(block);
 }
 
-export function getTextBlockContentChildren(block: HTMLElement) {
-  const content = getBlockContent(block);
-  const children = Array.from(content.children);
-  // 可以加断言验证
-  return children;
-}
-
-// window.getOffsetFromPoint = getOffsetFromPoint;

@@ -2,8 +2,10 @@ import { Editor } from '../editor/editor';
 import { getBlockIndex } from '../block/block-dom';
 import { getContainerId, getParentContainer } from '../container/container-dom';
 import { assert } from '../utils/assert';
+import { createDeleteActions } from './text-op';
+import { BlockElement } from '../index.type';
 
-export const deleteText = (editor: Editor, block: HTMLElement, from: number, to: number) => {
+export const deleteText = (editor: Editor, block: BlockElement, from: number, to: number) => {
   assert(from < to, 'from must < to');
 
   const blockData = editor.getBlockData(block);
@@ -15,9 +17,5 @@ export const deleteText = (editor: Editor, block: HTMLElement, from: number, to:
   const containerId = getContainerId(container);
   const blockIndex = getBlockIndex(block);
 
-  if (from === 0) {
-    return editor.doc.localUpdateBlockText(containerId, blockIndex, [{ delete: to - from }]);
-  }
-
-  return editor.doc.localUpdateBlockText(containerId, blockIndex, [{ retain: from }, { delete: to - from }]);
+  return editor.doc.localUpdateBlockText(containerId, blockIndex, createDeleteActions(from, to - from));
 };

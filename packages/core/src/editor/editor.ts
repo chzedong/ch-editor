@@ -10,13 +10,13 @@ import { EditorInput } from './editor-input';
 import { EditorSelection } from '../selection/editor-selection';
 import { EditorShortcuts } from './editor-shortcut';
 import { defaultShortcuts } from './default-shortcuts';
-import { getBlockId, getBlockIndex, getLastBlock } from '../block/block-dom';
+import { getBlockId, getBlockIndex, getFirstBlock, getLastBlock } from '../block/block-dom';
 import { EditorBlockPosition } from '../selection/block-position';
-import { assert } from '../utils/assert';
-
-import { DocBlock } from '../index.type';
 import { EditorSelectionRange } from '../selection/selection-range';
+import { assert } from '../utils/assert';
 import { LineBreaker } from '../line';
+
+import { BlockElement, ContainerElement, DocBlock } from '../index.type';
 
 export class Editor extends TypedEmitter<any> {
   parent: HTMLElement;
@@ -25,7 +25,7 @@ export class Editor extends TypedEmitter<any> {
 
   rootContainerObject: RootContainer;
 
-  rootContainer: HTMLElement;
+  rootContainer: ContainerElement;
 
   input: EditorInput;
 
@@ -56,38 +56,35 @@ export class Editor extends TypedEmitter<any> {
   }
 
   getFirstBlock() {
-    return this.rootContainer.querySelector('[data-type=editor-block]') as HTMLElement;
+    return getFirstBlock(this.rootContainer);
   }
 
   getBlockById(id: string) {
     const block = this.findBlockById(id);
     assert(block, 'no block');
-    return block as HTMLElement;
+    return block as BlockElement;
   }
 
-  findBlockById(id: string): HTMLElement | null {
-    const block = this.rootContainer.querySelector(`#${id}`) as HTMLElement;
-    if (block) {
-      // assert()
-    }
+  findBlockById(id: string): BlockElement | null {
+    const block = this.rootContainer.querySelector(`#${id}`) as BlockElement;
     return block ?? null;
   }
 
-  findBlockByIndex(containerId: string, index: number): HTMLElement | null {
+  findBlockByIndex(containerId: string, index: number): BlockElement | null {
     const container = getContainerById(this, containerId);
     const blocks = getChildBlocks(container);
     const block = blocks[index];
     return block ?? null;
   }
 
-  getBlockData(blockElement: HTMLElement) {
+  getBlockData(blockElement: BlockElement) {
     const container = getParentContainer(blockElement);
     const containerId = getContainerId(container);
     const blockIndex = getBlockIndex(blockElement);
     return this.doc.getBlockData(containerId, blockIndex);
   }
 
-  getBlockTextLength(blockElement: HTMLElement) {
+  getBlockTextLength(blockElement: BlockElement) {
     const blockData = this.getBlockData(blockElement);
     const blockClass = this.editorBlocks.getBlockClass(blockData.type);
     return blockClass.getBlockTextLength(blockElement);
@@ -112,7 +109,7 @@ export class Editor extends TypedEmitter<any> {
     this.selection.setSelection(pos, pos);
   }
 
-  deleteBlock(blockElement: HTMLElement, newRange?: EditorSelectionRange) {
+  deleteBlock(blockElement: BlockElement, newRange?: EditorSelectionRange) {
     const blockData = this.getBlockData(blockElement);
     const container = getParentContainer(blockElement);
     const containerId = getContainerId(container);

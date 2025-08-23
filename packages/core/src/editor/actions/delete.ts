@@ -4,7 +4,7 @@ import {
   getParentContainer
 } from '../../container/container-dom';
 import { Editor } from '../editor';
-import { createDeleteActions } from '../../text/delete-actions';
+import { createDeleteActions } from '../../text/text-op';
 import { DocBlockTextActions } from '../../index.type';
 import { assert } from '../../main';
 import { EditorBlockPosition } from '../../selection/block-position';

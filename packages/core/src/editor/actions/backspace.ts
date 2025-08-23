@@ -3,7 +3,7 @@ import { getContainerId, getParentContainer } from '../../container/container-do
 import { Editor } from '../editor';
 import { deleteEmptyBlock, deleteSelection, mergeSiblingBlocks } from './delete';
 import { isEmptyTextBlock } from '../../text/text-utils';
-import { createDeleteActions } from '../../text/delete-actions';
+import { createDeleteActions } from '../../text/text-op';
 
 export function backspace(editor: Editor) {
   const focusPos = editor.selection.range.focus;

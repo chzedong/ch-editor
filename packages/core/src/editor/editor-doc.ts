@@ -2,27 +2,29 @@ import { Editor } from './editor';
 import { genId } from '../utils/get-id';
 import { assert } from '../utils/assert';
 import { RichText } from '../text/delta';
+import { transformSelection } from '../selection/selection-utils';
 
 import { DocBlock, DocBlockTextActions, DocObject } from '../index.type';
-import { transformSelection } from '../selection/selection-utils';
+
+
+export const createEmptyDoc = () => ({
+  blocks: [
+    {
+      id: genId(),
+      type: 'text',
+      text: [{ insert: '' }]
+    }
+  ]
+});
+
 
 export class EditorDoc {
   doc: DocObject;
   constructor(private editor: Editor, doc?: DocObject) {
-
-
     if (doc) {
       this.doc = doc;
     } else {
-      this.doc = {
-        blocks: [
-          {
-            id: genId(),
-            type: 'text',
-            text: [{ insert: '' }]
-          }
-        ]
-      };
+      this.doc = createEmptyDoc();
     }
   }
 

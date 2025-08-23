@@ -8,7 +8,6 @@ export class Caret {
   caret: HTMLElement;
   constructor(private editor: Editor) {
     this.caret = createElement('div', ['editor-caret'], editor.rootContainer);
-    // this.update()
   }
 
   private hasCaret() {

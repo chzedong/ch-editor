@@ -1,5 +1,5 @@
 import Delta from 'quill-delta';
-import { DocBlockText, DocBlockTextActionOp, DocBlockTextActions } from '../index.type';
+import { DocBlockText, DocBlockTextActions } from '../index.type';
 
 function applyOps(snapshot: DocBlockText, delta: DocBlockTextActions) {
   const snapshotD = new Delta(snapshot);
@@ -18,4 +18,5 @@ export class RichText {
   }
 }
 
+// TODO: 测试
 (window as any).RichText = RichText;

@@ -3,10 +3,12 @@ import { RichText } from '../text/delta';
 import { Editor } from '../editor/editor';
 import { EditorSelectionRange } from './selection-range';
 
-import { DocBlockTextActions } from '../index.type';
-import { getBlockIndex, removeBackgrounds } from '../block/block-dom';
+import { getBlockIndex } from '../block/block-dom';
+import { removeBackgrounds } from '../block/block-background';
 import { getContainerId, getParentContainer } from '../container/container-dom';
-import { assert } from '../main';
+import { assert } from '../utils/assert';
+
+import { BlockElement, DocBlockTextActions } from '../index.type';
 
 export function transformSelection(editor: Editor, blockId: string, delta: DocBlockTextActions) {
   const { range } = editor.selection;
@@ -32,7 +34,7 @@ export function transformSelection(editor: Editor, blockId: string, delta: DocBl
 
 export function clearAllSelection(editor: Editor) {
   editor.rootContainer.querySelectorAll('[data-type="editor-block"]').forEach((block) => {
-    removeBackgrounds(block as HTMLElement);
+    removeBackgrounds(block as BlockElement);
   });
 }
 
@@ -60,7 +62,7 @@ export function getRangeBlocks(editor: Editor, range: EditorSelectionRange) {
     return [{ block: startBlock, anchor: start.offset, focus: end.offset }];
   }
 
-  const blocks: { block: HTMLElement; anchor: number; focus: number }[] = [];
+  const blocks: { block: BlockElement; anchor: number; focus: number }[] = [];
 
   const blockLen = editor.getBlockTextLength(startBlock);
   blocks.push({ block: startBlock, anchor: start.offset, focus: blockLen });

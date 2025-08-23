@@ -1,17 +1,9 @@
 import AttributeMap from 'quill-delta/dist/AttributeMap';
 import { Editor } from '../editor/editor';
 import { addClass, createElement } from '../utils/dom';
+import { isEmptyBlockText } from './text-utils';
 
 import { BlockPath, DocBlockText } from '../index.type';
-
-function multiSplitText(ops: DocBlockText, offsets: number[]) {
-  const newOffsets = Array.from(new Set(offsets)).sort((n1, n2) => n1 - n2);
-}
-
-
-const isEmptyBlockText = (blockText: DocBlockText) => {
-  return !blockText.length ||  (blockText.length === 1 && !blockText[0].insert);
-};
 
 export function updateBlockContent(editor: Editor, path: BlockPath, blockId: string, content: Element, blockText: DocBlockText) {
 
@@ -20,11 +12,7 @@ export function updateBlockContent(editor: Editor, path: BlockPath, blockId: str
     return;
   }
 
-  const offsets = [];
-  //
   const fragment = document.createDocumentFragment();
-  const offset = 0;
-  // const parts = multiSplitText(blockText, offset);
 
   for (let i = 0; i < blockText.length; i++) {
     const op = blockText[i];

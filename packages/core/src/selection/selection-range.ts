@@ -7,7 +7,7 @@ export class EditorSelectionRange {
   private _anchor: EditorBlockPosition;
   private _focus: EditorBlockPosition;
 
-  constructor(editor: Editor, options: { anchor: EditorBlockPosition, focus: EditorBlockPosition }) {
+  constructor(editor: Editor, options: { anchor: EditorBlockPosition; focus: EditorBlockPosition }) {
     this.editor = editor;
     this._anchor = options.anchor;
     this._focus = options.focus;
@@ -50,7 +50,13 @@ export class EditorSelectionRange {
   isEqual(other: EditorSelectionRange) {
     const { start, end } = other;
 
-    const ret = this.start.blockId === start.blockId && this.start.offset === start.offset && this.end.blockId === end.blockId && this.end.offset === end.offset && this.start.type === start.type && this.end.type === end.type;
+    const ret =
+      this.start.blockId === start.blockId &&
+      this.start.offset === start.offset &&
+      this.end.blockId === end.blockId &&
+      this.end.offset === end.offset &&
+      this.start.type === start.type &&
+      this.end.type === end.type;
 
     return ret;
   }

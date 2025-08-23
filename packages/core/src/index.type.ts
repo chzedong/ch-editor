@@ -61,6 +61,7 @@ export interface InputHandler {
   handleKeyDown: (editor: Editor, event: KeyboardEvent) => boolean;
 }
 
-export type BlockElement = HTMLElement;
-
-export type TextBlockContentChild = Element;
+export type ContainerElement = HTMLDivElement;
+export type BlockElement = HTMLDivElement;
+export type BlockContentElement = HTMLDivElement;
+export type TextBlockContentChild = HTMLSpanElement;
