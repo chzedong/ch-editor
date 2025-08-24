@@ -21,27 +21,8 @@ export function updateBlockContent(editor: Editor, path: BlockPath, blockId: str
     span.innerText = op.insert;
 
     if (op.attributes) {
-      const classes: string[] = [];
-      const newAttributes: AttributeMap = {};
-
-      Object.entries(op.attributes).forEach(([key, value]) => {
-        if (value === true) {
-          const COLOR_PREFIX = 'style-color-';
-          // const BKG_COLOR_PREFIX = ''
-          if (key.startsWith(COLOR_PREFIX)) {
-            newAttributes['data-style-color'] = key.substring(COLOR_PREFIX.length);
-          } else if (key.startsWith('style')) {
-            classes.push(key);
-          }
-        }
-      });
-
-      // bind
-      addClass(span, ...classes);
-      Object.entries(newAttributes).forEach(([key, value]) => {
-        span.setAttribute(key, value);
-      });
-
+      // 使用插件化的mark系统渲染样式
+      editor.markManager.applyMarks(span, op.attributes);
     }
 
     fragment.appendChild(span);

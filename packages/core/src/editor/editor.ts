@@ -3,18 +3,19 @@ import { TypedEmitter } from 'tiny-typed-emitter';
 import EditorBlocks, { isTextKindBlock } from './editor-blocks';
 import { EditorDoc } from './editor-doc';
 import { RootContainer } from '../container/root-container';
-import { getChildBlocks, getContainerBlocksElement, getContainerById, getContainerId, getParentContainer } from '../container/container-dom';
+import { getChildBlocks, getContainerById, getContainerId, getParentContainer } from '../container/container-dom';
 import { createRootContainer } from '../container/create-root-container';
 import TextBlock from '../text/text-block';
 import { EditorInput } from './editor-input';
 import { EditorSelection } from '../selection/editor-selection';
 import { EditorShortcuts } from './editor-shortcut';
 import { defaultShortcuts } from './default-shortcuts';
-import { getBlockId, getBlockIndex, getFirstBlock, getLastBlock } from '../block/block-dom';
-import { EditorBlockPosition } from '../selection/block-position';
+import { getBlockIndex, getFirstBlock } from '../block/block-dom';
 import { EditorSelectionRange } from '../selection/selection-range';
 import { assert } from '../utils/assert';
 import { LineBreaker } from '../text/line/text-line';
+import { MarkManager } from '../mark/mark-manager';
+import { getBuiltInMarks } from '../mark/built-in-marks';
 
 import { BlockElement, ContainerElement, DocBlock } from '../index.type';
 
@@ -33,6 +34,8 @@ export class Editor extends TypedEmitter<any> {
 
   editorBlocks: EditorBlocks = new EditorBlocks(this);
 
+  markManager: MarkManager;
+
   // 上下键导航的目标列位置状态
   private _targetColumnX: number | null = null;
 
@@ -49,6 +52,10 @@ export class Editor extends TypedEmitter<any> {
     const shortcuts = new EditorShortcuts();
     this.input.addHandler(shortcuts);
     shortcuts.shortcuts = [defaultShortcuts];
+
+    // 初始化Mark管理器
+    this.markManager = new MarkManager(this);
+    this.markManager.registerAll(getBuiltInMarks());
   }
 
   focus() {
