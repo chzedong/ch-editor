@@ -4,13 +4,51 @@ import { isMultiLineChild, doesNextChildStartNewLine, mergeTextRects, getTextNod
 import { assert } from '../../utils/assert';
 import { createExpandedRange } from '../../utils/dom';
 
-import { TextBlockContentChild, BlockElement } from '../../index.type';
+import { TextBlockContentChild, BlockElement, BoxData } from '../../index.type';
 
-export interface LineItem {
+/**
+ * Line item 类型
+ */
+export type LineItemType = 'text' | 'box';
+
+/**
+ * 基础 LineItem 接口
+ */
+export interface BaseLineItem {
   child: TextBlockContentChild;
   startBlockOffset: number;
   endBlockOffset: number;
   contentRect: DOMRect;
+}
+
+/**
+ * 文本类型的 LineItem
+ */
+export interface TextLineItem extends BaseLineItem {
+  type: 'text';
+}
+
+/**
+ * Box 类型的 LineItem
+ */
+export interface BoxLineItem extends BaseLineItem {
+  type: 'box';
+}
+
+/**
+ * 联合类型的 LineItem
+ */
+export type LineItem = TextLineItem | BoxLineItem;
+
+/**
+ * 类型守卫函数
+ */
+export function isTextLineItem(item: LineItem): item is TextLineItem {
+  return item.type === 'text';
+}
+
+export function isBoxLineItem(item: LineItem): item is BoxLineItem {
+  return item.type === 'box';
 }
 
 /**
@@ -45,7 +83,7 @@ export class TextLine {
   }
 
   /**
-   * 向当前行添加子元素
+   * 向当前行添加文本子元素
    */
   addChild(child: TextBlockContentChild, textLength: number, contentRect: DOMRect): void {
     const startOffset = this._endOffset;
@@ -56,13 +94,34 @@ export class TextLine {
       `文本长度超过子元素范围 (${textLength} > ${getTextBlockContentChildTextLength(child)})`
     );
 
-    this._items.push({
+    const item: TextLineItem = {
+      type: 'text',
       child,
       startBlockOffset: startOffset,
       endBlockOffset: endOffset,
       contentRect
-    });
+    };
 
+    this._items.push(item);
+    this._endOffset = endOffset;
+  }
+
+  /**
+   * 向当前行添加 box 元素
+   */
+  addBox(element: HTMLElement, contentRect: DOMRect): void {
+    const startOffset = this._endOffset;
+    const endOffset = startOffset + 1; // box 的逻辑长度始终为 1
+
+    const item: BoxLineItem = {
+      type: 'box',
+      child: element,
+      startBlockOffset: startOffset,
+      endBlockOffset: endOffset,
+      contentRect
+    };
+
+    this._items.push(item);
     this._endOffset = endOffset;
   }
 
@@ -290,38 +349,51 @@ export class LineBreaker {
     for (const item of targetLine.items) {
       const rect = item.contentRect;
       if (x >= rect.left && x <= rect.right) {
-        // 在当前item内，需要精确计算偏移量
-        const textNode = item.child.firstChild;
-        if (textNode instanceof Text) {
-          const offsetInfo = getOffsetFromPoint(textNode, x, y);
+        // 处理文本类型的 item
+        if (isTextLineItem(item)) {
+          const textNode = item.child.firstChild;
+          if (textNode instanceof Text) {
+            const offsetInfo = getOffsetFromPoint(textNode, x, y);
 
-          if (offsetInfo.textNode === textNode && offsetInfo.offset >= 0) {
-            const relativeOffset = offsetInfo.offset;
-            const startBlockOffset = this._findFirstItemForChild(item.child).startBlockOffset;
-            const absoluteOffset = startBlockOffset + relativeOffset;
+            if (offsetInfo.textNode === textNode && offsetInfo.offset >= 0) {
+              const relativeOffset = offsetInfo.offset;
+              const startBlockOffset = this._findFirstItemForChild(item.child).startBlockOffset;
+              const absoluteOffset = startBlockOffset + relativeOffset;
 
-            // 计算type
-            let type: SimpleBlockPositionType = 'middle';
-            if (offsetInfo.offset === item.startBlockOffset) {
-              type = 'home';
-            } else if (offsetInfo.offset === item.endBlockOffset) {
-              type = 'end';
+              // 计算type
+              let type: SimpleBlockPositionType = 'middle';
+              if (absoluteOffset === item.startBlockOffset) {
+                type = 'home';
+              } else if (absoluteOffset === item.endBlockOffset) {
+                type = 'end';
+              }
+
+              return {
+                offset: Math.min(absoluteOffset, item.endBlockOffset),
+                type,
+                blockId: this._blockId
+              };
             }
+          }
 
-            return {
-              offset: Math.min(absoluteOffset, item.endBlockOffset),
-              type,
-              blockId: this._blockId
-            };
+          // 如果无法精确计算，根据x坐标判断是开始还是结束
+          const midX = rect.left + rect.width / 2;
+          if (x < midX) {
+            return { offset: item.startBlockOffset, type: 'home', blockId: this._blockId };
+          } else {
+            return { offset: item.endBlockOffset, type: 'end', blockId: this._blockId };
           }
         }
 
-        // 如果无法精确计算，根据x坐标判断是开始还是结束
-        const midX = rect.left + rect.width / 2;
-        if (x < midX) {
-          return { offset: item.startBlockOffset, type: 'home', blockId: this._blockId };
-        } else {
-          return { offset: item.endBlockOffset, type: 'end', blockId: this._blockId };
+        // 处理 box 类型的 item
+        if (isBoxLineItem(item)) {
+          // box 不允许光标位于中间，根据点击位置判断是开始还是结束
+          const midX = rect.left + rect.width / 2;
+          if (x < midX) {
+            return { offset: item.startBlockOffset, type: 'home', blockId: this._blockId };
+          } else {
+            return { offset: item.endBlockOffset, type: 'end', blockId: this._blockId };
+          }
         }
       }
     }
@@ -360,7 +432,8 @@ export class LineBreaker {
         return new DOMRect(contentRect.right, contentRect.top, 1, contentRect.height);
       }
 
-      if (position.offset > item.startBlockOffset && position.offset < item.endBlockOffset) {
+      // 处理文本类型的 item
+      if (isTextLineItem(item) && position.offset > item.startBlockOffset && position.offset < item.endBlockOffset) {
         const textNode = item.child.firstChild;
         assert(textNode instanceof Text, `无效的文本子节点，不是有效的文本节点: ${typeof textNode}`);
 
@@ -378,6 +451,14 @@ export class LineBreaker {
           return new DOMRect(contentRect.left, contentRect.top, 1, contentRect.height);
         }
       }
+
+      // 处理 box 类型的 item
+      // box 不允许光标位于中间，只能在开始或结束位置
+      if (isBoxLineItem(item) && position.offset > item.startBlockOffset && position.offset < item.endBlockOffset) {
+        // 对于 box，如果偏移量在中间，则调整到结束位置
+        const contentRect = item.contentRect;
+        return new DOMRect(contentRect.right, contentRect.top, 1, contentRect.height);
+      }
     }
 
     // 如果没有找到精确位置，返回行的开始或结束位置
@@ -392,10 +473,10 @@ export class LineBreaker {
   /**
    * 查找同一元素的第一个lineItem，获取真实的起始偏移量
    */
-  private _findFirstItemForChild(targetChild: TextBlockContentChild): LineItem {
+  private _findFirstItemForChild(targetChild: TextBlockContentChild): TextLineItem {
     for (const line of this._lines) {
       for (const item of line.items) {
-        if (item.child === targetChild) {
+        if (isTextLineItem(item) && item.child === targetChild) {
           return item;
         }
       }
@@ -447,23 +528,29 @@ export class LineBreaker {
           continue;
         }
 
-        // 部分选中，需要计算精确的矩形
-        const textNode = item.child.firstChild;
-        if (textNode instanceof Text) {
-          // 查找同一元素的第一个lineItem，获取真实的起始偏移量
-          const firstItem = this._findFirstItemForChild(item.child);
-          const realStartOffset = firstItem.startBlockOffset;
+        // 处理文本类型的部分选中
+        if (isTextLineItem(item)) {
+          const textNode = item.child.firstChild;
+          if (textNode instanceof Text) {
+            // 查找同一元素的第一个lineItem，获取真实的起始偏移量
+            const firstItem = this._findFirstItemForChild(item.child);
+            const realStartOffset = firstItem.startBlockOffset;
 
-          const relativeStart = overlapStart - realStartOffset;
-          const relativeEnd = overlapEnd - realStartOffset;
+            const relativeStart = overlapStart - realStartOffset;
+            const relativeEnd = overlapEnd - realStartOffset;
 
-          const range =  createExpandedRange(textNode, relativeStart, textNode, relativeEnd);
-          const rangeRects = range.getClientRects();
-          for (let i = 0; i < rangeRects.length; i++) {
-            rects.push(rangeRects[i]);
+            const range =  createExpandedRange(textNode, relativeStart, textNode, relativeEnd);
+            const rangeRects = range.getClientRects();
+            for (let i = 0; i < rangeRects.length; i++) {
+              rects.push(rangeRects[i]);
+            }
+          } else {
+            // 非文本节点，使用整个 item 的矩形
+            rects.push(item.contentRect);
           }
-        } else {
-          // 非文本节点，使用整个 item 的矩形
+        } else if (isBoxLineItem(item)) {
+          // 处理 box 类型的选中
+          // box 被选中时，直接使用其完整的矩形区域
           rects.push(item.contentRect);
         }
       }

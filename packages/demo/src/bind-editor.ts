@@ -11,7 +11,7 @@ editor.focus();
 const debugManager = initDebugTools();
 // 监听文档变化
 editor.on('docChange', () => {
-  debugManager.updateDocInfo(editor.doc.getDoc().doc);
+  debugManager.updateDocInfo(editor.editorDoc.getDoc().doc);
   // debugManager.updateLines(editor.doc.doc.blocks);
   const blockId = editor.selection.range.start.blockId;
   const block = editor.findBlockById(blockId)!;

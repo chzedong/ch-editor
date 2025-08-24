@@ -6,20 +6,17 @@ export { default as TextBlock } from './text/text-block';
 export { EditorSelection } from './selection/editor-selection';
 export { TextLine, LineBreaker } from './text/line/text-line';
 
+// Box system exports
+export { EditorBoxes } from './editor/editor-boxes';
+export { BoxDomUtils } from './box/box-dom-utils';
+export { isBoxOp, isTextOp, createBoxInsertOp } from './box/box-data-model';
+
 // Mark system exports
 export * from './mark';
 export { formatSelectedText, toggleTextFormat, applyMarkToSelection, toggleMark } from './text/format-text';
 
 // Types
-export type {
-  DocBlock,
-  DocBlockTextOp,
-  Block,
-  BlockPath,
-  ShortcutsRecord,
-  InputHandler,
-  DocObject
-} from './index.type';
+export type { DocBlock, DocBlockTextOp, Block, BlockPath, ShortcutsRecord, InputHandler, DocObject } from './index.type';
 
 // Utils
 export { assert } from './utils/assert';
@@ -31,4 +28,3 @@ export * from './utils/dom';
 import './caret/caret.scss';
 import './block/block.scss';
 import './style.scss';
-
