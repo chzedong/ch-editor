@@ -6,6 +6,7 @@ import { splitToThree } from './text-utils';
 import { DocBlockTextActions } from '../index.type';
 import AttributeMap from 'quill-delta/dist/AttributeMap';
 import { updateSelection } from '../selection/selection-utils';
+import { isTextKindBlock } from '../editor/editor-blocks';
 
 /**
  * 给选中的文本应用格式
@@ -14,50 +15,52 @@ import { updateSelection } from '../selection/selection-utils';
  */
 export function formatSelectedText(editor: Editor, attributes: AttributeMap) {
   const { range } = editor.selection;
-  const { start, end } = range;
-
-  // 目前只支持单个块内的格式化
-  if (start.blockId !== end.blockId) {
-    console.warn('Cross-block formatting not supported yet');
-    return;
-  }
 
   // 如果是折叠选区，不执行格式化
   if (range.isCollapsed()) {
     return;
   }
 
-  const block = editor.getBlockById(start.blockId);
-  const blockIndex = getBlockIndex(block);
-  const container = getParentContainer(block);
-  const containerId = getContainerId(container);
-  const blockData = editor.getBlockData(block);
+  const selectedBlocks = editor.selection.getSelectedBlocks();
+  selectedBlocks.forEach((selectedBlock) => {
+    const { block, anchor: start, focus: end } = selectedBlock;
 
-  assert(blockData.text, 'Block has no text');
+    if (!isTextKindBlock(editor, block)) {
+      return;
+    }
 
-  // 创建格式化操作
-  const actions: DocBlockTextActions = [];
+    const blockIndex = getBlockIndex(block);
+    const container = getParentContainer(block);
+    const containerId = getContainerId(container);
+    const blockData = editor.getBlockData(block);
 
-  // 保留开始位置之前的内容
-  if (start.offset > 0) {
-    actions.push({ retain: start.offset });
-  }
+    assert(blockData.text, 'Block has no text');
 
-  // 应用格式到选中的文本
-  const selectedLength = end.offset - start.offset;
-  if (selectedLength > 0) {
-    actions.push({
-      retain: selectedLength,
-      attributes: attributes
-    });
-  }
+    // 创建格式化操作
+    const actions: DocBlockTextActions = [];
+
+    // 保留开始位置之前的内容
+    if (start > 0) {
+      actions.push({ retain: start });
+    }
+
+    // 应用格式到选中的文本
+    const selectedLength = end - start;
+    if (selectedLength > 0) {
+      actions.push({
+        retain: selectedLength,
+        attributes: attributes
+      });
+    }
+
+    if (actions.length > 0) {
+      editor.doc.localUpdateBlockText(containerId, blockIndex, actions);
+    }
+  });
 
   // 应用操作
-  if (actions.length > 0) {
-    editor.doc.localUpdateBlockText(containerId, blockIndex, actions);
-    updateSelection(editor);
-    editor.focus();
-  }
+  updateSelection(editor);
+  editor.focus();
 }
 
 /**
@@ -79,9 +82,7 @@ export function hasTextFormat(editor: Editor, attributeKey: string, attributeVal
   const { middle } = splitToThree(blockData.text, start.offset, end.offset - start.offset);
 
   // 简单检查：如果选中文本的第一个字符有该属性，则认为整个选区都有该属性
-  const hasFormat = middle.length > 0 &&
-    middle[0].attributes &&
-    middle[0].attributes[attributeKey] === attributeValue;
+  const hasFormat = middle.length > 0 && middle[0].attributes && middle[0].attributes[attributeKey] === attributeValue;
 
   return hasFormat;
 }
@@ -95,12 +96,6 @@ export function hasTextFormat(editor: Editor, attributeKey: string, attributeVal
 export function toggleTextFormat(editor: Editor, attributeKey: string, attributeValue: any = true) {
   const { range } = editor.selection;
   const { start, end } = range;
-
-  // 目前只支持单个块内的格式化
-  if (start.blockId !== end.blockId) {
-    console.warn('Cross-block formatting not supported yet');
-    return;
-  }
 
   // 如果是折叠选区，不执行格式化
   if (range.isCollapsed()) {
