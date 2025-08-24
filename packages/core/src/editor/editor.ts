@@ -58,8 +58,10 @@ export class Editor extends TypedEmitter<any> {
     this.markManager.registerAll(getBuiltInMarks());
   }
 
-  focus() {
-    this.input.focus();
+  focus(autoScroll: boolean = true) {
+    this.input.focus({
+      preventScroll: !autoScroll
+    });
   }
 
   getFirstBlock() {

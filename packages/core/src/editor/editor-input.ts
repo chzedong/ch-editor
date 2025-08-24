@@ -33,11 +33,10 @@ export class EditorInput {
     }
   };
 
-  focus() {
-    // this.editor.selection.caret.update()
+  // eslint-disable-next-line no-undef
+  focus(options: FocusOptions = {}) {
     setTimeout(() => {
-
-      this.inputElement.focus();
+      this.inputElement.focus(options);
     });
   }
 

@@ -1,6 +1,9 @@
 [data-type="editor-container"] {
   position: relative;
   user-select: none;
+  height: 100%;
+  min-height: max-content;
+  padding: 16px;
 }
 
 [data-type="editor-block"]:first-child {

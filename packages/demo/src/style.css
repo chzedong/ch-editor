@@ -109,11 +109,11 @@ body {
 #editor {
   border: 1px solid #dee2e6;
   border-radius: 6px;
-  min-height: 300px;
-  padding: 16px;
+  height: 300px;
   text-align: left;
   background: white;
-  margin-bottom: 16px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* 调试信息样式 */
