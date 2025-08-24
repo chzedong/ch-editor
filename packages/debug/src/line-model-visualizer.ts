@@ -269,7 +269,7 @@ export class LineModelVisualizer {
     }
 
     // 根据内容长度调整边框颜色
-    const contentLength = item.text?.length || 0;
+    const contentLength = item.endBlockOffset - item.startBlockOffset || 0;
     let borderColor = this.config.colors.item;
     if (contentLength > 50) borderColor = '#f14c4c';
     else if (contentLength > 20) borderColor = '#ffcc02';

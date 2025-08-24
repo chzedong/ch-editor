@@ -235,6 +235,10 @@ export function editorGetNextWordEnd(ops: DocBlockText, offset: number, len: num
     return 0;
   }
 
+  if (offset >= len) {
+    return len;
+  }
+
   const { middle } = splitToThree(ops, offset, 1);
   assert(middle.length === 1, 'middle not 1');
   assert(middle[0].insert.length === 1, 'middle first op length not 1');
