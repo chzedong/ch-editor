@@ -1,6 +1,7 @@
 import 'events';
 import { TypedEmitter } from 'tiny-typed-emitter';
 import EditorBlocks, { isTextKindBlock } from './editor-blocks';
+import { EditorBoxes } from './editor-boxes';
 import { EditorDoc } from './editor-doc';
 import { RootContainer } from '../container/root-container';
 import { getChildBlocks, getContainerById, getContainerId, getParentContainer } from '../container/container-dom';
@@ -18,12 +19,12 @@ import { MarkManager } from '../mark/mark-manager';
 import { getBuiltInMarks } from '../mark/built-in-marks';
 import { scrollIntoView } from '../utils/scroll-into-view';
 
-import { BlockElement, ContainerElement, DocBlock } from '../index.type';
+import { BlockElement, BoxData, ContainerElement, DocBlock } from '../index.type';
 
 export class Editor extends TypedEmitter<any> {
   parent: HTMLElement;
 
-  doc: EditorDoc;
+  editorDoc: EditorDoc;
 
   rootContainerObject: RootContainer;
 
@@ -35,6 +36,8 @@ export class Editor extends TypedEmitter<any> {
 
   editorBlocks: EditorBlocks = new EditorBlocks(this);
 
+  editorBoxes: EditorBoxes = new EditorBoxes();
+
   markManager: MarkManager;
 
   // 上下键导航的目标列位置状态
@@ -43,7 +46,7 @@ export class Editor extends TypedEmitter<any> {
   constructor(parent: HTMLElement, options: any) {
     super();
     this.parent = parent;
-    this.doc = new EditorDoc(this, options.initDoc);
+    this.editorDoc = new EditorDoc(this, options.initDoc);
     // this.options = options;
     this.editorBlocks.registerBlockClass(TextBlock);
     this.rootContainerObject = createRootContainer(this);
@@ -113,7 +116,7 @@ export class Editor extends TypedEmitter<any> {
     const container = getParentContainer(blockElement);
     const containerId = getContainerId(container);
     const blockIndex = getBlockIndex(blockElement);
-    return this.doc.getBlockData(containerId, blockIndex);
+    return this.editorDoc.getBlockData(containerId, blockIndex);
   }
 
   getBlockTextLength(blockElement: BlockElement) {
@@ -123,14 +126,14 @@ export class Editor extends TypedEmitter<any> {
   }
 
   insertBlock(containerId: string, index: number, blockData: DocBlock) {
-    this.doc.localInsertBlock(containerId, index, blockData);
+    this.editorDoc.localInsertBlock(containerId, index, blockData);
   }
 
   deleteBlock(blockElement: BlockElement, newRange?: EditorSelectionRange) {
     const containerId = getContainerId(getParentContainer(blockElement));
     const blockIndex = getBlockIndex(blockElement);
 
-    this.doc.localDeleteBlock(containerId, blockIndex, newRange);
+    this.editorDoc.localDeleteBlock(containerId, blockIndex, newRange);
   }
 
   /**
@@ -166,5 +169,36 @@ export class Editor extends TypedEmitter<any> {
     const lineBreaker = new LineBreaker(block);
     const position = lineBreaker.getCaretRect(focusPos);
     this.setTargetColumnX(position.left);
+  }
+
+  // ==================== Box API ====================
+
+  /**
+   * 插入 box 到当前光标位置
+   * @param boxData box 数据
+   */
+  insertBox(boxData: BoxData): void {
+    const pos = this.selection.range.start;
+    const blockId = pos.blockId;
+    const block = this.getBlockById(blockId);
+    const blockIndex = getBlockIndex(block);
+    const container = getParentContainer(block);
+    const containerId = getContainerId(container);
+
+    this.editorDoc.localInsertBox(containerId, blockIndex, pos.offset, boxData);
+  }
+
+  /**
+   * 删除指定的 box
+   */
+  deleteBox(): void {
+    const pos = this.selection.range.start;
+    const blockId = pos.blockId;
+    const block = this.getBlockById(blockId);
+    const blockIndex = getBlockIndex(block);
+    const container = getParentContainer(block);
+    const containerId = getContainerId(container);
+
+    this.editorDoc.localDeleteBox(containerId, blockIndex, pos.offset);
   }
 }

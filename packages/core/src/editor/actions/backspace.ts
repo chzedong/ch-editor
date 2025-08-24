@@ -22,7 +22,7 @@ export function backspace(editor: Editor) {
     }
 
     const actions = createDeleteActions(focusPos.offset - 1, 1);
-    editor.doc.localUpdateBlockText(containerId, blockIndex, actions);
+    editor.editorDoc.localUpdateBlockText(containerId, blockIndex, actions);
     return true;
   }
 

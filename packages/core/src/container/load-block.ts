@@ -4,7 +4,7 @@ import { getContainerBlocksElement } from './container-dom';
 
 export function loadBlocks(editor: Editor, container: ContainerElement, path = []) {
   const containerId = 'root';
-  const blocks = editor.doc.getContainerBlocks(containerId);
+  const blocks = editor.editorDoc.getContainerBlocks(containerId);
   const fragment = document.createDocumentFragment();
 
   blocks.forEach((block, index) => {

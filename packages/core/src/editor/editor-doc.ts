@@ -3,10 +3,10 @@ import { transformSelection } from '../selection/selection-utils';
 import { Doc } from '../doc/doc';
 import { assert } from '../utils/assert';
 
-import { DocBlock, DocBlockTextActions } from '../index.type';
+import { BoxData, DocBlock, DocBlockTextActions } from '../index.type';
 import { isTextKindBlock } from './editor-blocks';
-import { getBlockId, getBlockIndex, getBlockType, getLastBlock } from '../block/block-dom';
-import { getChildBlocks, getContainerBlocksElement, getContainerById, getContainerId } from '../container/container-dom';
+import { getBlockId, getBlockType, getLastBlock } from '../block/block-dom';
+import { getChildBlocks, getContainerBlocksElement, getContainerById } from '../container/container-dom';
 import { EditorBlockPosition } from '../selection/block-position';
 import { EditorSelectionRange } from '../selection/selection-range';
 
@@ -131,5 +131,51 @@ export class EditorDoc {
     });
 
     return deletedBlock;
+  }
+
+  // Box 相关方法
+  localInsertBox(containerId: string, blockIndex: number, offset: number, boxData: BoxData) {
+    const result = this.doc.insertBox(containerId, blockIndex, offset, boxData);
+    const { newText, blockData } = result;
+
+    // 渲染处理 - 重新渲染包含 box 的文本块
+    const block = this.editor.getBlockById(blockData.id);
+    assert(isTextKindBlock(this.editor, block), 'block is not text kind');
+
+    const type = getBlockType(block);
+    this.editor.editorBlocks.getBlockClass(type).setBlockText(this.editor, block, newText);
+
+    // 触发文档变化事件
+    this.editor.emit('docChange', {
+      type: 'insertBox',
+      containerId,
+      blockIndex,
+      offset,
+      boxData
+    });
+
+    return result;
+  }
+
+  localDeleteBox(containerId: string, blockIndex: number, offset: number) {
+    const result = this.doc.deleteBox(containerId, blockIndex, offset);
+    const { newText, blockData } = result;
+
+    // 渲染处理 - 重新渲染包含 box 的文本块
+    const block = this.editor.getBlockById(blockData.id);
+    assert(isTextKindBlock(this.editor, block), 'block is not text kind');
+
+    const type = getBlockType(block);
+    this.editor.editorBlocks.getBlockClass(type).setBlockText(this.editor, block, newText);
+
+    // 触发文档变化事件
+    this.editor.emit('docChange', {
+      type: 'deleteBox',
+      containerId,
+      blockIndex,
+      offset
+    });
+
+    return result;
   }
 }

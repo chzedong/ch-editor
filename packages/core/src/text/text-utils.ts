@@ -99,7 +99,7 @@ export const isEmptyBlockText = (blockText: DocBlockText) => {
 };
 
 export function getTextAttributes(editor: Editor, containerId: string, blockIndex: number, offset: number) {
-  const blockData = editor.doc.getBlockData(containerId, blockIndex);
+  const blockData = editor.editorDoc.getBlockData(containerId, blockIndex);
   assert(blockData.text, 'no block text');
 
   if (isEmptyBlockText(blockData.text)) {

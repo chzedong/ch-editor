@@ -17,5 +17,5 @@ export const deleteText = (editor: Editor, block: BlockElement, from: number, to
   const containerId = getContainerId(container);
   const blockIndex = getBlockIndex(block);
 
-  return editor.doc.localUpdateBlockText(containerId, blockIndex, createDeleteActions(from, to - from));
+  return editor.editorDoc.localUpdateBlockText(containerId, blockIndex, createDeleteActions(from, to - from));
 };

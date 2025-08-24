@@ -19,6 +19,6 @@ export function editorInsertText(editor: Editor, text: string) {
 
   const attributes = getTextAttributes(editor, containerId, blockIndex, pos.offset);
   const ops = createInsertOp(pos.offset, text, attributes ?? null);
-  editor.doc.localUpdateBlockText(containerId, blockIndex, ops);
+  editor.editorDoc.localUpdateBlockText(containerId, blockIndex, ops);
 }
 

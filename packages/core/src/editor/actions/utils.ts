@@ -28,7 +28,7 @@ export function deleteSelection(editor: Editor, range: EditorSelectionRange): bo
     const containerId = getContainerId(container);
 
     const actions = createDeleteActions(start.offset, end.offset - start.offset);
-    editor.doc.localUpdateBlockText(containerId, blockIndex, actions);
+    editor.editorDoc.localUpdateBlockText(containerId, blockIndex, actions);
 
     return true;
   }
@@ -64,7 +64,7 @@ function deleteMultiBlockSelection(
 
   // 1. 处理第一个块：删除从选区开始到块结束的内容
   const firstBlockActions = createDeleteActions(start.offset, firstBlock.focus - start.offset);
-  editor.doc.localUpdateBlockText(firstContainerId, firstBlockIndex, firstBlockActions);
+  editor.editorDoc.localUpdateBlockText(firstContainerId, firstBlockIndex, firstBlockActions);
 
   // 2. 删除中间的完整块（从后往前删除，避免索引变化）
   for (let i = selectedBlocks.length - 2; i > 0; i--) {
@@ -102,7 +102,7 @@ function deleteMultiBlockSelection(
       });
 
       if (insertActions.length > 0) {
-        editor.doc.localUpdateBlockText(firstContainerId, firstBlockIndex, insertActions);
+        editor.editorDoc.localUpdateBlockText(firstContainerId, firstBlockIndex, insertActions);
       }
     }
   }
@@ -164,7 +164,7 @@ export function mergeSiblingBlocks(editor: Editor, block: BlockElement) {
 
   assert(insertActions.length > 0, 'insert actions must be greater than 0');
 
-  editor.doc.localUpdateBlockText(containerId, blockIndex - 1, insertActions);
+  editor.editorDoc.localUpdateBlockText(containerId, blockIndex - 1, insertActions);
 
   const pos = new EditorBlockPosition(getBlockId(prevBlock), firstBlockLength);
   const range = new EditorSelectionRange(editor, { anchor: pos, focus: pos });

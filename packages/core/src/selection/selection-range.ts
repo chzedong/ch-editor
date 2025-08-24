@@ -16,8 +16,8 @@ export class EditorSelectionRange {
       this.reverse = this.focus.offset < this.anchor.offset;
     } else {
       const containerId = 'root';
-      const anchorBlockIndex = this.editor.doc.getBlockIndexById(containerId, this.anchor.blockId);
-      const focusBlockIndex = this.editor.doc.getBlockIndexById(containerId, this.focus.blockId);
+      const anchorBlockIndex = this.editor.editorDoc.getBlockIndexById(containerId, this.anchor.blockId);
+      const focusBlockIndex = this.editor.editorDoc.getBlockIndexById(containerId, this.focus.blockId);
 
       this.reverse = focusBlockIndex < anchorBlockIndex ? true : false;
     }

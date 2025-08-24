@@ -1,6 +1,8 @@
 import { RichText } from '../text/delta';
 import { createEmptyDoc } from './doc-utils';
 import { assert } from '../utils/assert';
+import { createBoxInsertOp, isBoxOp, isTextOp } from '../box/box-data-model';
+import { BoxData } from '../index.type';
 
 import { DocBlock, DocBlockTextActions, DocObject } from '../index.type';
 
@@ -50,5 +52,96 @@ export class Doc {
     const deletedBlock = blocks[blockIndex];
     blocks.splice(blockIndex, 1);
     return deletedBlock;
+  }
+
+  // ==================== Box 数据操作 ====================
+
+  /**
+   * 在指定位置插入 box
+   * @param containerId 容器 ID
+   * @param blockIndex 块索引
+   * @param offset 文本偏移量
+   * @param boxData box 数据
+   */
+  insertBox(containerId: string, blockIndex: number, offset: number, boxData: BoxData) {
+    const blockData = this.getBlockData(containerId, blockIndex);
+    assert(blockData.text, 'no text');
+
+    // 创建 box 插入操作
+    const boxInsertOp = createBoxInsertOp(boxData);
+    const insertAction = {
+      retain: offset,
+      ...boxInsertOp
+    };
+
+    // 应用操作到文本
+    const newText = RichText.apply(blockData.text, [insertAction]);
+    blockData.text = newText;
+
+    return { newText, blockData, boxData };
+  }
+
+  /**
+   * 删除指定位置的 box
+   * @param containerId 容器 ID
+   * @param blockIndex 块索引
+   * @param offset box 的偏移量
+   */
+  deleteBox(containerId: string, blockIndex: number, offset: number) {
+    const blockData = this.getBlockData(containerId, blockIndex);
+    assert(blockData.text, 'no text');
+
+    // 查找要删除的 box
+    const deletedBoxData = this.getBoxAtOffset(containerId, blockIndex, offset);
+    assert(deletedBoxData, 'no box');
+
+    // 创建删除操作
+    let deleteAction;
+    if (offset === 0) {
+      deleteAction = {
+        delete: 1 // box 的逻辑长度为 1
+      };
+    } else {
+      deleteAction = {
+        retain: offset,
+        delete: 1 // box 的逻辑长度为 1
+      };
+    }
+
+    // 应用操作到文本
+    const newText = RichText.apply(blockData.text, [deleteAction]);
+    blockData.text = newText;
+
+    return { newText, blockData, deletedBoxData };
+  }
+
+  /**
+   * 获取指定偏移量位置的 box 数据
+   * @param containerId 容器 ID
+   * @param blockIndex 块索引
+   * @param offset box 的偏移量
+   */
+  getBoxAtOffset(containerId: string, blockIndex: number, offset: number): BoxData | null {
+    const blockData = this.getBlockData(containerId, blockIndex);
+    assert(blockData.text, 'no text');
+
+    let currentOffset = 0;
+    for (const op of blockData.text) {
+      if (isBoxOp(op) && currentOffset === offset) {
+        return op.insertBox;
+      }
+
+      if (isTextOp(op)) {
+        currentOffset += op.insert.length;
+      } else if (isBoxOp(op)) {
+        currentOffset += 1;
+      }
+
+      if (currentOffset > offset) {
+        break;
+      }
+    }
+
+    return null;
   }
 }

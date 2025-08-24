@@ -54,7 +54,7 @@ export function formatSelectedText(editor: Editor, attributes: AttributeMap) {
     }
 
     if (actions.length > 0) {
-      editor.doc.localUpdateBlockText(containerId, blockIndex, actions);
+      editor.editorDoc.localUpdateBlockText(containerId, blockIndex, actions);
     }
   });
 

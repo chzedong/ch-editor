@@ -2,12 +2,35 @@ import AttributeMap from 'quill-delta/dist/AttributeMap';
 import { Editor } from './editor/editor';
 import { EditorBlockPosition } from './selection/block-position';
 
+export interface BoxData {
+  /** Box 的唯一标识符 */
+  id: string;
+  /** Box 的类型，如 'image', 'formula', 'embed' 等 */
+  type: string;
+  /** Box 的属性数据 */
+  attributes?: AttributeMap;
+  /** Box 的内容数据 */
+  data?: Record<string, any>;
+  /** Box 的渲染宽度（可选，用于布局计算） */
+  width?: number;
+  /** Box 的渲染高度（可选，用于布局计算） */
+  height?: number;
+}
+/**
+ * 扩展的 DocBlockTextOp，支持 box 插入
+ */
+
+export interface DocBlockTextOpWithBox extends DocBlockTextOp {
+  /** 插入 box 时使用 */
+  insertBox: BoxData;
+}
+
 export interface DocBlockTextOp {
   insert: string;
   attributes?: AttributeMap
 }
 
-export type DocBlockText = DocBlockTextOp[]
+export type DocBlockText = (DocBlockTextOp | DocBlockTextOpWithBox)[]
 
 export interface DocBlockAttributes {
   [index: string]: unknown;
