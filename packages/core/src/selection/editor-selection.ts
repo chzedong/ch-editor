@@ -60,7 +60,14 @@ export class EditorSelection {
       this.editor.updateTargetColumnX();
     }
 
-    this.editor.focus();
+    // 只在非垂直导航时自动聚焦和滚动
+    // 垂直导航的滚动由具体的 action 控制
+    if (!isVerticalNavigation) {
+      this.editor.focus();
+    } else {
+      // 垂直导航时只聚焦，不滚动
+      this.editor.focus(false);
+    }
     this.editor.emit('selectionChange');
     return this._range;
   }

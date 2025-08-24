@@ -9,7 +9,7 @@ import { assert } from '../utils/assert';
 import { createElement } from '../utils/dom';
 
 import { Block, BlockElement, BlockPath, DocBlock, DocBlockText } from '../index.type';
-import { getPositionFromPoint } from './line/text-line';
+import { getPositionFromPoint, LineBreaker } from './line/text-line';
 import { getTextBlockContentChildren } from './text-utils';
 
 function createBlockContent(editor: Editor, path: BlockPath, container: Element, blockElement: Element, blockData: DocBlock) {
@@ -46,6 +46,12 @@ function getRangeFormPoint(block: BlockElement, x: number, y: number) {
   return new EditorBlockPosition(position.blockId, position.offset, position.type);
 }
 
+function getCursorRect(block: BlockElement, position: EditorBlockPosition) {
+  const lineBreaker = new LineBreaker(block);
+  const cursorRect = lineBreaker.getCaretRect(position);
+  return cursorRect;
+}
+
 const TextBlock: Block = {
   blockKing: 'text',
   blockType: 'text',
@@ -53,7 +59,8 @@ const TextBlock: Block = {
   setBlockText: updateBlockText,
   getBlockTextLength,
   getRangeFormPoint,
-  updateSelection
+  updateSelection,
+  getCursorRect
 };
 
 export default TextBlock;

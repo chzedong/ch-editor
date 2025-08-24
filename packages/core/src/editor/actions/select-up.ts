@@ -9,6 +9,8 @@ export function selectUp(editor: Editor) {
 
   if (targetPos) {
     editor.selection.setSelection(range.anchor, targetPos, true);
+    // 使用智能滚动确保光标可见
+    editor.scrollIntoView();
     return true;
   }
 

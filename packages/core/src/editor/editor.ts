@@ -16,6 +16,7 @@ import { assert } from '../utils/assert';
 import { LineBreaker } from '../text/line/text-line';
 import { MarkManager } from '../mark/mark-manager';
 import { getBuiltInMarks } from '../mark/built-in-marks';
+import { scrollIntoView } from '../utils/scroll-into-view';
 
 import { BlockElement, ContainerElement, DocBlock } from '../index.type';
 
@@ -59,8 +60,30 @@ export class Editor extends TypedEmitter<any> {
   }
 
   focus(autoScroll: boolean = true) {
-    this.input.focus({
-      preventScroll: !autoScroll
+    if (autoScroll) {
+      this.scrollIntoView();
+    }
+    this.input.focus({ preventScroll: true });
+  }
+
+  /**
+   * 智能滚动到当前光标位置
+   */
+  scrollIntoView() {
+    const range = this.selection.range;
+    const focusPos = range.focus;
+    const block = this.getBlockById(focusPos.blockId);
+
+    if (!isTextKindBlock(this, block)) {
+      return;
+    }
+
+    // 使用智能滚动工具
+    scrollIntoView(this, focusPos, {
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'nearest',
+      margin: 20
     });
   }
 
