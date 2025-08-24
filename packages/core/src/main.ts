@@ -8,6 +8,7 @@ export { TextLine, LineBreaker } from './text/line/text-line';
 
 // Mark system exports
 export * from './mark';
+export { formatSelectedText, toggleTextFormat, applyMarkToSelection, toggleMark } from './text/format-text';
 
 // Types
 export type {

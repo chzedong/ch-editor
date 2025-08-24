@@ -7,7 +7,28 @@
     <title>CH Editor Demo</title>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <div id="toolbar">
+        <button id="bold-btn" class="toolbar-btn" title="粗体">B</button>
+        <button id="italic-btn" class="toolbar-btn" title="斜体">I</button>
+        <button id="underline-btn" class="toolbar-btn" title="下划线">U</button>
+        <button id="strikethrough-btn" class="toolbar-btn" title="删除线">S</button>
+        <button id="code-btn" class="toolbar-btn" title="代码">&lt;/&gt;</button>
+        <button id="superscript-btn" class="toolbar-btn" title="上标">x²</button>
+        <button id="subscript-btn" class="toolbar-btn" title="下标">x₂</button>
+        <input type="color" id="color-picker" class="toolbar-btn" title="文字颜色" value="#000000" />
+        <input type="color" id="bg-color-picker" class="toolbar-btn" title="背景颜色" value="#ffffff" />
+        <select id="font-size-select" class="toolbar-btn" title="字体大小">
+          <option value="12">12px</option>
+          <option value="14" selected>14px</option>
+          <option value="16">16px</option>
+          <option value="18">18px</option>
+          <option value="20">20px</option>
+          <option value="24">24px</option>
+        </select>
+      </div>
+      <div id="editor"></div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

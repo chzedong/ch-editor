@@ -22,8 +22,124 @@ body {
   /* width: calc(100vw - 320px); */
   width: 500px;
   min-height: 100vh;
-  padding: 4rem;
+  padding: 1rem 4rem;
   background: white;
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
   position: relative;
+}
+
+/* 工具栏样式 */
+#toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.toolbar-btn {
+  padding: 8px 12px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  min-width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toolbar-btn:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.toolbar-btn:active {
+  background: #dee2e6;
+  transform: translateY(1px);
+}
+
+/* 特殊按钮样式 */
+#bold-btn {
+  font-weight: bold;
+}
+
+#italic-btn {
+  font-style: italic;
+}
+
+#underline-btn {
+  text-decoration: underline;
+}
+
+#strikethrough-btn {
+  text-decoration: line-through;
+}
+
+#code-btn {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+}
+
+/* 颜色选择器样式 */
+#color-picker,
+#bg-color-picker {
+  width: 36px;
+  height: 36px;
+  padding: 2px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* 字体大小选择器样式 */
+#font-size-select {
+  min-width: 80px;
+  padding: 6px 8px;
+}
+
+/* 编辑器容器样式 */
+#editor {
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  min-height: 300px;
+  padding: 16px;
+  text-align: left;
+  background: white;
+  margin-bottom: 16px;
+}
+
+/* 调试信息样式 */
+#debug {
+  text-align: left;
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+#debug h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: #495057;
+}
+
+#doc-info,
+#selection-info {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  background: white;
+  padding: 8px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  border: 1px solid #dee2e6;
+  white-space: pre-wrap;
+  overflow-x: auto;
 }

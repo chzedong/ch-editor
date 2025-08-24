@@ -3,6 +3,7 @@ import { assert } from '../utils/assert';
 import { getBlockContent } from '../block/block-dom';
 
 import { BlockElement, DocBlockText, DocBlockTextOp, TextBlockContentChild } from '../index.type';
+import { Editor } from '../main';
 
 export function splitText(docText: DocBlockText, offset: number) {
   const left: DocBlockText = [];
@@ -96,5 +97,26 @@ export function isEmptyTextBlock(block: BlockElement) {
 export const isEmptyBlockText = (blockText: DocBlockText) => {
   return !blockText.length || (blockText.length === 1 && !blockText[0].insert);
 };
+
+export function getTextAttributes(editor: Editor, containerId: string, blockIndex: number, offset: number) {
+  const blockData = editor.doc.getBlockData(containerId, blockIndex);
+  assert(blockData.text, 'no block text');
+
+  if (isEmptyBlockText(blockData.text)) {
+    return null;
+  }
+
+  if (offset === 0) {
+    return null;
+  }
+
+  const prev = splitText(blockData.text, offset).left;
+  if (prev.length === 0) {
+    return null;
+  }
+
+  const lastOp = prev[prev.length - 1];
+  return lastOp.attributes;
+}
 
 

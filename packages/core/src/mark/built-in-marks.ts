@@ -1,4 +1,4 @@
-import { SimpleMark, ParameterizedMark, MarkRenderContext, MarkApplyResult } from './base-mark';
+import { SimpleMark, MarkRenderContext, MarkApplyResult, BaseMark } from './base-mark';
 import AttributeMap from 'quill-delta/dist/AttributeMap';
 
 /**
@@ -117,12 +117,20 @@ export class SubscriptMark extends SimpleMark {
 /**
  * 颜色Mark
  */
-export class ColorMark extends ParameterizedMark {
+export class ColorMark extends BaseMark {
   readonly name = 'color';
-  readonly attributePrefix = 'style-color-';
+  readonly attributeKey = 'color';
 
   constructor() {
     super({ priority: 5 });
+  }
+
+  matches(key: string, value: any): boolean {
+    return key === this.attributeKey && this.validate(value);
+  }
+
+  createAttributes(value: any): AttributeMap {
+    return { [this.attributeKey]: value };
   }
 
   apply(context: MarkRenderContext): MarkApplyResult {
@@ -130,12 +138,10 @@ export class ColorMark extends ParameterizedMark {
       return { applied: false };
     }
 
-    const color = this.extractParameter(context.key);
-
     return {
       applied: true,
-      dataAttributes: {
-        'style-color': color
+      styles: {
+        'color': context.value
       }
     };
   }
@@ -152,12 +158,20 @@ export class ColorMark extends ParameterizedMark {
 /**
  * 背景色Mark
  */
-export class BackgroundColorMark extends ParameterizedMark {
+export class BackgroundColorMark extends BaseMark {
   readonly name = 'backgroundColor';
-  readonly attributePrefix = 'style-background-';
+  readonly attributeKey = 'background';
 
   constructor() {
     super({ priority: 5 });
+  }
+
+  matches(key: string, value: any): boolean {
+    return key === this.attributeKey && this.validate(value);
+  }
+
+  createAttributes(value: any): AttributeMap {
+    return { [this.attributeKey]: value };
   }
 
   apply(context: MarkRenderContext): MarkApplyResult {
@@ -165,12 +179,10 @@ export class BackgroundColorMark extends ParameterizedMark {
       return { applied: false };
     }
 
-    const color = this.extractParameter(context.key);
-
     return {
       applied: true,
-      dataAttributes: {
-        'style-background': color
+      styles: {
+        'background-color': context.value
       }
     };
   }
@@ -187,12 +199,20 @@ export class BackgroundColorMark extends ParameterizedMark {
 /**
  * 字体大小Mark
  */
-export class FontSizeMark extends ParameterizedMark {
+export class FontSizeMark extends BaseMark {
   readonly name = 'fontSize';
-  readonly attributePrefix = 'style-size-';
+  readonly attributeKey = 'font-size';
 
   constructor() {
     super({ priority: 5 });
+  }
+
+  matches(key: string, value: any): boolean {
+    return key === this.attributeKey && this.validate(value);
+  }
+
+  createAttributes(value: any): AttributeMap {
+    return { [this.attributeKey]: value };
   }
 
   apply(context: MarkRenderContext): MarkApplyResult {
@@ -200,12 +220,10 @@ export class FontSizeMark extends ParameterizedMark {
       return { applied: false };
     }
 
-    const size = this.extractParameter(context.key);
-
     return {
       applied: true,
-      dataAttributes: {
-        'style-size': size
+      styles: {
+        'font-size': context.value
       }
     };
   }
@@ -222,12 +240,20 @@ export class FontSizeMark extends ParameterizedMark {
 /**
  * 链接Mark
  */
-export class LinkMark extends ParameterizedMark {
+export class LinkMark extends BaseMark {
   readonly name = 'link';
-  readonly attributePrefix = 'link-';
+  readonly attributeKey = 'link';
 
   constructor() {
     super({ priority: 30 });
+  }
+
+  matches(key: string, value: any): boolean {
+    return key === this.attributeKey && this.validate(value);
+  }
+
+  createAttributes(value: any): AttributeMap {
+    return { [this.attributeKey]: value };
   }
 
   apply(context: MarkRenderContext): MarkApplyResult {
@@ -235,13 +261,11 @@ export class LinkMark extends ParameterizedMark {
       return { applied: false };
     }
 
-    const url = this.extractParameter(context.key);
-
     return {
       applied: true,
       classes: ['style-link'],
       attributes: {
-        'data-link-url': url
+        'data-link-url': context.value
       }
     };
   }

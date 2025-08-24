@@ -1,0 +1,87 @@
+/* 基础文本格式 */
+[data-type="editor-container"] .style-bold {
+  font-weight: bold;
+}
+
+[data-type="editor-container"] .style-italic {
+  font-style: italic;
+}
+
+[data-type="editor-container"] .style-underline {
+  text-decoration: underline;
+}
+
+[data-type="editor-container"] .style-strikethrough {
+  text-decoration: line-through;
+}
+
+/* 代码样式 */
+[data-type="editor-container"] .style-code {
+  font-family: 'Courier New', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  background-color: #f1f3f4;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 0.9em;
+  border: 1px solid #e1e5e9;
+}
+
+/* 上标和下标 */
+[data-type="editor-container"] .style-superscript {
+  vertical-align: super;
+  font-size: 0.75em;
+  line-height: 0;
+}
+
+[data-type="editor-container"] .style-subscript {
+  vertical-align: sub;
+  font-size: 0.75em;
+  line-height: 0;
+}
+
+/* 链接样式 */
+[data-type="editor-container"] .style-link {
+  color: #0066cc;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+[data-type="editor-container"] .style-link:hover {
+  color: #0052a3;
+  text-decoration: none;
+}
+
+[data-type="editor-container"] .style-link:visited {
+  color: #551a8b;
+}
+
+[data-type="editor-container"] .style-link:active {
+  color: #ff0000;
+}
+
+/* 组合样式 */
+[data-type="editor-container"] .style-bold.style-italic {
+  font-weight: bold;
+  font-style: italic;
+}
+
+[data-type="editor-container"] .style-underline.style-strikethrough {
+  text-decoration: underline line-through;
+}
+
+[data-type="editor-container"] .style-code.style-bold {
+  font-weight: bold;
+}
+
+[data-type="editor-container"] .style-link.style-bold {
+  font-weight: bold;
+}
+
+/* 链接中的格式保持 */
+.style-link.style-bold {
+  font-weight: bold;
+}
+
+.style-link.style-italic {
+  font-style: italic;
+}

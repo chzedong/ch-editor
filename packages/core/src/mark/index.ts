@@ -1,8 +1,9 @@
+import './mark-styles.css';
+
 // 基础Mark类和接口
 export {
   BaseMark,
   SimpleMark,
-  ParameterizedMark,
   type MarkRenderContext,
   type MarkApplyResult,
   type MarkOptions

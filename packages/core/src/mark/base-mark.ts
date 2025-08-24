@@ -149,36 +149,3 @@ export abstract class SimpleMark extends BaseMark {
     return { [this.attributeKey]: true };
   }
 }
-
-/**
- * 参数化Mark基类，用于需要参数的Mark（如颜色、链接等）
- */
-export abstract class ParameterizedMark extends BaseMark {
-  /** 属性键前缀 */
-  abstract readonly attributePrefix: string;
-
-  matches(key: string, value: any): boolean {
-    return key.startsWith(this.attributePrefix) && value === true;
-  }
-
-  /**
-   * 从属性键中提取参数
-   */
-  protected extractParameter(key: string): string {
-    return key.substring(this.attributePrefix.length);
-  }
-
-  /**
-   * 根据参数生成属性键
-   */
-  protected generateAttributeKey(parameter: string): string {
-    return this.attributePrefix + parameter;
-  }
-
-  createAttributes(parameter: string): AttributeMap {
-    if (!parameter) {
-      throw new Error(`Parameter is required for ${this.name} mark`);
-    }
-    return { [this.generateAttributeKey(parameter)]: true };
-  }
-}
