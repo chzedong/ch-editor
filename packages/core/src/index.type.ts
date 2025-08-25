@@ -20,21 +20,22 @@ export interface BoxData {
  * 扩展的 DocBlockTextOp，支持 box 插入
  */
 
-export interface DocBlockTextOpWithBox extends DocBlockTextOp {
+export interface BoxAttributeMap extends AttributeMap {
   /** 插入 box 时使用 */
   insertBox: BoxData;
 }
 
 export interface DocBlockTextOp {
   insert: string;
-  attributes?: AttributeMap
+  attributes?: AttributeMap | BoxAttributeMap
 }
 
-export type DocBlockText = (DocBlockTextOp | DocBlockTextOpWithBox)[]
 
 export interface DocBlockAttributes {
   [index: string]: unknown;
 }
+
+export type DocBlockText = DocBlockTextOp[]
 
 export type DocBlock = {
   type: string;

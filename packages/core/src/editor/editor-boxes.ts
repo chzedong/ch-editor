@@ -1,6 +1,7 @@
 import '../styles/box.css';
 import { BoxData } from '../index.type';
 import { assert } from '../main';
+import { MentionBox } from '../extensions/boxes/mention-box';
 
 /**
  * Box 构造函数接口
@@ -47,11 +48,7 @@ export class EditorBoxes {
    */
   private _initializeDefaultBoxes(): void {
     // 注册默认的 box 类型
-    // for (const [type, config] of this._boxTypeRegistry.entries()) {
-    //   if (config.constructor) {
-    //     this.registerBoxClass(type, config.constructor);
-    //   }
-    // }
+    this.registerBoxClass('mention', MentionBox);
   }
 
   /**

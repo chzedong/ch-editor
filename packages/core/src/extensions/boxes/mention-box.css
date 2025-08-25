@@ -1,0 +1,139 @@
+/* 提及Box样式 */
+.ch-mention-box {
+  display: inline-flex;
+  align-items: center;
+  background-color: #e3f2fd;
+  border: 1px solid #2196f3;
+  border-radius: 12px;
+  padding: 2px 8px;
+  margin: 0 2px;
+  font-size: 14px;
+  line-height: 1.4;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+  vertical-align: middle;
+  max-width: 200px;
+}
+
+.ch-mention-box:hover,
+.ch-mention-box.ch-mention-hover {
+  background-color: #bbdefb;
+  border-color: #1976d2;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
+}
+
+.ch-mention-box:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(33, 150, 243, 0.2);
+}
+
+/* 头像样式 */
+.ch-mention-avatar {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin-right: 4px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+/* 用户名样式 */
+.ch-mention-username {
+  color: #1976d2;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 深色主题支持 */
+@media (prefers-color-scheme: dark) {
+  .ch-mention-box {
+    background-color: #1e3a8a;
+    border-color: #3b82f6;
+    color: #e5e7eb;
+  }
+  
+  .ch-mention-box:hover,
+  .ch-mention-box.ch-mention-hover {
+    background-color: #1e40af;
+    border-color: #60a5fa;
+  }
+  
+  .ch-mention-username {
+    color: #93c5fd;
+  }
+}
+
+/* 禁用状态 */
+.ch-mention-box.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* 选中状态 */
+.ch-mention-box.selected {
+  background-color: #1976d2;
+  border-color: #0d47a1;
+}
+
+.ch-mention-box.selected .ch-mention-username {
+  color: white;
+}
+
+/* 动画效果 */
+@keyframes mention-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.ch-mention-box.appear {
+  animation: mention-appear 0.2s ease-out;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .ch-mention-box {
+    font-size: 13px;
+    padding: 1px 6px;
+    border-radius: 10px;
+  }
+  
+  .ch-mention-avatar {
+    width: 14px;
+    height: 14px;
+    margin-right: 3px;
+  }
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+  .ch-mention-box {
+    border-width: 2px;
+    font-weight: 600;
+  }
+}
+
+/* 减少动画模式支持 */
+@media (prefers-reduced-motion: reduce) {
+  .ch-mention-box {
+    transition: none;
+  }
+  
+  .ch-mention-box:hover {
+    transform: none;
+  }
+  
+  .ch-mention-box.appear {
+    animation: none;
+  }
+}

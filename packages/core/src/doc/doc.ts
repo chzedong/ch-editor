@@ -69,13 +69,17 @@ export class Doc {
 
     // 创建 box 插入操作
     const boxInsertOp = createBoxInsertOp(boxData);
-    const insertAction = {
-      retain: offset,
-      ...boxInsertOp
-    };
+    const insertAction = [
+      {
+        retain: offset
+      },
+      {
+        ...boxInsertOp
+      }
+    ];
 
     // 应用操作到文本
-    const newText = RichText.apply(blockData.text, [insertAction]);
+    const newText = RichText.apply(blockData.text, insertAction);
     blockData.text = newText;
 
     return { newText, blockData, boxData };
@@ -128,7 +132,7 @@ export class Doc {
     let currentOffset = 0;
     for (const op of blockData.text) {
       if (isBoxOp(op) && currentOffset === offset) {
-        return op.insertBox;
+        return op.attributes.insertBox;
       }
 
       if (isTextOp(op)) {

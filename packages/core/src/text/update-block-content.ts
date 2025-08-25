@@ -20,7 +20,7 @@ export function updateBlockContent(editor: Editor, path: BlockPath, blockId: str
     // 检查是否为 box 操作
     if (isBoxOp(op)) {
       // 渲染 box 元素
-      const boxData = op.insertBox;
+      const boxData = op.attributes.insertBox;
 
       // 通过 editor-boxes 渲染 box 内容
       const { boxContent, canWrap } = editor.editorBoxes.renderBox(boxData);

@@ -34,7 +34,7 @@ export function mergeTextRects(rects: DOMRectList): DOMRect[] {
 /**
  * 判断两个矩形是否在同一行（考虑误差范围）
  */
-function areRectsOnSameLine(rectA: DOMRect, rectB: DOMRect): boolean {
+export function areRectsOnSameLine(rectA: DOMRect, rectB: DOMRect): boolean {
   return Math.abs(rectA.top - rectB.top) < LINE_HEIGHT_TOLERANCE;
 }
 
