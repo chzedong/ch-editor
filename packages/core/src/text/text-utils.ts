@@ -3,7 +3,9 @@ import { assert } from '../utils/assert';
 import { getBlockContent } from '../block/block-dom';
 
 import { BlockElement, DocBlockText, DocBlockTextOp, TextBlockContentChild } from '../index.type';
-import { Editor } from '../main';
+import { Editor } from '../editor/editor';
+import { isBoxOp } from '../box/box-data-model';
+import { BoxDomUtils } from '../box/box-dom-utils';
 
 export function splitText(docText: DocBlockText, offset: number) {
   const left: DocBlockText = [];
@@ -56,6 +58,11 @@ export function getTextBlockContentChildTextLength(child: TextBlockContentChild)
   if (child.firstChild instanceof HTMLBRElement) {
     return 0;
   }
+
+  if (BoxDomUtils.isBoxWrapper(child)) {
+    return 1;
+  }
+
   assert(typeof child.textContent === 'string', 'invalid text content');
   return child.textContent?.length || 0;
 }
@@ -116,6 +123,11 @@ export function getTextAttributes(editor: Editor, containerId: string, blockInde
   }
 
   const lastOp = prev[prev.length - 1];
+
+  if (isBoxOp(lastOp)) {
+    return null;
+  }
+
   return lastOp.attributes;
 }
 

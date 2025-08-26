@@ -3,7 +3,8 @@ import { Editor } from '../editor';
 import { assert } from '../../utils/assert';
 import { deleteText } from '../../text/delete-text';
 import { isEmptyTextBlock } from '../../text/text-utils';
-import { deleteEmptyBlock, mergeSiblingBlocks, editorGetPreWordStart } from './utils';
+import { deleteEmptyBlock, mergeSiblingBlocks } from './utils';
+import { editorGetPreWordStart } from './word-navigation-utils';
 
 export function backspaceWord(editor: Editor) {
   if (!editor.selection.range.isCollapsed()) {

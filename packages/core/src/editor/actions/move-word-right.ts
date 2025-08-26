@@ -4,7 +4,7 @@ import { BlockElement, DocBlockText } from '../../index.type';
 import { assert } from '../../utils/assert';
 import { EditorBlockPosition } from '../../selection/block-position';
 import { isTextKindBlock } from '../editor-blocks';
-import { editorGetNextWordEnd } from './utils';
+import { editorGetNextWordEnd } from './word-navigation-utils';
 
 export function moveWordRight(editor: Editor) {
   const focusPos = editor.selection.range.focus;

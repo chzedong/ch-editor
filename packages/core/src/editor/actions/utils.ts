@@ -5,11 +5,11 @@ import { EditorSelectionRange } from '../../selection/selection-range';
 import { getRangeBlocks } from '../../selection/selection-utils';
 import { RichText } from '../../text/delta';
 import { createDeleteActions } from '../../text/text-op';
-import { isEmptyBlockText, isEmptyTextBlock, splitToThree } from '../../text/text-utils';
+import { isEmptyBlockText, isEmptyTextBlock } from '../../text/text-utils';
 import { Editor } from '../editor';
 import { assert } from '../../utils/assert';
 
-import { BlockElement, DocBlockText, DocBlockTextActions } from '../../index.type';
+import { BlockElement, DocBlockTextActions } from '../../index.type';
 
 export function deleteSelection(editor: Editor, range: EditorSelectionRange): boolean {
   // 如果选区已折叠，无需删除
@@ -173,76 +173,4 @@ export function mergeSiblingBlocks(editor: Editor, block: BlockElement) {
   return true;
 }
 
-function findPreWordOffset(ops: DocBlockText, offset: number, isSpan: boolean) {
-  let isSpanOffset = isSpan;
-  let tampIsSpan = false;
-  while (offset > 0) {
-    const { middle } = splitToThree(ops, offset - 1, 1);
-
-    assert(middle.length === 1, 'middle not 1');
-    assert(middle[0].insert.length === 1, 'middle first op length not 1');
-    tampIsSpan = middle[0].insert[0] === ' ';
-    if (tampIsSpan && !isSpanOffset) {
-      return offset;
-    }
-    if (!tampIsSpan) {
-      isSpanOffset = false;
-    }
-    offset--;
-  }
-  return tampIsSpan || isSpanOffset ? -1 : 0;
-}
-
-export function editorGetPreWordStart(ops: DocBlockText, offset: number) {
-  if (ops.length === 0) {
-    return 0;
-  }
-
-  const preOffset = Math.max(0, offset - 1);
-  // if (preOffset === 0) {
-  //   return 0;
-  // }
-  const { middle } = splitToThree(ops, preOffset, 1);
-  assert(middle.length === 1, 'middle not 1');
-  assert(middle[0].insert.length === 1, 'middle first op length not 1');
-  const isSpan = middle[0].insert[0] === ' ';
-  return findPreWordOffset(ops, preOffset, isSpan);
-}
-
-function findNextWordEnd(ops: DocBlockText, offset: number, isSpan: boolean, len: number) {
-  let isSpanOffset = isSpan;
-  let tampIsSpan = false;
-  while (offset < len) {
-    const { middle } = splitToThree(ops, offset, 1);
-
-    assert(middle.length === 1, 'middle not 1');
-    assert(middle[0].insert.length === 1, 'middle first op length not 1');
-    tampIsSpan = middle[0].insert[0] === ' ';
-    if (tampIsSpan && !isSpanOffset) {
-      return offset;
-    }
-    if (!tampIsSpan) {
-      isSpanOffset = false;
-    }
-    offset++;
-  }
-  return tampIsSpan ? -1 : len;
-}
-
-export function editorGetNextWordEnd(ops: DocBlockText, offset: number, len: number) {
-
-  if (ops.length === 0) {
-    return 0;
-  }
-
-  if (offset >= len) {
-    return len;
-  }
-
-  const { middle } = splitToThree(ops, offset, 1);
-  assert(middle.length === 1, 'middle not 1');
-  assert(middle[0].insert.length === 1, 'middle first op length not 1');
-  const isSpan = middle[0].insert[0] === ' ';
-  return findNextWordEnd(ops, offset, isSpan, len);
-}
 

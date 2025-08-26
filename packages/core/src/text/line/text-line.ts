@@ -647,3 +647,5 @@ export function getLineBreaker(block: BlockElement): LineBreaker {
   // 这里可以实现缓存机制，避免重复解析
   return new LineBreaker(block);
 }
+
+window.LineBreaker = LineBreaker;
