@@ -8,10 +8,24 @@
 
 支持以下元素类型：
 - `TEXT`: 普通文本字符
-- `SPACE`: 空格字符
-- `BOX`: Box 元素
+- `SPACE`: 空格字符（作为分隔符，跳过连续空格）
+- `BOX`: Box 元素（强制隔断，当前在box时向前/向后到box开头/结尾）
 - `CJK`: 中日韩字符（扩展支持）
 - `DECORATOR`: 装饰器元素（扩展支持）
+
+#### Box 和 Space 的处理规则差异
+
+**Box 规则（强制隔断）：**
+- Box 元素强制作为单词边界，无论前后是否有空格
+- 当光标在 Box 上时：
+  - 向前导航：直接到 Box 的开头位置
+  - 向后导航：直接到 Box 的结尾位置
+- 遇到 Box 时立即停止，不会跳过
+
+**Space 规则（分隔符）：**
+- 空格作为单词分隔符，会跳过连续的多个空格
+- 当光标在空格上时，会寻找下一个非空格字符
+- 连续的空格被视为一个分隔区域
 
 ### 单词导航函数
 
@@ -87,7 +101,7 @@ const nextWordEnd = editorGetNextWordEnd(ops, 0, 16); // 返回 5（'hello'的�
 
 ```typescript
 import { createBoxInsertOp } from '../../box/box-data-model';
-import { editorGetPreWordStart } from './word-navigation-utils';
+import { editorGetPreWordStart, editorGetNextWordEnd } from './word-navigation-utils';
 
 const ops = [
   { insert: 'hello ' },
@@ -95,8 +109,26 @@ const ops = [
   { insert: ' world' }
 ];
 
-// Box元素会被正确识别为单词分隔符
-const preWordStart = editorGetPreWordStart(ops, 10); // 正确处理Box元素
+// 当光标在Box上时，向前导航到Box开头
+const preWordStart1 = editorGetPreWordStart(ops, 6); // 返回 6（Box开头）
+
+// 当光标在Box上时，向后导航到Box结尾
+const nextWordEnd1 = editorGetNextWordEnd(ops, 6, 8); // 返回 7（Box结尾）
+
+// 从其他位置导航时，Box作为强制边界
+const preWordStart2 = editorGetPreWordStart(ops, 8); // 返回 7（Box后位置）
+```
+
+### 处理Space元素
+
+```typescript
+const ops = [
+  { insert: 'hello   world' } // 多个连续空格
+];
+
+// 空格会被跳过，直到找到非空格字符
+const preWordStart = editorGetPreWordStart(ops, 8); // 返回 0（'hello'开头）
+const nextWordEnd = editorGetNextWordEnd(ops, 0, 13); // 返回 5（'hello'结尾）
 ```
 
 ### 元素类型检查

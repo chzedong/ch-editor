@@ -76,7 +76,20 @@ describe('NavigationUtils', () => {
 
       // 从 'world' 的 'w' 位置向前查找
       const result = editorGetPreWordStart(ops, 8);
-      expect(result).toBe(0); // 'hello' 的起始位置（跳过box）
+      expect(result).toBe(7); // box后的位置（box强制隔断）
+    });
+
+    it('should handle navigation when cursor is on box - move to box start', () => {
+      const boxData = createTestBox('test1');
+      const ops: DocBlockText = [
+        { insert: 'hello ' },
+        createBoxInsertOp(boxData),
+        { insert: ' world' }
+      ];
+
+      // 当前在box上，向前应该到box的开头
+      const result = editorGetPreWordStart(ops, 6);
+      expect(result).toBe(6); // box的开头位置
     });
 
     it('should handle multiple spaces', () => {
@@ -128,6 +141,36 @@ describe('NavigationUtils', () => {
       // 从 'hello' 的 'h' 位置向后查找
       const result = editorGetNextWordEnd(ops, 0, 8);
       expect(result).toBe(5); // 'hello' 的结束位置
+    });
+
+    it('should handle navigation when cursor is on box - move to box end', () => {
+      const boxData = createTestBox('test1');
+      const ops: DocBlockText = [
+        { insert: 'hello ' },
+        createBoxInsertOp(boxData),
+        { insert: ' world' }
+      ];
+
+      // 当前在box上，向后应该到box的结尾
+      const result = editorGetNextWordEnd(ops, 6, 8);
+      expect(result).toBe(7); // box的结尾位置
+    });
+
+    it('should handle box as word boundary', () => {
+      const boxData = createTestBox('test1');
+      const ops: DocBlockText = [
+        { insert: 'hello' },
+        createBoxInsertOp(boxData),
+        { insert: 'world' }
+      ];
+
+      // 从 'world' 的 'w' 位置向前查找，box强制隔断
+      const result = editorGetPreWordStart(ops, 6);
+      expect(result).toBe(6); // box后的位置
+
+      // 从 'hello' 的 'h' 位置向后查找，box强制隔断
+      const result2 = editorGetNextWordEnd(ops, 0, 6);
+      expect(result2).toBe(5); // box前的位置
     });
 
     it('should handle multiple spaces', () => {

@@ -261,13 +261,20 @@ export function isSameElementType(element1: NavigationElement | null, element2: 
 /**
  * 查找前一个单词的起始偏移量
  * 支持处理空格、box等不同类型的元素
+ * Box规则：强制隔断，当前在box时向前应该到box的开头
+ * Space规则：作为分隔符，跳过连续的空格
  * @param ops 文本操作数组
  * @param offset 当前偏移量
  * @param currentElementType 当前位置的元素类型
  * @returns 前一个单词的起始偏移量，如果到达开头则返回0，如果当前就在分隔符上则返回-1
  */
 function findPreWordOffset(ops: DocBlockText, offset: number, currentElementType: NavigationElementType): number {
-  let isInSeparator = (currentElementType === NavigationElementType.SPACE || currentElementType === NavigationElementType.BOX);
+  // 如果当前在box上，直接返回box的开头位置
+  if (currentElementType === NavigationElementType.BOX) {
+    return offset;
+  }
+
+  let isInSeparator = (currentElementType === NavigationElementType.SPACE);
   let currentOffset = offset;
 
   while (currentOffset > 0) {
@@ -278,15 +285,20 @@ function findPreWordOffset(ops: DocBlockText, offset: number, currentElementType
       break;
     }
 
-    const isSeparator = (element.type === NavigationElementType.SPACE || element.type === NavigationElementType.BOX);
-
-    // 如果当前在分隔符中，遇到非分隔符就返回当前位置的下一个位置
-    if (isSeparator && !isInSeparator) {
+    // Box强制隔断，遇到box直接返回box后的位置
+    if (element.type === NavigationElementType.BOX) {
       return currentOffset + 1;
     }
 
-    // 如果遇到非分隔符，标记不再在分隔符中
-    if (!isSeparator) {
+    const isSpace = (element.type === NavigationElementType.SPACE);
+
+    // 如果当前在空格中，遇到非空格就返回当前位置的下一个位置
+    if (isSpace && !isInSeparator) {
+      return currentOffset + 1;
+    }
+
+    // 如果遇到非空格，标记不再在分隔符中
+    if (!isSpace) {
       isInSeparator = false;
     }
   }
@@ -327,6 +339,8 @@ export function editorGetPreWordStart(ops: DocBlockText, offset: number): number
 /**
  * 查找下一个单词的结束偏移量
  * 支持处理空格、box等不同类型的元素
+ * Box规则：强制隔断，当前在box时向后应该到box的结尾
+ * Space规则：作为分隔符，跳过连续的空格
  * @param ops 文本操作数组
  * @param offset 当前偏移量
  * @param currentElementType 当前位置的元素类型
@@ -334,7 +348,12 @@ export function editorGetPreWordStart(ops: DocBlockText, offset: number): number
  * @returns 下一个单词的结束偏移量，如果到达末尾则返回总长度，如果当前就在分隔符上则返回-1
  */
 function findNextWordEnd(ops: DocBlockText, offset: number, currentElementType: NavigationElementType, len: number): number {
-  let isInSeparator = (currentElementType === NavigationElementType.SPACE || currentElementType === NavigationElementType.BOX);
+  // 如果当前在box上，直接返回box的结尾位置
+  if (currentElementType === NavigationElementType.BOX) {
+    return offset + 1;
+  }
+
+  let isInSeparator = (currentElementType === NavigationElementType.SPACE);
   let currentOffset = offset;
 
   while (currentOffset < len) {
@@ -344,15 +363,20 @@ function findNextWordEnd(ops: DocBlockText, offset: number, currentElementType: 
       break;
     }
 
-    const isSeparator = (element.type === NavigationElementType.SPACE || element.type === NavigationElementType.BOX);
-
-    // 如果当前在分隔符中，遇到非分隔符就返回当前位置
-    if (isSeparator && !isInSeparator) {
+    // Box强制隔断，遇到box直接返回box的位置
+    if (element.type === NavigationElementType.BOX) {
       return currentOffset;
     }
 
-    // 如果遇到非分隔符，标记不再在分隔符中
-    if (!isSeparator) {
+    const isSpace = (element.type === NavigationElementType.SPACE);
+
+    // 如果当前在空格中，遇到非空格就返回当前位置
+    if (isSpace && !isInSeparator) {
+      return currentOffset;
+    }
+
+    // 如果遇到非空格，标记不再在分隔符中
+    if (!isSpace) {
       isInSeparator = false;
     }
 
