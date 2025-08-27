@@ -17,6 +17,8 @@ import { assert } from '../utils/assert';
 import { LineBreaker } from '../text/line/text-line';
 import { MarkManager } from '../mark/mark-manager';
 import { getBuiltInMarks } from '../mark/built-in-marks';
+import { DecoratorManager } from '../decorator/decorator-manager';
+import { getBuiltInDecorators } from '../decorator/built-in-decorators';
 import { scrollIntoView } from '../utils/scroll-into-view';
 
 import { BlockElement, BoxData, ContainerElement, DocBlock } from '../index.type';
@@ -40,6 +42,8 @@ export class Editor extends TypedEmitter<any> {
 
   markManager: MarkManager;
 
+  decoratorManager: DecoratorManager;
+
   // 上下键导航的目标列位置状态
   private _targetColumnX: number | null = null;
 
@@ -60,6 +64,10 @@ export class Editor extends TypedEmitter<any> {
     // 初始化Mark管理器
     this.markManager = new MarkManager(this);
     this.markManager.registerAll(getBuiltInMarks());
+
+    // 初始化装饰器管理器
+    this.decoratorManager = new DecoratorManager(this);
+    this.decoratorManager.registerAll(getBuiltInDecorators());
   }
 
   focus(autoScroll: boolean = true) {

@@ -24,6 +24,9 @@ export { genId as getId } from './utils/get-id';
 export * from './utils/key';
 export * from './utils/dom';
 
+// Decorator
+export * from './decorator';
+
 // Import styles
 import './caret/caret.scss';
 import './block/block.scss';

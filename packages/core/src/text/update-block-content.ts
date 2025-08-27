@@ -1,10 +1,13 @@
 import { Editor } from '../editor/editor';
 import { createElement } from '../utils/dom';
-import { isEmptyBlockText } from './text-utils';
+import { getDocTextLength, isEmptyBlockText } from './text-utils';
 import { BoxDomUtils } from '../box/box-dom-utils';
-import { isBoxOp, isTextOp } from '../box/box-data-model';
+import { isBoxOp } from '../box/box-data-model';
+import { TextSplitter, TextOpSegment } from '../decorator/text-splitter';
 
 import { BlockPath, DocBlockText } from '../index.type';
+import { DecoratorRange } from '../decorator';
+import { assert } from '../main';
 
 export function updateBlockContent(editor: Editor, path: BlockPath, blockId: string, content: Element, blockText: DocBlockText) {
   if (isEmptyBlockText(blockText)) {
@@ -14,35 +17,113 @@ export function updateBlockContent(editor: Editor, path: BlockPath, blockId: str
 
   const fragment = document.createDocumentFragment();
 
-  for (let i = 0; i < blockText.length; i++) {
-    const op = blockText[i];
+  const decoratorRanges = editor.decoratorManager.calculateDecoratorRanges(blockId, getDocTextLength(blockText));
 
-    // 检查是否为 box 操作
-    if (isBoxOp(op)) {
-      // 渲染 box 元素
-      const boxData = op.attributes.insertBox;
-
-      // 通过 editor-boxes 渲染 box 内容
-      const { boxContent, canWrap } = editor.editorBoxes.renderBox(boxData);
-
-      // 使用 BoxDomUtils 创建标准的 box 包装器
-      const boxElement = BoxDomUtils.createBoxWrapper(boxData, boxContent, canWrap);
-
-      fragment.appendChild(boxElement);
-    } else if (isTextOp(op)) {
-      // 渲染文本元素
-      const span = createElement('span', ['text'], fragment);
-      span.innerText = op.insert;
-
-      if (op.attributes) {
-        // 使用插件化的mark系统渲染样式
-        editor.markManager.applyMarks(span, op.attributes);
-      }
-
-      fragment.appendChild(span);
-    }
-  }
+  renderWithDecorators(editor, blockText, decoratorRanges, fragment);
 
   content.innerHTML = '';
   content.appendChild(fragment);
+}
+
+function renderWithDecorators(
+  editor: Editor,
+  blockText: DocBlockText,
+  decoratorRanges: DecoratorRange[],
+  fragment: DocumentFragment
+) {
+  // 使用文本分割器分割文本
+  const segments = TextSplitter.splitTextOps(blockText, decoratorRanges);
+
+  console.log('segments', segments);
+  for (const segment of segments) {
+    if (segment.isBox) {
+      // 渲染 Box 元素
+      renderBoxSegment(editor, segment, fragment);
+    } else {
+      // 渲染文本元素
+      renderTextSegment(editor, segment, fragment);
+    }
+  }
+}
+
+/**
+ * 渲染Box片段
+ */
+function renderBoxSegment(editor: Editor, segment: TextOpSegment, fragment: DocumentFragment) {
+
+  // 确保 segment.originalOp 是一个 box 操作
+  assert(isBoxOp(segment.originalOp), 'segment original op must be a box operation');
+  const boxData = segment.originalOp.attributes.insertBox;
+
+  // 通过 editor-boxes 渲染 box 内容
+  const { boxContent, canWrap } = editor.editorBoxes.renderBox(boxData);
+  // 使用 BoxDomUtils 创建标准的 box 包装器
+  const boxElement = BoxDomUtils.createBoxWrapper(boxData, boxContent, canWrap);
+
+  // 应用装饰器到Box元素
+  if (segment.decorators.length > 0) {
+    editor.decoratorManager.applyDecorators(boxElement, {
+      decorators: segment.decorators,
+      segment
+    });
+  }
+
+  fragment.appendChild(boxElement);
+}
+
+/**
+ * 渲染文本片段
+ */
+function renderTextSegment(editor: Editor, segment: TextOpSegment, fragment: DocumentFragment) {
+  const span = createElement('span', ['text'], fragment);
+
+  // 提取片段文本
+  const segmentText = segment.originalOp.insert.substring(
+    segment.startInOp,
+    segment.endInOp
+  );
+  span.innerText = segmentText;
+
+  // 合并原始属性和装饰器属性
+  const mergedAttributes = mergeAttributes(
+    segment.originalOp.attributes || {},
+    segment.decorators
+  );
+
+  // 应用Mark系统
+  if (Object.keys(mergedAttributes).length > 0) {
+    editor.markManager.applyMarks(span, mergedAttributes);
+  }
+
+  // 应用装饰器
+  if (segment.decorators.length > 0) {
+    editor.decoratorManager.applyDecorators(span, {
+      decorators: segment.decorators,
+      segment
+    });
+  }
+
+  fragment.appendChild(span);
+}
+
+/**
+ * 合并原始属性和装饰器属性
+ */
+function mergeAttributes(
+  originalAttributes: any,
+  decorators: any[],
+  decoratorData?: Map<string, any>
+): any {
+  const merged = { ...originalAttributes };
+
+  // 装饰器可能会添加一些临时属性到attributes中
+  // 这里可以根据需要扩展合并逻辑
+  decorators.forEach(decorator => {
+    const data = decoratorData?.get(decorator.name);
+    if (data && data.attributes) {
+      Object.assign(merged, data.attributes);
+    }
+  });
+
+  return merged;
 }
