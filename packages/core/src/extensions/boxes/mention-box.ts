@@ -85,7 +85,7 @@ export class MentionBox implements BoxInstance {
    * 提及box不支持跨行显示
    */
   canWrap(): boolean {
-    return false;
+    return true;
   }
 
   /**

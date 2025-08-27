@@ -1,6 +1,6 @@
 /* 提及Box样式 */
 .ch-mention-box {
-  display: inline-flex;
+  /* display: inline-flex; */
   align-items: center;
   background-color: #e3f2fd;
   border: 1px solid #2196f3;
@@ -55,13 +55,13 @@
     border-color: #3b82f6;
     color: #e5e7eb;
   }
-  
+
   .ch-mention-box:hover,
   .ch-mention-box.ch-mention-hover {
     background-color: #1e40af;
     border-color: #60a5fa;
   }
-  
+
   .ch-mention-username {
     color: #93c5fd;
   }
@@ -90,6 +90,7 @@
     opacity: 0;
     transform: scale(0.8);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -107,7 +108,7 @@
     padding: 1px 6px;
     border-radius: 10px;
   }
-  
+
   .ch-mention-avatar {
     width: 14px;
     height: 14px;
@@ -128,11 +129,11 @@
   .ch-mention-box {
     transition: none;
   }
-  
+
   .ch-mention-box:hover {
     transform: none;
   }
-  
+
   .ch-mention-box.appear {
     animation: none;
   }

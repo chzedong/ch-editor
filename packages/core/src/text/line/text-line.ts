@@ -139,7 +139,7 @@ export class TextLine {
       virtualType = 'virtual';
     }
 
-    const endOffset = virtualType === 'valid' ? startOffset + 1 : startOffset;
+    const endOffset = ['valid', 'valid-end'].includes(virtualType)  ? startOffset + 1 : startOffset;
 
     const item: BoxLineItem = {
       type: 'box',
@@ -572,7 +572,7 @@ export class LineBreaker {
         const overlapStart = Math.max(itemStart, from);
         const overlapEnd = Math.min(itemEnd, to);
 
-        if (overlapStart >= overlapEnd) {
+        if (overlapStart > overlapEnd) {
           continue;
         }
 
