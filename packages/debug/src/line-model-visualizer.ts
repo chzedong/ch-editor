@@ -10,6 +10,7 @@ export class LineModelVisualizer {
   private ctx: CanvasRenderingContext2D;
   private lines: TextLine[] = [];
   private scrollContainer: HTMLElement;
+  private highlightOverlay: HTMLElement | null = null;
 
   // 绘制配置
   private readonly config = {
@@ -129,6 +130,7 @@ export class LineModelVisualizer {
   private setupCanvas(): void {
     this.updateCanvasSize();
     window.addEventListener('resize', () => this.updateCanvasSize());
+    this.canvas.addEventListener('click', (e) => this.handleCanvasClick(e));
   }
 
   /**
@@ -333,6 +335,119 @@ export class LineModelVisualizer {
   }
 
   /**
+   * 处理canvas点击事件
+   */
+  private handleCanvasClick(event: MouseEvent): void {
+    const rect = this.canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    const clickedItem = this.getItemAtPosition(x, y);
+    if (clickedItem) {
+      this.highlightItem(clickedItem.item, clickedItem.lineIndex, clickedItem.itemIndex);
+    } else {
+      this.removeHighlight();
+    }
+  }
+
+  /**
+   * 获取指定位置的item
+   */
+  private getItemAtPosition(x: number, y: number): { item: any, lineIndex: number, itemIndex: number } | null {
+    let currentY = this.config.padding;
+
+    for (let lineIndex = 0; lineIndex < this.lines.length; lineIndex++) {
+      const line = this.lines[lineIndex];
+      currentY += this.config.lineHeight;
+
+      for (let itemIndex = 0; itemIndex < line.items.length; itemIndex++) {
+        const itemX = this.config.padding + 20;
+        const itemWidth = this.canvas.width - this.config.padding * 2 - 40;
+        const itemHeight = this.config.itemHeight;
+
+        // 检查点击是否在item区域内
+        if (x >= itemX && x <= itemX + itemWidth &&
+            y >= currentY && y <= currentY + itemHeight - 5) {
+          return { item: line.items[itemIndex], lineIndex, itemIndex };
+        }
+
+        currentY += this.config.itemHeight;
+      }
+
+      currentY += this.config.padding;
+    }
+
+    return null;
+  }
+
+  /**
+   * 高亮显示item对应的DOM位置
+   */
+  private highlightItem(item: any, lineIndex: number, itemIndex: number): void {
+    // 移除之前的高亮
+    this.removeHighlight();
+
+    // 检查item是否有contentRect信息
+    if (!item.contentRect) {
+      console.warn('Item没有contentRect信息，无法定位');
+      return;
+    }
+
+    const rect = item.contentRect;
+
+    // 创建高亮覆盖层
+    this.highlightOverlay = document.createElement('div');
+    this.highlightOverlay.style.cssText = `
+      position: fixed;
+      left: ${rect.left}px;
+      top: ${rect.top}px;
+      width: ${rect.width}px;
+      height: ${rect.height}px;
+      border: 2px solid #ff6b6b;
+      background: rgba(255, 107, 107, 0.1);
+      pointer-events: none;
+      z-index: 9999;
+      box-sizing: border-box;
+    `;
+
+    // 添加标签显示item信息
+    const label = document.createElement('div');
+    label.style.cssText = `
+      position: absolute;
+      top: -25px;
+      left: 0;
+      background: #ff6b6b;
+      color: white;
+      padding: 2px 6px;
+      font-size: 11px;
+      font-family: monospace;
+      border-radius: 3px;
+      white-space: nowrap;
+    `;
+    label.textContent = `Line ${lineIndex} Item ${itemIndex}`;
+
+    this.highlightOverlay.appendChild(label);
+    document.body.appendChild(this.highlightOverlay);
+
+    // 3秒后自动移除高亮
+    setTimeout(() => {
+      this.removeHighlight();
+    }, 3000);
+
+    console.log(`点击了 Line ${lineIndex} Item ${itemIndex}:`, item);
+  }
+
+  /**
+   * 移除高亮显示
+   */
+  private removeHighlight(): void {
+    if (this.highlightOverlay && this.highlightOverlay.parentNode) {
+      this.highlightOverlay.parentNode.removeChild(this.highlightOverlay);
+      this.highlightOverlay = null;
+    }
+  }
+
+  /**
    * 获取容器元素
    */
   getElement(): HTMLElement {
@@ -344,6 +459,7 @@ export class LineModelVisualizer {
    */
   destroy(): void {
     window.removeEventListener('resize', () => this.updateCanvasSize());
+    this.removeHighlight();
     if (this.container.parentNode) {
       this.container.parentNode.removeChild(this.container);
     }
