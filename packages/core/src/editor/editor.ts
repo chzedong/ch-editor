@@ -15,6 +15,7 @@ import { getBlockIndex, getFirstBlock } from '../block/block-dom';
 import { EditorSelectionRange } from '../selection/selection-range';
 import { assert } from '../utils/assert';
 import { LineBreaker } from '../text/line/text-line';
+import { LineBreakerCacheManager } from '../text/line/line-breaker-cache';
 import { MarkManager } from '../mark/mark-manager';
 import { getBuiltInMarks } from '../mark/built-in-marks';
 import { DecoratorManager } from '../decorator/decorator-manager';
@@ -49,6 +50,8 @@ export class Editor extends TypedEmitter<any> {
 
   decoratorManager: DecoratorManager;
 
+  lineBreakerCache: LineBreakerCacheManager;
+
   // 上下键导航的目标列位置状态
   private _targetColumnX: number | null = null;
 
@@ -73,6 +76,9 @@ export class Editor extends TypedEmitter<any> {
     const shortcuts = new EditorShortcuts();
     this.input.addHandler(shortcuts);
     shortcuts.shortcuts = [defaultShortcuts];
+
+    // 使用全局缓存管理器实例
+    this.lineBreakerCache = new LineBreakerCacheManager();
 
   }
 
