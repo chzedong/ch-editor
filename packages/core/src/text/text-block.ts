@@ -9,7 +9,7 @@ import { assert } from '../utils/assert';
 import { createElement } from '../utils/dom';
 
 import { Block, BlockElement, BlockPath, DocBlock, DocBlockText } from '../index.type';
-import { getPositionFromPoint, LineBreaker } from './line/text-line';
+import { assertLineBreaker, getPositionFromPoint, LineBreaker } from './line/text-line';
 import { getTextBlockContentChildren } from './text-utils';
 
 function createBlockContent(editor: Editor, path: BlockPath, container: Element, blockElement: Element, blockData: DocBlock) {
@@ -41,13 +41,13 @@ function getBlockTextLength(block: BlockElement) {
   return count;
 }
 
-function getRangeFormPoint(block: BlockElement, x: number, y: number) {
-  const position = getPositionFromPoint(block, x, y);
+function getRangeFormPoint(editor: Editor, block: BlockElement, x: number, y: number, lineBreaker?: LineBreaker) {
+  const position = getPositionFromPoint(block, x, y, lineBreaker);
   return new EditorBlockPosition(position.blockId, position.offset, position.type);
 }
 
-function getCursorRect(block: BlockElement, position: EditorBlockPosition) {
-  const lineBreaker = new LineBreaker(block);
+function getCursorRect(editor: Editor, block: BlockElement, position: EditorBlockPosition, lineBreaker?: LineBreaker) {
+  lineBreaker = assertLineBreaker(block, lineBreaker);
   const cursorRect = lineBreaker.getCaretRect(position);
   return cursorRect;
 }

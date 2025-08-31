@@ -98,6 +98,7 @@ export function getOffsetFromPoint(targetTextNode: Node | null, x: number, y: nu
     targetTextNode &&
     (fastResult.textNode === targetTextNode || fastResult.textNode.parentNode === targetTextNode)
   ) {
+    console.log(fastResult, 111);
     return fastResult;
   }
 
@@ -148,8 +149,9 @@ function tryPrecisePositioning(targetTextNode: Node, x: number, y: number): { te
   // 首先遍历所有位置，找到在正确y范围内的候选位置
   const validCandidates: { offset: number; rect: DOMRect; distance: number }[] = [];
 
+  const range = document.createRange();
   for (let offset = 0; offset <= textLength; offset++) {
-    const rect = getRangeRectAtOffset(targetTextNode, offset);
+    const rect = getRangeRectAtOffset(targetTextNode, offset, range);
     if (rect && y >= rect.top && y <= rect.bottom) {
       const distance = Math.abs(rect.left - x) + Math.abs(rect.top + rect.height / 2 - y);
       validCandidates.push({ offset, rect, distance });
@@ -159,13 +161,13 @@ function tryPrecisePositioning(targetTextNode: Node, x: number, y: number): { te
   // 如果没有找到有效候选位置，返回最接近的边界位置
   if (validCandidates.length === 0) {
     // 检查是否在文本开始之前
-    const startRect = getRangeRectAtOffset(targetTextNode, 0);
+    const startRect = getRangeRectAtOffset(targetTextNode, 0, range);
     if (startRect && y < startRect.top) {
       return { textNode: targetTextNode, offset: 0 };
     }
 
     // 检查是否在文本结束之后
-    const endRect = getRangeRectAtOffset(targetTextNode, textLength);
+    const endRect = getRangeRectAtOffset(targetTextNode, textLength, range);
     if (endRect && y > endRect.bottom) {
       return { textNode: targetTextNode, offset: textLength };
     }
@@ -188,10 +190,10 @@ function tryPrecisePositioning(targetTextNode: Node, x: number, y: number): { te
 /**
  * 获取指定偏移量处的Range矩形
  */
-function getRangeRectAtOffset(textNode: Node, offset: number): DOMRect | null {
-  const range = createExpandedRange(textNode, offset, textNode, offset);
+function getRangeRectAtOffset(textNode: Node, offset: number, range: Range): DOMRect | null {
+  const selectRange = createExpandedRange(textNode, offset, textNode, offset, range);
 
-  const rects = range.getClientRects();
+  const rects = selectRange.getClientRects();
   if (rects.length > 0) {
     // 如果有多个矩形（断行处），返回第一个矩形
     // 这通常是正确的，因为我们要的是光标位置
@@ -200,8 +202,8 @@ function getRangeRectAtOffset(textNode: Node, offset: number): DOMRect | null {
 
   // 如果没有矩形，尝试创建一个包含单个字符的范围
   if (offset < (textNode.textContent?.length || 0)) {
-    range.setEnd(textNode, offset + 1);
-    const charRects = range.getClientRects();
+    selectRange.setEnd(textNode, offset + 1);
+    const charRects = selectRange.getClientRects();
     if (charRects.length > 0) {
       const charRect = charRects[0];
       // 返回字符左边缘的位置
@@ -211,9 +213,9 @@ function getRangeRectAtOffset(textNode: Node, offset: number): DOMRect | null {
 
   // 如果还是没有矩形，尝试获取前一个字符的位置
   if (offset > 0) {
-    range.setStart(textNode, offset - 1);
-    range.setEnd(textNode, offset);
-    const prevRects = range.getClientRects();
+    selectRange.setStart(textNode, offset - 1);
+    selectRange.setEnd(textNode, offset);
+    const prevRects = selectRange.getClientRects();
     if (prevRects.length > 0) {
       const prevRect = prevRects[prevRects.length - 1]; // 取最后一个矩形
 

@@ -2,6 +2,9 @@ import { getParentScrollContainer } from './dom';
 import { EditorBlockPosition } from '../selection/block-position';
 import { Editor } from '../editor/editor';
 import { getBlockType } from '../block/block-dom';
+import { BlockElement } from '../index.type';
+import { LineBreaker } from '../main';
+import { assertLineBreaker } from '../text/line/text-line';
 
 /**
  * 滚动行为类型
@@ -18,6 +21,7 @@ export interface ScrollIntoViewOptions {
   block?: ScrollLogicalPosition;
   inline?: ScrollLogicalPosition;
   margin?: number;
+  weakMap?: WeakMap<BlockElement, LineBreaker>;
 }
 
 /**
@@ -35,7 +39,8 @@ export function scrollIntoView(editor: Editor, position: EditorBlockPosition, op
   const blockClass = editor.editorBlocks.getBlockClass(getBlockType(targetBlock));
 
   // 获取光标在块中的坐标
-  const cursorRect = blockClass.getCursorRect(targetBlock, position);
+  const lineBreaker = assertLineBreaker(targetBlock, options.weakMap);
+  const cursorRect = blockClass.getCursorRect(editor, targetBlock, position, lineBreaker);
 
   // 查找滚动容器
   const scrollContainer = getParentScrollContainer(editor.rootContainer);

@@ -1,6 +1,7 @@
 import AttributeMap from 'quill-delta/dist/AttributeMap';
 import { Editor } from './editor/editor';
 import { EditorBlockPosition } from './selection/block-position';
+import { LineBreaker } from './main';
 
 export interface BoxData {
   /** Box 的唯一标识符 */
@@ -59,10 +60,9 @@ export interface Block {
 
   getBlockTextLength: (block: BlockElement) => number;
 
-  getRangeFormPoint: (block: BlockElement, x: number, y: number) => EditorBlockPosition;
-  getCursorRect: (block: BlockElement, position: EditorBlockPosition) => DOMRect;
-
-  updateSelection: (editor: Editor, block: BlockElement, from: number, to: number) => void;
+  getRangeFormPoint: (editor: Editor, block: BlockElement, x: number, y: number, lineBreaker?: LineBreaker) => EditorBlockPosition;
+  getCursorRect: (editor: Editor, block: BlockElement, position: EditorBlockPosition, lineBreaker?: LineBreaker) => DOMRect;
+  updateSelection: (editor: Editor, block: BlockElement, from: number, to: number, lineBreaker?: LineBreaker) => void;
   // ...
 }
 

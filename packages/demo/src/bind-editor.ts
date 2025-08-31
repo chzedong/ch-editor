@@ -21,25 +21,25 @@ editor.focus();
 // 初始化调试工具
 const debugManager = initDebugTools();
 // 监听文档变化
-editor.on('docChange', () => {
-  debugManager.updateDocInfo(editor.editorDoc.getDoc().doc);
-  // debugManager.updateLines(editor.doc.doc.blocks);
-  const blockId = editor.selection.range.start.blockId;
-  const block = editor.findBlockById(blockId)!;
-  const lineBreaker = new LineBreaker(block);
+// editor.on('docChange', () => {
+//   debugManager.updateDocInfo(editor.editorDoc.getDoc().doc);
+//   // debugManager.updateLines(editor.doc.doc.blocks);
+//   const blockId = editor.selection.range.start.blockId;
+//   const block = editor.findBlockById(blockId)!;
+//   const lineBreaker = new LineBreaker(block);
 
-  requestIdleCallback(() => {
-    debugManager.updateLines(lineBreaker.lines as TextLine[]);
-  });
+//   requestIdleCallback(() => {
+//     debugManager.updateLines(lineBreaker.lines as TextLine[]);
+//   });
 
-  localStorage.setItem('doc', JSON.stringify(editor.editorDoc.getDoc().doc));
-});
-editor.on('selectionChange', () => {
-  const blockId = editor.selection.range.start.blockId;
-  const block = editor.findBlockById(blockId)!;
-  const lineBreaker = new LineBreaker(block);
+//   localStorage.setItem('doc', JSON.stringify(editor.editorDoc.getDoc().doc));
+// });
+// editor.on('selectionChange', () => {
+//   const blockId = editor.selection.range.start.blockId;
+//   const block = editor.findBlockById(blockId)!;
+//   const lineBreaker = new LineBreaker(block);
 
-  requestIdleCallback(() => {
-    debugManager.updateLines(lineBreaker.lines as TextLine[]);
-  });
-});
+//   requestIdleCallback(() => {
+//     debugManager.updateLines(lineBreaker.lines as TextLine[]);
+//   });
+// });

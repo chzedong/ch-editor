@@ -1,10 +1,10 @@
 import { getBlockBackground } from '../block/block-background';
 import { createBackgroundChild, removeBackgrounds } from '../block/block-background';
 import { BlockElement } from '../index.type';
-import { LineBreaker } from './line/text-line';
+import { assertLineBreaker, LineBreaker } from './line/text-line';
 import { Editor } from '../editor/editor';
 
-export function updateSelection(editor: Editor, block: BlockElement, from: number, to: number): void {
+export function updateSelection(editor: Editor, block: BlockElement, from: number, to: number, lineBreaker?: LineBreaker): void {
   const isCollapsed = editor.selection.range.isCollapsed();
 
   if (isCollapsed && from === to) {
@@ -12,7 +12,7 @@ export function updateSelection(editor: Editor, block: BlockElement, from: numbe
     return;
   }
 
-  const lineBreaker = new LineBreaker(block);
+  lineBreaker = assertLineBreaker(block, lineBreaker);
   const rects = lineBreaker.getSelectionRects(from, to);
 
   const background = getBlockBackground(block);

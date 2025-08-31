@@ -52,7 +52,6 @@ export class EditorDoc {
   localUpdateBlockText(containerId: string, blockIndex: number, actions: DocBlockTextActions) {
     const result = this.doc.updateBlockText(containerId, blockIndex, actions);
     const { newText, blockData } = result;
-
     // 渲染处理
     const block = this.editor.getBlockById(blockData.id);
     assert(isTextKindBlock(this.editor, block), 'block is not text kind');

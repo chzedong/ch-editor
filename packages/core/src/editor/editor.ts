@@ -14,7 +14,7 @@ import { defaultShortcuts } from './default-shortcuts';
 import { getBlockIndex, getFirstBlock } from '../block/block-dom';
 import { EditorSelectionRange } from '../selection/selection-range';
 import { assert } from '../utils/assert';
-import { LineBreaker } from '../text/line/text-line';
+import { assertLineBreaker, LineBreaker } from '../text/line/text-line';
 import { MarkManager } from '../mark/mark-manager';
 import { getBuiltInMarks } from '../mark/built-in-marks';
 import { DecoratorManager } from '../decorator/decorator-manager';
@@ -76,9 +76,9 @@ export class Editor extends TypedEmitter<any> {
 
   }
 
-  focus(autoScroll: boolean = true) {
+  focus(autoScroll: boolean = true, weakMap?: WeakMap<BlockElement, LineBreaker>) {
     if (autoScroll) {
-      this.scrollIntoView();
+      this.scrollIntoView(weakMap);
     }
     this.input.focus({ preventScroll: true });
   }
@@ -86,7 +86,7 @@ export class Editor extends TypedEmitter<any> {
   /**
    * 智能滚动到当前光标位置
    */
-  scrollIntoView() {
+  scrollIntoView(weakMap?: WeakMap<BlockElement, LineBreaker>) {
     const range = this.selection.range;
     const focusPos = range.focus;
     const block = this.getBlockById(focusPos.blockId);
@@ -100,7 +100,8 @@ export class Editor extends TypedEmitter<any> {
       behavior: 'smooth',
       block: 'nearest',
       inline: 'nearest',
-      margin: 20
+      margin: 20,
+      weakMap
     });
   }
 
@@ -174,13 +175,13 @@ export class Editor extends TypedEmitter<any> {
   /**
    * 更新目标列位置状态（基于当前光标位置）
    */
-  updateTargetColumnX(): void {
+  updateTargetColumnX(weakMap?: WeakMap<BlockElement, LineBreaker>): void {
     const range = this.selection.range;
     const focusPos = range.focus;
     const block = this.getBlockById(focusPos.blockId);
     assert(isTextKindBlock(this, block), 'not text kind block');
 
-    const lineBreaker = new LineBreaker(block);
+    const lineBreaker = assertLineBreaker(block, weakMap);
     const position = lineBreaker.getCaretRect(focusPos);
     this.setTargetColumnX(position.left);
   }

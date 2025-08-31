@@ -9,6 +9,8 @@ import { getContainerId, getParentContainer } from '../container/container-dom';
 import { assert } from '../utils/assert';
 
 import { BlockElement, DocBlockTextActions } from '../index.type';
+import { LineBreaker } from '../main';
+import { assertLineBreaker } from '../text/line/text-line';
 
 export function transformSelection(editor: Editor, blockId: string, delta: DocBlockTextActions) {
   const { range } = editor.selection;
@@ -38,12 +40,13 @@ export function clearAllSelection(editor: Editor) {
   });
 }
 
-export function updateSelection(editor: Editor) {
+export function updateSelection(editor: Editor, weakMap?: WeakMap<BlockElement, LineBreaker>) {
   editor.selection.getSelectedBlocks().forEach((selectedBlockInfo) => {
     const blockData = editor.getBlockData(selectedBlockInfo.block);
     const blockClass = editor.editorBlocks.getBlockClass(blockData.type);
 
-    blockClass?.updateSelection(editor, selectedBlockInfo.block, selectedBlockInfo.anchor, selectedBlockInfo.focus);
+    const lineBreaker = assertLineBreaker(selectedBlockInfo.block, weakMap);
+    blockClass?.updateSelection(editor, selectedBlockInfo.block, selectedBlockInfo.anchor, selectedBlockInfo.focus, lineBreaker);
   });
 }
 

@@ -17,6 +17,7 @@
   position: absolute;
   animation: blink 1s ease-in-out infinite;
   pointer-events: none;
+  z-index: 1;
 }
 
 .editor-input {

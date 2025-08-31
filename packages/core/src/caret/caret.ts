@@ -1,6 +1,7 @@
 import { Editor } from '../editor/editor';
 import { isTextKindBlock } from '../editor/editor-blocks';
-import { getTextCaretRect } from '../text/line/text-line';
+import { BlockElement } from '../index.type';
+import { assertLineBreaker, getTextCaretRect, LineBreaker } from '../text/line/text-line';
 import { createElement } from '../utils/dom';
 import './caret.scss';
 
@@ -26,7 +27,7 @@ export class Caret {
     return true;
   }
 
-  update() {
+  update(weakMap?: WeakMap<BlockElement, LineBreaker>) {
     if (!this.hasCaret()) {
       this.caret.style.display = 'none';
       return;
@@ -35,7 +36,9 @@ export class Caret {
     }
     const { range } = this.editor.selection;
     const pos = range.start;
-    const rect: DOMRect = getTextCaretRect(this.editor.getBlockById(pos.blockId), pos);
+    const block = this.editor.getBlockById(pos.blockId);
+    const lineBreaker = assertLineBreaker(block, weakMap);
+    const rect: DOMRect = getTextCaretRect(block, pos, lineBreaker);
 
     const contentRect = this.editor.rootContainer.getBoundingClientRect();
     const x = rect.left - contentRect.left;

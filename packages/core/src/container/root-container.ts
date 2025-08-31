@@ -6,6 +6,7 @@ import { editorGetNextWordEnd, editorGetPreWordStart } from '../editor/actions/w
 import { isTextKindBlock } from '../editor/editor-blocks';
 import { ContainerElement } from '../index.type';
 import { getParentScrollContainer } from '../utils/dom';
+import { assertLineBreaker } from '../text/line/text-line';
 
 export class RootContainer {
   private isDragging = false;
@@ -37,7 +38,11 @@ export class RootContainer {
 
     const type = getBlockType(block);
     const blockClass = this.editor.editorBlocks.getBlockClass(type);
-    const pos = blockClass.getRangeFormPoint(block, clientX, clientY);
+
+    const weakMap = new WeakMap();
+    const lineBreaker = assertLineBreaker(block, weakMap);
+
+    const pos = blockClass.getRangeFormPoint(this.editor, block, clientX, clientY, lineBreaker);
     const startPos = new EditorBlockPosition(block.id, pos.offset, pos.type);
 
     // 初始化拖拽状态
@@ -45,7 +50,7 @@ export class RootContainer {
     this.dragStartPos = startPos;
 
     // 设置初始选区（光标位置）
-    this.editor.selection.setSelection(startPos, startPos);
+    this.editor.selection.setSelection(startPos, startPos, false, weakMap);
 
     // 阻止默认的文本选择行为
     e.preventDefault();
@@ -67,7 +72,7 @@ export class RootContainer {
 
     const type = getBlockType(block);
     const blockClass = this.editor.editorBlocks.getBlockClass(type);
-    const pos = blockClass.getRangeFormPoint(block, clientX, clientY);
+    const pos = blockClass.getRangeFormPoint(this.editor, block, clientX, clientY);
 
     // 获取块的文本数据
     const blockData = this.editor.getBlockData(block);
@@ -136,11 +141,13 @@ export class RootContainer {
 
     const type = getBlockType(block);
     const blockClass = this.editor.editorBlocks.getBlockClass(type);
-    const currentPos = blockClass.getRangeFormPoint(block, clientX, clientY);
+    const weakMap = new WeakMap();
+    const lineBreaker = assertLineBreaker(block, weakMap);
+    const currentPos = blockClass.getRangeFormPoint(this.editor, block, clientX, clientY, lineBreaker);
     const endPos = new EditorBlockPosition(block.id, currentPos.offset, currentPos.type);
 
     // 更新选区
-    this.editor.selection.setSelection(this.dragStartPos, endPos);
+    this.editor.selection.setSelection(this.dragStartPos, endPos, false, weakMap);
   };
 
   handleMouseUp = (e: MouseEvent) => {

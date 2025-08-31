@@ -218,6 +218,7 @@ export class LineBreaker {
     this._block = block;
     this._blockId = block.id;
     this._parseBlockContent();
+    console.trace('LineBreaker 初始化完成');
   }
 
   get lineCount(): number {
@@ -226,6 +227,14 @@ export class LineBreaker {
 
   get lines(): readonly TextLine[] {
     return this._lines;
+  }
+
+  get blockId(): string {
+    return this._blockId;
+  }
+
+  get block(): BlockElement {
+    return this._block;
   }
 
   getChildRects(child: TextBlockContentChild): DOMRectList {
@@ -630,8 +639,8 @@ export class LineBreaker {
  * @param pos 简单块位置
  * @returns 光标的DOMRect
  */
-export function getTextCaretRect(block: BlockElement, pos: SimpleBlockPosition): DOMRect {
-  const lineBreaker = new LineBreaker(block);
+export function getTextCaretRect(block: BlockElement, pos: SimpleBlockPosition, lineBreaker?: LineBreaker): DOMRect {
+  lineBreaker = assertLineBreaker(block, lineBreaker);
   return lineBreaker.getCaretRect(pos);
 }
 
@@ -642,8 +651,8 @@ export function getTextCaretRect(block: BlockElement, pos: SimpleBlockPosition):
  * @param y y坐标
  * @returns 简单块位置
  */
-export function getPositionFromPoint(block: BlockElement, x: number, y: number): SimpleBlockPosition {
-  const lineBreaker = new LineBreaker(block);
+export function getPositionFromPoint(block: BlockElement, x: number, y: number, lineBreaker?: LineBreaker): SimpleBlockPosition {
+  lineBreaker = assertLineBreaker(block, lineBreaker);
   return lineBreaker.getPositionFromPoint(x, y);
 }
 
@@ -652,9 +661,22 @@ export function getPositionFromPoint(block: BlockElement, x: number, y: number):
  * @param block 块元素
  * @returns LineBreaker实例
  */
-export function getLineBreaker(block: BlockElement): LineBreaker {
-  // 这里可以实现缓存机制，避免重复解析
-  return new LineBreaker(block);
+export function assertLineBreaker(block: BlockElement, lineBreakerOrMap?: LineBreaker | WeakMap<BlockElement, LineBreaker>): LineBreaker {
+  if (lineBreakerOrMap instanceof WeakMap) {
+    let lineBreaker = lineBreakerOrMap.get(block);
+    if (!lineBreaker) {
+      lineBreaker = new LineBreaker(block);
+      lineBreakerOrMap.set(block, lineBreaker);
+    }
+    assert(lineBreaker.block === block, 'lineBreakerOrMap block not match');
+    return lineBreaker;
+  };
+
+  if (!lineBreakerOrMap) {
+    lineBreakerOrMap = new LineBreaker(block);
+  };
+  assert(lineBreakerOrMap.block === block, 'lineBreakerOrMap block not match');
+  return lineBreakerOrMap;
 }
 
-window.LineBreaker = LineBreaker;
+(window as any).LineBreaker = LineBreaker;

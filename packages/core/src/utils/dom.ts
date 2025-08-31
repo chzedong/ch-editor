@@ -29,9 +29,9 @@ export function createRange(node: Node, offset: number) {
   }
 }
 
-export function createExpandedRange(startNode: Node, startOffset: number, endNode: Node, endOffset: number) {
+export function createExpandedRange(startNode: Node, startOffset: number, endNode: Node, endOffset: number, injectRange?: Range) {
   try {
-    const range = document.createRange();
+    const range = injectRange || document.createRange();
     range.setStart(startNode, startOffset);
     range.setEnd(endNode, endOffset);
     return range;
