@@ -14,7 +14,6 @@ import { defaultShortcuts } from './default-shortcuts';
 import { getBlockIndex, getFirstBlock } from '../block/block-dom';
 import { EditorSelectionRange } from '../selection/selection-range';
 import { assert } from '../utils/assert';
-import { LineBreaker } from '../text/line/text-line';
 import { LineBreakerCacheManager } from '../text/line/line-breaker-cache';
 import { MarkManager } from '../mark/mark-manager';
 import { getBuiltInMarks } from '../mark/built-in-marks';
@@ -186,7 +185,7 @@ export class Editor extends TypedEmitter<any> {
     const block = this.getBlockById(focusPos.blockId);
     assert(isTextKindBlock(this, block), 'not text kind block');
 
-    const lineBreaker = new LineBreaker(block);
+    const lineBreaker = this.lineBreakerCache.getLineBreaker(block);
     const position = lineBreaker.getCaretRect(focusPos);
     this.setTargetColumnX(position.left);
   }

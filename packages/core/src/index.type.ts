@@ -59,8 +59,8 @@ export interface Block {
 
   getBlockTextLength: (block: BlockElement) => number;
 
-  getRangeFormPoint: (block: BlockElement, x: number, y: number) => EditorBlockPosition;
-  getCursorRect: (block: BlockElement, position: EditorBlockPosition) => DOMRect;
+  getRangeFormPoint: (editor: Editor, block: BlockElement, x: number, y: number) => EditorBlockPosition;
+  getCursorRect: (editor: Editor, block: BlockElement, position: EditorBlockPosition) => DOMRect;
 
   updateSelection: (editor: Editor, block: BlockElement, from: number, to: number) => void;
   // ...

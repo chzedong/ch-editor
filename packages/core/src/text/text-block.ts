@@ -9,7 +9,7 @@ import { assert } from '../utils/assert';
 import { createElement } from '../utils/dom';
 
 import { Block, BlockElement, BlockPath, DocBlock, DocBlockText } from '../index.type';
-import { getPositionFromPoint, LineBreaker } from './line/text-line';
+import { getPositionFromPoint } from './line/text-line';
 import { getTextBlockContentChildren } from './text-utils';
 
 function createBlockContent(editor: Editor, path: BlockPath, container: Element, blockElement: Element, blockData: DocBlock) {
@@ -28,6 +28,9 @@ function updateBlockText(editor: Editor, block: BlockElement, text: DocBlockText
   newBlockContent.setAttribute('data-type', 'block-content');
   updateBlockContent(editor, [], getBlockId(block), newBlockContent, text);
   const oldContent = getBlockContent(block);
+
+  editor.lineBreakerCache.invalidateCache(block);
+
   patchNode(oldContent, newBlockContent);
 }
 
@@ -41,13 +44,13 @@ function getBlockTextLength(block: BlockElement) {
   return count;
 }
 
-function getRangeFormPoint(block: BlockElement, x: number, y: number) {
-  const position = getPositionFromPoint(block, x, y);
+function getRangeFormPoint(editor: Editor, block: BlockElement, x: number, y: number) {
+  const position = getPositionFromPoint(editor, block, x, y);
   return new EditorBlockPosition(position.blockId, position.offset, position.type);
 }
 
-function getCursorRect(block: BlockElement, position: EditorBlockPosition) {
-  const lineBreaker = new LineBreaker(block);
+function getCursorRect(editor: Editor, block: BlockElement, position: EditorBlockPosition) {
+  const lineBreaker = editor.lineBreakerCache.getLineBreaker(block);
   const cursorRect = lineBreaker.getCaretRect(position);
   return cursorRect;
 }

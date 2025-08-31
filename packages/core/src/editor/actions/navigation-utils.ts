@@ -2,7 +2,7 @@ import { getBlockId, isFirstBlock, isLastBlock, findPrevBlock, findNextBlock } f
 import { Editor } from '../editor';
 import { EditorBlockPosition } from '../../selection/block-position';
 import { isTextKindBlock } from '../editor-blocks';
-import { LineBreaker, TextLine } from '../../text/line/text-line';
+import { TextLine } from '../../text/line/text-line';
 import { assert } from '../../utils/assert';
 import { BlockElement } from '../../index.type';
 
@@ -25,7 +25,7 @@ export function findPositionByX(
   targetX: number
 ): EditorBlockPosition {
   const block = editor.getBlockById(blockId);
-  const lineBreaker = new LineBreaker(block);
+  const lineBreaker = editor.lineBreakerCache.getLineBreaker(block);
 
   // 处理空行的情况
   if (line.start === line.end) {
@@ -51,10 +51,11 @@ export function findPositionByX(
  * @returns 目标行，如果块为空则返回null
  */
 export function getTargetLineInBlock(
+  editor: Editor,
   block: BlockElement,
   direction: NavigationDirection
 ): TextLine {
-  const lineBreaker = new LineBreaker(block);
+  const lineBreaker = editor.lineBreakerCache.getLineBreaker(block);
   assert(lineBreaker.lineCount > 0, 'lineBreaker.lineCount should be greater than 0');
 
   if (direction === NavigationDirection.UP) {
@@ -88,7 +89,7 @@ export function findDownPosition(
   const block = editor.getBlockById(focusPos.blockId);
 
   assert(isTextKindBlock(editor, block), 'not text kind block');
-  const lineBreaker = new LineBreaker(block);
+  const lineBreaker = editor.lineBreakerCache.getLineBreaker(block);
 
   // 处理空块的情况
   if (lineBreaker.lineCount === 0) {
@@ -129,7 +130,7 @@ function moveDownToNextBlock(editor: Editor, currentBlock: BlockElement) {
   }
 
   const targetX = getOrInitializeTargetX(editor);
-  const targetLine = getTargetLineInBlock(nextBlock, NavigationDirection.DOWN);
+  const targetLine = getTargetLineInBlock(editor, nextBlock, NavigationDirection.DOWN);
 
   assert(!!targetX, 'targetX is null');
   // 在目标行中找到最接近目标X坐标的位置
@@ -143,7 +144,7 @@ export function findUpPosition(editor: Editor, focusPos: EditorBlockPosition) {
   const block = editor.getBlockById(focusPos.blockId);
 
   assert(isTextKindBlock(editor, block), 'not text kind block');
-  const lineBreaker = new LineBreaker(block);
+  const lineBreaker = editor.lineBreakerCache.getLineBreaker(block);
 
   // 处理空块的情况
   if (lineBreaker.lineCount === 0) {
@@ -186,7 +187,7 @@ function moveUpToPreviousBlock(editor: Editor, currentBlock: BlockElement) {
   }
 
   const targetX = getOrInitializeTargetX(editor);
-  const targetLine = getTargetLineInBlock(prevBlock, NavigationDirection.UP);
+  const targetLine = getTargetLineInBlock(editor, prevBlock, NavigationDirection.UP);
 
   assert(!!targetX, 'targetX is null');
   // 在目标行中找到最接近目标X坐标的位置

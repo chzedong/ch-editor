@@ -35,7 +35,7 @@ export function scrollIntoView(editor: Editor, position: EditorBlockPosition, op
   const blockClass = editor.editorBlocks.getBlockClass(getBlockType(targetBlock));
 
   // 获取光标在块中的坐标
-  const cursorRect = blockClass.getCursorRect(targetBlock, position);
+  const cursorRect = blockClass.getCursorRect(editor, targetBlock, position);
 
   // 查找滚动容器
   const scrollContainer = getParentScrollContainer(editor.rootContainer);

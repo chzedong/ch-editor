@@ -1,7 +1,6 @@
 import { getBlockBackground } from '../block/block-background';
 import { createBackgroundChild, removeBackgrounds } from '../block/block-background';
 import { BlockElement } from '../index.type';
-import { LineBreaker } from './line/text-line';
 import { Editor } from '../editor/editor';
 
 export function updateSelection(editor: Editor, block: BlockElement, from: number, to: number): void {
@@ -12,7 +11,7 @@ export function updateSelection(editor: Editor, block: BlockElement, from: numbe
     return;
   }
 
-  const lineBreaker = new LineBreaker(block);
+  const lineBreaker = editor.lineBreakerCache.getLineBreaker(block);
   const rects = lineBreaker.getSelectionRects(from, to);
 
   const background = getBlockBackground(block);

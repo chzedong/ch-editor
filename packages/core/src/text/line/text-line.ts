@@ -13,6 +13,7 @@ import { createExpandedRange } from '../../utils/dom';
 import { BoxDomUtils } from '../../box/box-dom-utils';
 
 import { TextBlockContentChild, BlockElement } from '../../index.type';
+import { Editor } from '../../main';
 
 /**
  * 行项虚拟类型
@@ -215,6 +216,7 @@ export class LineBreaker {
   private childRectsWeakMap = new WeakMap<TextBlockContentChild, DOMRectList>();
 
   constructor(block: BlockElement) {
+    console.log('LineBreaker 构造函数调用');
     this._block = block;
     this._blockId = block.id;
     this._parseBlockContent();
@@ -628,10 +630,11 @@ export class LineBreaker {
  * 获取文本光标矩形位置
  * @param block 块元素
  * @param pos 简单块位置
+ * @param editor 编辑器实例
  * @returns 光标的DOMRect
  */
-export function getTextCaretRect(block: BlockElement, pos: SimpleBlockPosition): DOMRect {
-  const lineBreaker = new LineBreaker(block);
+export function getTextCaretRect(editor: Editor, block: BlockElement, pos: SimpleBlockPosition): DOMRect {
+  const lineBreaker = editor.lineBreakerCache.getLineBreaker(block);
   return lineBreaker.getCaretRect(pos);
 }
 
@@ -642,19 +645,10 @@ export function getTextCaretRect(block: BlockElement, pos: SimpleBlockPosition):
  * @param y y坐标
  * @returns 简单块位置
  */
-export function getPositionFromPoint(block: BlockElement, x: number, y: number): SimpleBlockPosition {
-  const lineBreaker = new LineBreaker(block);
+export function getPositionFromPoint(editor: Editor, block: BlockElement, x: number, y: number): SimpleBlockPosition {
+  const lineBreaker = editor.lineBreakerCache.getLineBreaker(block);
   return lineBreaker.getPositionFromPoint(x, y);
 }
 
-/**
- * 获取行分割器实例（缓存优化可以在这里实现）
- * @param block 块元素
- * @returns LineBreaker实例
- */
-export function getLineBreaker(block: BlockElement): LineBreaker {
-  // 这里可以实现缓存机制，避免重复解析
-  return new LineBreaker(block);
-}
 
-window.LineBreaker = LineBreaker;
+(window as any).LineBreaker = LineBreaker;

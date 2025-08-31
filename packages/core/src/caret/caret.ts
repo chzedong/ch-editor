@@ -35,7 +35,7 @@ export class Caret {
     }
     const { range } = this.editor.selection;
     const pos = range.start;
-    const rect: DOMRect = getTextCaretRect(this.editor.getBlockById(pos.blockId), pos);
+    const rect: DOMRect = getTextCaretRect(this.editor, this.editor.getBlockById(pos.blockId), pos);
 
     const contentRect = this.editor.rootContainer.getBoundingClientRect();
     const x = rect.left - contentRect.left;

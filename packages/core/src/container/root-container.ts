@@ -37,7 +37,7 @@ export class RootContainer {
 
     const type = getBlockType(block);
     const blockClass = this.editor.editorBlocks.getBlockClass(type);
-    const pos = blockClass.getRangeFormPoint(block, clientX, clientY);
+    const pos = blockClass.getRangeFormPoint(this.editor, block, clientX, clientY);
     const startPos = new EditorBlockPosition(block.id, pos.offset, pos.type);
 
     // 初始化拖拽状态
@@ -67,7 +67,7 @@ export class RootContainer {
 
     const type = getBlockType(block);
     const blockClass = this.editor.editorBlocks.getBlockClass(type);
-    const pos = blockClass.getRangeFormPoint(block, clientX, clientY);
+    const pos = blockClass.getRangeFormPoint(this.editor, block, clientX, clientY);
 
     // 获取块的文本数据
     const blockData = this.editor.getBlockData(block);
@@ -136,7 +136,7 @@ export class RootContainer {
 
     const type = getBlockType(block);
     const blockClass = this.editor.editorBlocks.getBlockClass(type);
-    const currentPos = blockClass.getRangeFormPoint(block, clientX, clientY);
+    const currentPos = blockClass.getRangeFormPoint(this.editor, block, clientX, clientY);
     const endPos = new EditorBlockPosition(block.id, currentPos.offset, currentPos.type);
 
     // 更新选区
