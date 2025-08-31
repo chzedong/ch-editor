@@ -50,36 +50,34 @@ export function getTextNodeRects(textNode: Text): DOMRect[] {
 /**
  * 获取元素的第一个客户端矩形
  */
-function getFirstClientRect(child: TextBlockContentChild): DOMRect {
-  const rects = child.getClientRects();
-  assert(rects.length > 0, '元素应该有至少一个客户端矩形');
-  return rects[0];
+function getFirstClientRect(childRects: DOMRectList): DOMRect {
+  assert(childRects.length > 0, '元素应该有至少一个客户端矩形');
+  return childRects[0];
 }
 
 /**
  * 获取元素的最后一个客户端矩形
  */
-function getLastClientRect(child: TextBlockContentChild): DOMRect {
-  const rects = child.getClientRects();
-  assert(rects.length > 0, '元素应该有至少一个客户端矩形');
-  return rects[rects.length - 1];
+function getLastClientRect(childRects: DOMRectList): DOMRect {
+  assert(childRects.length > 0, '元素应该有至少一个客户端矩形');
+  return childRects[childRects.length - 1];
 }
 
 /**
  * 判断元素内容是否跨越多行
  */
-export function isMultiLineChild(child: TextBlockContentChild): boolean {
-  const firstRect = getFirstClientRect(child);
-  const lastRect = getLastClientRect(child);
+export function isMultiLineChild(childRects: DOMRectList): boolean {
+  const firstRect = getFirstClientRect(childRects);
+  const lastRect = getLastClientRect(childRects);
   return !areRectsOnSameLine(firstRect, lastRect);
 }
 
 /**
  * 判断后续元素是否在新行开始
  */
-export function doesNextChildStartNewLine(currentChild: TextBlockContentChild, nextChild: TextBlockContentChild): boolean {
-  const currentEndRect = getLastClientRect(currentChild);
-  const nextStartRect = getFirstClientRect(nextChild);
+export function doesNextChildStartNewLine(currentChildRects: DOMRectList, nextChildRects: DOMRectList): boolean {
+  const currentEndRect = getLastClientRect(currentChildRects);
+  const nextStartRect = getFirstClientRect(nextChildRects);
   return nextStartRect.left < currentEndRect.right;
 }
 

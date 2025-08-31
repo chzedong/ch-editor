@@ -212,6 +212,8 @@ export class LineBreaker {
   private readonly _block: BlockElement;
   private readonly _blockId: string;
 
+  private childRectsWeakMap = new WeakMap<TextBlockContentChild, DOMRectList>();
+
   constructor(block: BlockElement) {
     this._block = block;
     this._blockId = block.id;
@@ -224,6 +226,15 @@ export class LineBreaker {
 
   get lines(): readonly TextLine[] {
     return this._lines;
+  }
+
+  getChildRects(child: TextBlockContentChild): DOMRectList {
+    if (!this.childRectsWeakMap.has(child)) {
+      const childRects = child.getClientRects();
+      this.childRectsWeakMap.set(child, childRects);
+    }
+
+    return this.childRectsWeakMap.get(child) as DOMRectList;
   }
 
   /**
@@ -242,7 +253,7 @@ export class LineBreaker {
     for (const [index, child] of children.entries()) {
       const childLength = getTextBlockContentChildTextLength(child);
 
-      if (isMultiLineChild(child)) {
+      if (isMultiLineChild(this.getChildRects(child))) {
         currentLine = this._processMultiLineChild(child, currentLine);
       } else {
         this._processSingleLineChild(child, childLength, currentLine);
@@ -250,7 +261,7 @@ export class LineBreaker {
 
       // 检查后续元素是否需要换行
       const nextChild = children[index + 1];
-      if (nextChild && doesNextChildStartNewLine(child, nextChild)) {
+      if (nextChild && doesNextChildStartNewLine(this.getChildRects(child), this.getChildRects(nextChild))) {
         currentLine = this._createNewLine(currentLine.end);
       }
     }
@@ -262,18 +273,16 @@ export class LineBreaker {
   private _processSingleLineChild(child: TextBlockContentChild, childLength: number, currentLine: TextLine): void {
     // 检查是否为 box 元素
     if (BoxDomUtils.isBoxWrapper(child)) {
-      const rects = child.getClientRects();
-      assert(rects.length > 0, 'box 元素应该有矩形区域');
+      assert(this.getChildRects(child).length > 0, 'box 元素应该有矩形区域');
 
       // box 元素的逻辑长度始终为 1，不使用 childLength
-      currentLine.addBox(child, rects[0]);
+      currentLine.addBox(child, this.getChildRects(child)[0]);
       return;
     }
 
     // 处理普通文本元素
-    const rects = child.getClientRects();
-    const mergedRects = mergeTextRects(rects);
-    assert(mergedRects.length === 1, `期望单行子元素只有一个矩形区域，实际获取到 ${rects.length} 个`);
+    const mergedRects = mergeTextRects(this.getChildRects(child));
+    assert(mergedRects.length === 1, `期望单行子元素只有一个矩形区域，实际获取到 ${this.getChildRects(child).length} 个`);
 
     currentLine.addChild(child, childLength, mergedRects[0]);
   }
@@ -284,17 +293,17 @@ export class LineBreaker {
   private _processMultiLineChild(child: TextBlockContentChild, currentLine: TextLine): TextLine {
     // 检查是否为可跨行的 box 元素
     if (BoxDomUtils.isBoxWrapper(child) && BoxDomUtils.canBoxWrap(child)) {
-      const rects = child.getClientRects();
       let resultLine = currentLine;
+      const childRects = this.getChildRects(child);
 
       // box 跨多行时，每行都占用逻辑长度 1，但实际上 box 的总逻辑长度仍为 1
       // 这里需要特殊处理：第一行添加 box，后续行标记为无效索引
-      for (let rectIndex = 0; rectIndex < rects.length; rectIndex++) {
-        const rect = rects[rectIndex];
+      for (let rectIndex = 0; rectIndex < childRects.length; rectIndex++) {
+        const rect = childRects[rectIndex];
         if (rectIndex === 0) {
           // 第一行：start 值有效，end 值无效
           resultLine.addBox(child, rect, true, false); // 第四个参数表示第一行的特殊情况
-        } else if (rectIndex === rects.length - 1) {
+        } else if (rectIndex === childRects.length - 1) {
           // 最后一行：end 值有效，start 值无效
           resultLine.addBox(child, rect, false, true);
         } else {
@@ -303,8 +312,8 @@ export class LineBreaker {
         }
 
         // 检查下一个矩形是否需要换行
-        if (rectIndex < rects.length - 1) {
-          const nextRect = rects[rectIndex + 1];
+        if (rectIndex < childRects.length - 1) {
+          const nextRect = childRects[rectIndex + 1];
           if (!areRectsOnSameLine(rect, nextRect)) {
             resultLine = this._createNewLine(resultLine.end);
           }
