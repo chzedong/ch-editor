@@ -41,7 +41,7 @@ interface SplitPoint {
   /** 在操作内的偏移量 */
   offsetInOp: number;
   /** 分割类型 */
-  type: 'decorator-start' | 'decorator-end' | 'op-boundary' | 'widget';
+  type: ('decorator-start' | 'decorator-end' | 'op-boundary' | 'widget')[];
   /** 相关装饰器（如果是装饰器分割点） */
   decorator?: BaseDecorator | WidgetDecorator;
 }
@@ -84,7 +84,7 @@ export class TextSplitter {
         globalOffset,
         opIndex,
         offsetInOp: 0,
-        type: 'op-boundary'
+        type: ['op-boundary']
       });
 
       const opLength = this.getOpLength(op);
@@ -95,7 +95,7 @@ export class TextSplitter {
         globalOffset,
         opIndex,
         offsetInOp: opLength,
-        type: 'op-boundary'
+        type: ['op-boundary']
       });
     });
 
@@ -108,7 +108,7 @@ export class TextSplitter {
           globalOffset: range.start,
           opIndex: startPoint.opIndex,
           offsetInOp: startPoint.offsetInOp,
-          type: 'decorator-start',
+          type: ['decorator-start'],
           decorator: range.decorator
         });
       }
@@ -120,7 +120,7 @@ export class TextSplitter {
           globalOffset: range.end,
           opIndex: endPoint.opIndex,
           offsetInOp: endPoint.offsetInOp,
-          type: 'decorator-end',
+          type: ['decorator-end'],
           decorator: range.decorator
         });
       }
@@ -134,7 +134,7 @@ export class TextSplitter {
           globalOffset: widgetRange.position,
           opIndex: widgetPoint.opIndex,
           offsetInOp: widgetPoint.offsetInOp,
-          type: 'widget',
+          type: ['widget'],
           decorator: widgetRange.decorator
         });
       }
@@ -190,10 +190,10 @@ export class TextSplitter {
         return a.globalOffset - b.globalOffset;
       }
       // 相同位置时，优先处理操作边界
-      if (a.type === 'op-boundary' && b.type !== 'op-boundary') {
+      if (a.type.includes('op-boundary') && !b.type.includes('op-boundary')) {
         return -1;
       }
-      if (b.type === 'op-boundary' && a.type !== 'op-boundary') {
+      if (b.type.includes('op-boundary') && !a.type.includes('op-boundary')) {
         return 1;
       }
       return 0;
@@ -202,11 +202,24 @@ export class TextSplitter {
     // 去重：相同位置的分割点合并
     const deduplicated: SplitPoint[] = [];
     let lastOffset = -1;
+    let lastPoint: SplitPoint | null = null;
 
     for (const point of splitPoints) {
       if (point.globalOffset !== lastOffset) {
         deduplicated.push(point);
         lastOffset = point.globalOffset;
+        lastPoint = point;
+      } else if (lastPoint) {
+        // 合并相同位置的type到数组中
+        for (const type of point.type) {
+          if (!lastPoint.type.includes(type)) {
+            lastPoint.type.push(type);
+          }
+        }
+        // 如果有装饰器信息，保留第一个非空的
+        if (!lastPoint.decorator && point.decorator) {
+          lastPoint.decorator = point.decorator;
+        }
       }
     }
 
@@ -224,12 +237,11 @@ export class TextSplitter {
       const endPoint = splitPoints[i + 1];
 
       // 检查是否为widget分割点
-      if (startPoint.type === 'widget') {
+      if (startPoint.type.includes('widget')) {
         const widgetSegment = this.createWidgetSegment(startPoint, widgetRanges);
         if (widgetSegment) {
           segments.push(widgetSegment);
         }
-        continue;
       }
 
       // 跳过零长度片段

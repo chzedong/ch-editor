@@ -13,6 +13,7 @@ import { createExpandedRange } from '../../utils/dom';
 import { BoxDomUtils } from '../../box/box-dom-utils';
 
 import { TextBlockContentChild, BlockElement } from '../../index.type';
+import { isWidgetElement } from '../../decorator/decorator-dom';
 
 /**
  * 行项虚拟类型
@@ -49,14 +50,22 @@ export interface BoxLineItem extends BaseLineItem {
   virtualType: LineItemVirtualType;
 }
 
+export interface WidgetLineItem extends BaseLineItem {
+  type: 'widget';
+}
+
 /**
  * 联合类型的 LineItem
  */
-export type LineItem = TextLineItem | BoxLineItem;
+export type LineItem = TextLineItem | BoxLineItem | WidgetLineItem;
 
 /**
  * 类型守卫函数
  */
+export function isWidgetLineItem(item: LineItem): item is WidgetLineItem {
+  return item.type === 'widget';
+}
+
 export function isTextLineItem(item: LineItem): item is TextLineItem {
   return item.type === 'text';
 }
@@ -154,6 +163,22 @@ export class TextLine {
     this._endOffset = endOffset;
   }
 
+  addWidget(element: TextBlockContentChild, contentRect: DOMRect) {
+    const startOffset = this._endOffset;
+    const endOffset =  startOffset;
+
+    const item: WidgetLineItem = {
+      type: 'widget',
+      child: element,
+      startBlockOffset: startOffset,
+      endBlockOffset: endOffset,
+      contentRect
+    };
+
+    this._items.push(item);
+    this._endOffset = endOffset;
+  }
+
   /**
    * 获取行的边界矩形
    */
@@ -218,7 +243,7 @@ export class LineBreaker {
     this._block = block;
     this._blockId = block.id;
     this._parseBlockContent();
-    console.trace('LineBreaker 初始化完成');
+    // console.trace('LineBreaker 初始化完成');
   }
 
   get lineCount(): number {
@@ -280,6 +305,12 @@ export class LineBreaker {
    * 处理单行子元素
    */
   private _processSingleLineChild(child: TextBlockContentChild, childLength: number, currentLine: TextLine): void {
+    // 检查是否为 widget 元素
+    if (isWidgetElement(child)) {
+      currentLine.addWidget(child, this.getChildRects(child)[0]);
+      return;
+    }
+
     // 检查是否为 box 元素
     if (BoxDomUtils.isBoxWrapper(child)) {
       assert(this.getChildRects(child).length > 0, 'box 元素应该有矩形区域');
@@ -300,6 +331,28 @@ export class LineBreaker {
    * 处理多行文本子元素
    */
   private _processMultiLineChild(child: TextBlockContentChild, currentLine: TextLine): TextLine {
+    // 检查是否为 widget 元素
+    if (isWidgetElement(child)) {
+      let resultLine = currentLine;
+      const childRects = this.getChildRects(child);
+
+      for (let rectIndex = 0; rectIndex < childRects.length; rectIndex++) {
+        const rect = childRects[rectIndex];
+        resultLine.addWidget(child, rect);
+
+        // 检查下一个矩形是否需要换行
+        if (rectIndex < childRects.length - 1) {
+          const nextRect = childRects[rectIndex + 1];
+          if (!areRectsOnSameLine(rect, nextRect)) {
+            resultLine = this._createNewLine(resultLine.end);
+          }
+        }
+      }
+
+      return resultLine;
+    }
+
+
     // 检查是否为可跨行的 box 元素
     if (BoxDomUtils.isBoxWrapper(child) && BoxDomUtils.canBoxWrap(child)) {
       let resultLine = currentLine;
@@ -481,6 +534,11 @@ export class LineBreaker {
             return { offset: item.startBlockOffset, type: 'middle', blockId: this._blockId };
           }
         }
+
+        // 处理 widget 类型的 item
+        if (isWidgetLineItem(item)) {
+          return { offset: item.endBlockOffset, type: 'middle', blockId: this._blockId };
+        }
       }
     }
 
@@ -623,6 +681,10 @@ export class LineBreaker {
         } else if (isBoxLineItem(item)) {
           // 处理 box 类型的选中
           // box 被选中时，直接使用其完整的矩形区域
+          rects.push(item.contentRect);
+        } else if (isWidgetLineItem(item)) {
+          // 处理 widget 类型的选中
+          // widget 被选中时，直接使用其完整的矩形区域
           rects.push(item.contentRect);
         }
       }

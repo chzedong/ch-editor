@@ -13,8 +13,9 @@ export class DividerWidgetDecorator extends WidgetDecorator {
    * 渲染分隔线Widget
    */
   render(data: any): HTMLElement {
-    const divider = document.createElement('hr');
+    const divider = document.createElement('span');
     divider.className = 'ch-widget-divider';
+    divider.innerText = 'hello world';
 
     return divider;
   }
@@ -28,6 +29,10 @@ export class DividerWidgetDecorator extends WidgetDecorator {
     const blockData = editor.editorDoc.getBlockById(blockId);
     assert(blockData.text, 'Block not found');
     const textLen = getDocTextLength(blockData.text);
+
+    if (textLen === 0) {
+      return [];
+    }
 
     return [{
       position: textLen - 1,

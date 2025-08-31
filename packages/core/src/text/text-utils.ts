@@ -6,6 +6,7 @@ import { BlockElement, DocBlockText, DocBlockTextOp, TextBlockContentChild } fro
 import { Editor } from '../editor/editor';
 import { isBoxOp } from '../box/box-data-model';
 import { BoxDomUtils } from '../box/box-dom-utils';
+import { isWidgetElement } from '../decorator/decorator-dom';
 
 export function splitText(docText: DocBlockText, offset: number) {
   const left: DocBlockText = [];
@@ -61,6 +62,10 @@ export function getTextBlockContentChildTextLength(child: TextBlockContentChild)
 
   if (BoxDomUtils.isBoxWrapper(child)) {
     return 1;
+  }
+
+  if (isWidgetElement(child)) {
+    return 0;
   }
 
   assert(typeof child.textContent === 'string', 'invalid text content');
