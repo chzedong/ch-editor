@@ -432,7 +432,7 @@ export class LineModelVisualizer {
     // 3秒后自动移除高亮
     setTimeout(() => {
       this.removeHighlight();
-    }, 3000);
+    }, 5000);
 
     console.log(`点击了 Line ${lineIndex} Item ${itemIndex}:`, item);
   }

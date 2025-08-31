@@ -19,7 +19,9 @@ export function updateBlockContent(editor: Editor, path: BlockPath, blockId: str
 
   const decoratorRanges = editor.decoratorManager.calculateDecoratorRanges(blockId, getDocTextLength(blockText));
 
+  const start = performance.now();
   renderWithDecorators(editor, blockText, decoratorRanges, fragment);
+  console.log('%cRenderTextSegment: %c%s ms', 'color: #2196F3; font-weight: bold', 'color: #4CAF50', (performance.now() - start).toFixed(2));
 
   content.innerHTML = '';
   content.appendChild(fragment);
@@ -34,7 +36,6 @@ function renderWithDecorators(
   // 使用文本分割器分割文本
   const segments = TextSplitter.splitTextOps(blockText, decoratorRanges);
 
-  console.log('segments', segments);
   for (const segment of segments) {
     if (segment.isBox) {
       // 渲染 Box 元素
@@ -75,7 +76,7 @@ function renderBoxSegment(editor: Editor, segment: TextOpSegment, fragment: Docu
  * 渲染文本片段
  */
 function renderTextSegment(editor: Editor, segment: TextOpSegment, fragment: DocumentFragment) {
-  const span = createElement('span', ['text'], fragment);
+  const span = createElement('span', ['text'], null);
 
   // 提取片段文本
   const segmentText = segment.originalOp.insert.substring(

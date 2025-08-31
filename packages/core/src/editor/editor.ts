@@ -22,6 +22,11 @@ import { getBuiltInDecorators } from '../decorator/built-in-decorators';
 import { scrollIntoView } from '../utils/scroll-into-view';
 
 import { BlockElement, BoxData, ContainerElement, DocBlock } from '../index.type';
+import { Doc } from '../doc/doc';
+
+export interface EditorOptions {
+  initDoc?: Doc;
+}
 
 export class Editor extends TypedEmitter<any> {
   parent: HTMLElement;
@@ -47,20 +52,11 @@ export class Editor extends TypedEmitter<any> {
   // 上下键导航的目标列位置状态
   private _targetColumnX: number | null = null;
 
-  constructor(parent: HTMLElement, options: any) {
+  constructor(parent: HTMLElement, options: EditorOptions) {
     super();
     this.parent = parent;
     this.editorDoc = new EditorDoc(this, options.initDoc);
-    // this.options = options;
     this.editorBlocks.registerBlockClass(TextBlock);
-    this.rootContainerObject = createRootContainer(this);
-    this.rootContainer = this.rootContainerObject.rootContainer;
-    this.input = new EditorInput(this);
-    this.selection = new EditorSelection(this);
-    const shortcuts = new EditorShortcuts();
-    this.input.addHandler(shortcuts);
-    shortcuts.shortcuts = [defaultShortcuts];
-
     // 初始化Mark管理器
     this.markManager = new MarkManager(this);
     this.markManager.registerAll(getBuiltInMarks());
@@ -68,6 +64,16 @@ export class Editor extends TypedEmitter<any> {
     // 初始化装饰器管理器
     this.decoratorManager = new DecoratorManager(this);
     this.decoratorManager.registerAll(getBuiltInDecorators());
+    // this.options = options;
+    this.input = new EditorInput(this);
+    this.selection = new EditorSelection(this);
+
+    this.rootContainerObject = createRootContainer(this);
+    this.rootContainer = this.rootContainerObject.rootContainer;
+    const shortcuts = new EditorShortcuts();
+    this.input.addHandler(shortcuts);
+    shortcuts.shortcuts = [defaultShortcuts];
+
   }
 
   focus(autoScroll: boolean = true) {

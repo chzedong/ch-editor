@@ -1,8 +1,19 @@
-import { Editor, LineBreaker, TextLine } from '@ch-editor/core';
+import { Doc, Editor, LineBreaker, TextLine } from '@ch-editor/core';
 import { initDebugTools } from '@ch-editor/debug';
 
 const editorContainer = document.querySelector<HTMLDivElement>('#editor')!;
-export const editor = new Editor(editorContainer, {});
+
+let initDoc = null;
+try {
+  initDoc = JSON.parse(localStorage.getItem('doc') || '{}');
+} catch (error) {
+  console.log('initDoc error', error);
+}
+
+console.log('initDoc: ', initDoc);
+export const editor = new Editor(editorContainer, {
+  initDoc: new Doc(initDoc)
+});
 editor.focus();
 
 (window as any).editor = editor;
@@ -17,12 +28,18 @@ editor.on('docChange', () => {
   const block = editor.findBlockById(blockId)!;
   const lineBreaker = new LineBreaker(block);
 
-  debugManager.updateLines(lineBreaker.lines as TextLine[]);
+  requestIdleCallback(() => {
+    debugManager.updateLines(lineBreaker.lines as TextLine[]);
+  });
+
+  localStorage.setItem('doc', JSON.stringify(editor.editorDoc.getDoc().doc));
 });
 editor.on('selectionChange', () => {
   const blockId = editor.selection.range.start.blockId;
   const block = editor.findBlockById(blockId)!;
   const lineBreaker = new LineBreaker(block);
 
-  debugManager.updateLines(lineBreaker.lines as TextLine[]);
+  requestIdleCallback(() => {
+    debugManager.updateLines(lineBreaker.lines as TextLine[]);
+  });
 });

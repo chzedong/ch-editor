@@ -13,9 +13,8 @@ export class EditorSelection {
 
   constructor(private editor: Editor) {
     this.caret = new Caret(this.editor);
-    const block = editor.getFirstBlock();
-    const blockId = getBlockId(block);
-    const pos = new EditorBlockPosition(blockId, 0);
+    const block = editor.editorDoc.getBlockByIndex('root', 0);
+    const pos = new EditorBlockPosition(block.id, 0);
     this._range = new EditorSelectionRange(editor, { anchor: pos, focus: pos });
 
     setTimeout(() => {

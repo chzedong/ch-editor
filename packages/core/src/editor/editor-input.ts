@@ -10,9 +10,12 @@ export class EditorInput {
   private inputHandler: InputHandler[] = [];
 
   constructor(private editor: Editor) {
-    this.inputElement = createElement('input', ['editor-input'], editor.rootContainer);
+    this.inputElement = createElement('input', ['editor-input'], null);
     this.inputElement.addEventListener('input', this.handleInput);
     this.inputElement.addEventListener('keydown', this.handleKeyDown);
+    setTimeout(() => {
+      this.editor.rootContainer.appendChild(this.inputElement);
+    });
   }
 
   handleInput = (event: Event) => {

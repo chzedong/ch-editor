@@ -114,7 +114,6 @@ export class MarkManager {
   ): MarkApplyResult[] {
     const results: MarkApplyResult[] = [];
     const appliedMarks = new Set<string>();
-    const conflictGroups = new Map<string, BaseMark[]>();
 
     // 收集所有匹配的Mark
     const allMatches: { mark: BaseMark; key: string; value: any }[] = [];

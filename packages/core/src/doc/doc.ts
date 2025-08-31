@@ -16,9 +16,25 @@ export class Doc {
     }
   }
 
-  getBlockIndexById(container: string, id: string) {
-    const blocks = this.getContainerBlocks(container);
+  getBlockIndexById(containerId: string, id: string) {
+    const blocks = this.getContainerBlocks(containerId);
     return blocks.findIndex((v) => v.id === id);
+  }
+
+  getBlockByIndex(containerId: string, index: number) {
+    const blocks = this.getContainerBlocks(containerId);
+    return blocks[index];
+  }
+
+  getBlockById(id: string) {
+    const blocks = this.getContainerBlocks('root');
+    const block = blocks.find((v) => v.id === id);
+    assert(block, 'no block');
+    return block;
+  }
+
+  getContainerId(blockId: string) {
+    return 'root';
   }
 
   getContainerBlocks(containerId: string) {

@@ -7,7 +7,10 @@ import './caret.scss';
 export class Caret {
   caret: HTMLElement;
   constructor(private editor: Editor) {
-    this.caret = createElement('div', ['editor-caret'], editor.rootContainer);
+    this.caret = createElement('div', ['editor-caret'], null);
+    setTimeout(() => {
+      this.editor.rootContainer.appendChild(this.caret);
+    });
   }
 
   private hasCaret() {

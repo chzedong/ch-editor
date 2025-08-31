@@ -29,6 +29,18 @@ export class EditorDoc {
     return this.doc.getBlockIndexById(container, id);
   }
 
+  getBlockByIndex(container: string, index: number) {
+    return this.doc.getBlockByIndex(container, index);
+  }
+
+  getContainerId(blockId: string) {
+    return this.doc.getContainerId(blockId);
+  }
+
+  getBlockById(id: string) {
+    return this.doc.getBlockById(id);
+  }
+
   getContainerBlocks(containerId: string) {
     return this.doc.getContainerBlocks(containerId);
   }

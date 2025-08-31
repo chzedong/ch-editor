@@ -74,8 +74,7 @@ export function hasTextFormat(editor: Editor, attributeKey: string, attributeVal
   const { range } = editor.selection;
   const { start, end } = range;
 
-  const block = editor.getBlockById(start.blockId);
-  const blockData = editor.getBlockData(block);
+  const blockData = editor.editorDoc.getBlockById(start.blockId);
 
   assert(blockData.text, 'Block has no text');
 
@@ -95,7 +94,6 @@ export function hasTextFormat(editor: Editor, attributeKey: string, attributeVal
  */
 export function toggleTextFormat(editor: Editor, attributeKey: string, attributeValue: any = true) {
   const { range } = editor.selection;
-  const { start, end } = range;
 
   // 如果是折叠选区，不执行格式化
   if (range.isCollapsed()) {

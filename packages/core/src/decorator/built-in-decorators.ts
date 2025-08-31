@@ -42,13 +42,6 @@ export class SearchHighlightDecorator extends BaseDecorator {
     const { editor, blockId } = context;
 
     try {
-      const block = editor.getBlockById(blockId);
-      const blockData = editor.getBlockData(block);
-
-      if (isEmptyTextBlock(block)) {
-        return [];
-      }
-
 
       return [{
         start: 0,
