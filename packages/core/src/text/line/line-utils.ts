@@ -98,7 +98,6 @@ export function getOffsetFromPoint(targetTextNode: Node | null, x: number, y: nu
     targetTextNode &&
     (fastResult.textNode === targetTextNode || fastResult.textNode.parentNode === targetTextNode)
   ) {
-    console.log(fastResult, 111);
     return fastResult;
   }
 

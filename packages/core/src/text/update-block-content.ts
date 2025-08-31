@@ -6,7 +6,7 @@ import { isBoxOp } from '../box/box-data-model';
 import { TextSplitter, TextOpSegment } from '../decorator/text-splitter';
 
 import { BlockPath, DocBlockText } from '../index.type';
-import { DecoratorRange } from '../decorator';
+import { DecoratorRange, WidgetRange } from '../decorator';
 import { assert } from '../main';
 
 export function updateBlockContent(editor: Editor, path: BlockPath, blockId: string, content: Element, blockText: DocBlockText) {
@@ -18,9 +18,11 @@ export function updateBlockContent(editor: Editor, path: BlockPath, blockId: str
   const fragment = document.createDocumentFragment();
 
   const decoratorRanges = editor.decoratorManager.calculateDecoratorRanges(blockId, getDocTextLength(blockText));
+  // 计算widget范围
+  const widgetRanges = editor.decoratorManager.calculateWidgetRanges(blockId, getDocTextLength(blockText));
 
   const start = performance.now();
-  renderWithDecorators(editor, blockText, decoratorRanges, fragment);
+  renderWithDecorators(editor, blockText, decoratorRanges, widgetRanges, fragment);
   console.log('%cRenderTextSegment: %c%s ms', 'color: #2196F3; font-weight: bold', 'color: #4CAF50', (performance.now() - start).toFixed(2));
 
   content.innerHTML = '';
@@ -31,13 +33,17 @@ function renderWithDecorators(
   editor: Editor,
   blockText: DocBlockText,
   decoratorRanges: DecoratorRange[],
+  widgetRanges: WidgetRange[],
   fragment: DocumentFragment
 ) {
   // 使用文本分割器分割文本
-  const segments = TextSplitter.splitTextOps(blockText, decoratorRanges);
+  const segments = TextSplitter.splitTextOps(blockText, decoratorRanges, widgetRanges);
 
   for (const segment of segments) {
-    if (segment.isBox) {
+    if (segment.isWidget) {
+      // 渲染 Widget 元素
+      renderWidgetSegment(editor, segment, fragment);
+    } else if (segment.isBox) {
       // 渲染 Box 元素
       renderBoxSegment(editor, segment, fragment);
     } else {
@@ -52,6 +58,7 @@ function renderWithDecorators(
  */
 function renderBoxSegment(editor: Editor, segment: TextOpSegment, fragment: DocumentFragment) {
 
+  assert(segment.originalOp, 'Box segment should have original op');
   // 确保 segment.originalOp 是一个 box 操作
   assert(isBoxOp(segment.originalOp), 'segment original op must be a box operation');
   const boxData = segment.originalOp.attributes.insertBox;
@@ -78,6 +85,7 @@ function renderBoxSegment(editor: Editor, segment: TextOpSegment, fragment: Docu
 function renderTextSegment(editor: Editor, segment: TextOpSegment, fragment: DocumentFragment) {
   const span = createElement('span', ['text'], null);
 
+  assert(segment.originalOp, 'Text segment should have original op');
   // 提取片段文本
   const segmentText = segment.originalOp.insert.substring(
     segment.startInOp,
@@ -103,6 +111,23 @@ function renderTextSegment(editor: Editor, segment: TextOpSegment, fragment: Doc
       segment
     });
   }
+
+  fragment.appendChild(span);
+}
+
+/**
+ * 渲染Widget片段
+ */
+function renderWidgetSegment(editor: Editor, segment: TextOpSegment, fragment: DocumentFragment) {
+
+  assert(segment.widgetDecorator, 'Widget segment should have widget decorator');
+
+  // 使用widget装饰器渲染widget
+  const widgetElement = segment.widgetDecorator.render(segment.widgetData || {});
+
+  const span = createElement('span',  ['ch-widget'], null);
+  span.setAttribute('data-widget-type', segment.widgetDecorator.name);
+  span.appendChild(widgetElement);
 
   fragment.appendChild(span);
 }

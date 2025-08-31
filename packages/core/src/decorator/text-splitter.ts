@@ -1,6 +1,7 @@
 import { DocBlockText, DocBlockTextOp } from '../index.type';
 import { isBoxOp, isTextOp } from '../box/box-data-model';
-import { BaseDecorator, DecoratorRange } from './base-decorator';
+import { BaseDecorator, DecoratorRange, WidgetDecorator, WidgetRange } from './base-decorator';
+import { assert } from '../main';
 
 /**
  * 文本操作片段
@@ -8,7 +9,7 @@ import { BaseDecorator, DecoratorRange } from './base-decorator';
  */
 export interface TextOpSegment {
   /** 原始操作 */
-  originalOp: DocBlockTextOp;
+  originalOp: DocBlockTextOp | null;
   /** 在原始操作中的起始位置 */
   startInOp: number;
   /** 在原始操作中的结束位置 */
@@ -21,6 +22,12 @@ export interface TextOpSegment {
   decorators: BaseDecorator[];
   /** 是否为Box操作 */
   isBox: boolean;
+  /** 是否为Widget片段 */
+  isWidget: boolean;
+  /** Widget装饰器（如果是Widget片段） */
+  widgetDecorator?: WidgetDecorator;
+  /** Widget数据（如果是Widget片段） */
+  widgetData?: any;
 }
 
 /**
@@ -34,9 +41,9 @@ interface SplitPoint {
   /** 在操作内的偏移量 */
   offsetInOp: number;
   /** 分割类型 */
-  type: 'decorator-start' | 'decorator-end' | 'op-boundary';
+  type: 'decorator-start' | 'decorator-end' | 'op-boundary' | 'widget';
   /** 相关装饰器（如果是装饰器分割点） */
-  decorator?: BaseDecorator;
+  decorator?: BaseDecorator | WidgetDecorator;
 }
 
 /**
@@ -48,24 +55,25 @@ export class TextSplitter {
    * 分割文本操作以应用装饰器
    * @param blockText 块文本操作数组
    * @param decoratorRanges 装饰器范围数组
+   * @param widgetRanges Widget范围列表
    * @returns 分割后的文本片段数组
    */
-  static splitTextOps(blockText: DocBlockText, decoratorRanges: DecoratorRange[]): TextOpSegment[] {
+  static splitTextOps(blockText: DocBlockText, decoratorRanges: DecoratorRange[], widgetRanges: WidgetRange[] = []): TextOpSegment[] {
     if (blockText.length === 0) {
       return [];
     }
 
-    // 计算所有分割点
-    const splitPoints = this.calculateSplitPoints(blockText, decoratorRanges);
+    // 计算所有分割点（包括widget范围）
+    const splitPoints = this.calculateSplitPoints(blockText, decoratorRanges, widgetRanges);
 
-    // 根据分割点创建片段
-    return this.createSegments(blockText, splitPoints, decoratorRanges);
+    // 根据分割点创建片段（包括widget片段）
+    return this.createSegments(blockText, splitPoints, decoratorRanges, widgetRanges);
   }
 
   /**
    * 计算所有需要分割的点
    */
-  private static calculateSplitPoints(blockText: DocBlockText, decoratorRanges: DecoratorRange[]): SplitPoint[] {
+  private static calculateSplitPoints(blockText: DocBlockText, decoratorRanges: DecoratorRange[], widgetRanges: WidgetRange[]): SplitPoint[] {
     const splitPoints: SplitPoint[] = [];
     let globalOffset = 0;
 
@@ -114,6 +122,20 @@ export class TextSplitter {
           offsetInOp: endPoint.offsetInOp,
           type: 'decorator-end',
           decorator: range.decorator
+        });
+      }
+    });
+
+    // 添加widget范围的分割点
+    widgetRanges.forEach((widgetRange) => {
+      const widgetPoint = this.globalOffsetToOpPosition(blockText, widgetRange.position);
+      if (widgetPoint) {
+        splitPoints.push({
+          globalOffset: widgetRange.position,
+          opIndex: widgetPoint.opIndex,
+          offsetInOp: widgetPoint.offsetInOp,
+          type: 'widget',
+          decorator: widgetRange.decorator
         });
       }
     });
@@ -194,12 +216,21 @@ export class TextSplitter {
   /**
    * 根据分割点创建片段
    */
-  private static createSegments(blockText: DocBlockText, splitPoints: SplitPoint[], decoratorRanges: DecoratorRange[]): TextOpSegment[] {
+  private static createSegments(blockText: DocBlockText, splitPoints: SplitPoint[], decoratorRanges: DecoratorRange[], widgetRanges: WidgetRange[]): TextOpSegment[] {
     const segments: TextOpSegment[] = [];
 
     for (let i = 0; i < splitPoints.length - 1; i++) {
       const startPoint = splitPoints[i];
       const endPoint = splitPoints[i + 1];
+
+      // 检查是否为widget分割点
+      if (startPoint.type === 'widget') {
+        const widgetSegment = this.createWidgetSegment(startPoint, widgetRanges);
+        if (widgetSegment) {
+          segments.push(widgetSegment);
+        }
+        continue;
+      }
 
       // 跳过零长度片段
       if (startPoint.globalOffset >= endPoint.globalOffset) {
@@ -268,7 +299,8 @@ export class TextSplitter {
         globalStart: segmentStart,
         globalEnd: segmentEnd,
         decorators: this.getApplicableDecorators(decoratorRanges, segmentStart, segmentEnd),
-        isBox: isBoxOp(op)
+        isBox: isBoxOp(op),
+        isWidget: false
       };
 
       segments.push(segment);
@@ -303,7 +335,41 @@ export class TextSplitter {
       globalStart: startPoint.globalOffset,
       globalEnd: endPoint.globalOffset,
       decorators: this.getApplicableDecorators(decoratorRanges, startPoint.globalOffset, endPoint.globalOffset),
-      isBox: isBoxOp(op)
+      isBox: isBoxOp(op),
+      isWidget: false
+    };
+
+    return segment;
+  }
+
+  /**
+   * 创建widget片段
+   */
+  private static createWidgetSegment(
+    widgetPoint: SplitPoint,
+    widgetRanges: WidgetRange[]
+  ): TextOpSegment | null {
+    // 查找对应的widget范围
+    const widgetRange = widgetRanges.find(
+      range => range.position === widgetPoint.globalOffset
+    );
+
+    if (!widgetRange) {
+      return null;
+    }
+
+    // 创建widget片段
+    const segment: TextOpSegment = {
+      originalOp: null, // widget没有原始操作
+      startInOp: widgetPoint.offsetInOp,
+      endInOp: widgetPoint.offsetInOp, // widget的开始和结束位置相同
+      globalStart: widgetPoint.globalOffset,
+      globalEnd: widgetPoint.globalOffset, // widget是零长度的
+      decorators: [],
+      isBox: false,
+      isWidget: true,
+      widgetDecorator: widgetRange.decorator,
+      widgetData: widgetRange.data
     };
 
     return segment;
@@ -352,6 +418,13 @@ export class TextSplitter {
     let currentText = '';
 
     for (const segment of segments) {
+
+      if (segment.isWidget) {
+        continue;
+      }
+
+      assert(segment.originalOp, 'Widget segment should not have original op');
+
       if (segment.isBox) {
         // 处理Box操作
         if (currentOp && currentText) {

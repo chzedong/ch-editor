@@ -23,6 +23,7 @@ import { scrollIntoView } from '../utils/scroll-into-view';
 
 import { BlockElement, BoxData, ContainerElement, DocBlock } from '../index.type';
 import { Doc } from '../doc/doc';
+import { DividerWidgetDecorator } from '../decorator';
 
 export interface EditorOptions {
   initDoc?: Doc;
@@ -64,6 +65,8 @@ export class Editor extends TypedEmitter<any> {
     // 初始化装饰器管理器
     this.decoratorManager = new DecoratorManager(this);
     this.decoratorManager.registerAll(getBuiltInDecorators());
+    this.decoratorManager.registerAllWidgets([new DividerWidgetDecorator()]);
+
     // this.options = options;
     this.input = new EditorInput(this);
     this.selection = new EditorSelection(this);
