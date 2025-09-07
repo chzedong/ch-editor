@@ -104,22 +104,24 @@ export class TextLine {
     return this._items[this._items.length - 1];
   }
 
+  _calculateVirtualType = (isValidStart: boolean, isValidEnd: boolean): LineItemVirtualType => {
+    if (isValidStart && isValidEnd) {
+      return 'valid';
+    } else if (isValidStart) {
+      return 'valid-start';
+    } else if (isValidEnd) {
+      return 'valid-end';
+    } else {
+      return 'virtual';
+    }
+  };
+
   /**
    * 向当前行添加文本子元素
    */
   addChild(child: TextBlockContentChild, textLength: number, contentRect: DOMRect, isValidStart: boolean = true, isValidEnd: boolean = true): void {
     const startOffset = this._endOffset;
-
-    let virtualType: LineItemVirtualType;
-    if (isValidStart && isValidEnd) {
-      virtualType = 'valid';
-    } else if (isValidStart) {
-      virtualType = 'valid-start';
-    } else if (isValidEnd) {
-      virtualType = 'valid-end';
-    } else {
-      virtualType = 'virtual';
-    }
+    const virtualType = this._calculateVirtualType(isValidStart, isValidEnd);
 
     if (['valid', 'valid-end'].includes(virtualType)) {
       assert(textLength !== -1, '文本长度不能为-1,且结束位置必须有效');
@@ -152,17 +154,7 @@ export class TextLine {
    */
   addBox(element: TextBlockContentChild, contentRect: DOMRect, isValidStart: boolean = true, isValidEnd: boolean = true): void {
     const startOffset = this._endOffset;
-
-    let virtualType: LineItemVirtualType;
-    if (isValidStart && isValidEnd) {
-      virtualType = 'valid';
-    } else if (isValidStart) {
-      virtualType = 'valid-start';
-    } else if (isValidEnd) {
-      virtualType = 'valid-end';
-    } else {
-      virtualType = 'virtual';
-    }
+    const virtualType = this._calculateVirtualType(isValidStart, isValidEnd);
 
     const endOffset = ['valid', 'valid-end'].includes(virtualType)  ? startOffset + 1 : startOffset;
 
@@ -182,17 +174,7 @@ export class TextLine {
   addWidget(element: TextBlockContentChild, contentRect: DOMRect,  isValidStart: boolean = true, isValidEnd: boolean = true, indexPosition: 'before' | 'after') {
     const startOffset = this._endOffset;
     const endOffset =  startOffset;
-
-    let virtualType: LineItemVirtualType;
-    if (isValidStart && isValidEnd) {
-      virtualType = 'valid';
-    } else if (isValidStart) {
-      virtualType = 'valid-start';
-    } else if (isValidEnd) {
-      virtualType = 'valid-end';
-    } else {
-      virtualType = 'virtual';
-    }
+    const virtualType = this._calculateVirtualType(isValidStart, isValidEnd);
 
     const item: WidgetLineItem = {
       type: 'widget',
@@ -241,13 +223,6 @@ export class TextLine {
     return ['valid', 'valid-end'].includes(item.virtualType);
   }
 
-  checkValid() {
-    const firstItem = this._items[0];
-    assert(this._isValidStart(firstItem), '第一行必须是有有效的结尾');
-    const lastItem = this._items[this._items.length - 1];
-    assert(this._isValidEnd(lastItem), '最后一行必须是有效的开始');
-  }
-
   // 获取当前行前序type为 valid 或者 valid-start的item
   _findPreviousValidItem() {
     let item: LineItem | undefined;
@@ -273,90 +248,113 @@ export class TextLine {
     return item;
   }
 
-
   /**
-   * 检查偏移量是否在当前行范围内 TODO: 考虑无效偏移, 虚拟节点
+   * 检查偏移量是否在当前行范围内
    */
   containsOffset(offset: number, type: SimpleBlockPositionType = 'middle'): boolean {
-    // this.checkValid();
+    if (this._items.length === 0) {
+      return false;
+    }
+
     const firstItem = this._items[0];
     const lastItem = this._items[this._items.length - 1];
 
+    // 检查起始位置
     if (offset === this._startOffset) {
-      if (firstItem.type === 'widget') {
-        if (firstItem.indexPosition === 'before' && this._isValidStart(firstItem)) {
-          return true;
-        }
-
-        if (firstItem.indexPosition === 'after') {
-          if (this._isValidEnd(firstItem)) {
-            return true;
-          }
-          const nextItem = this._findNextValidItem();
-          if (nextItem) {
-            return true;
-          }
-        }
-      }
-
-      if (type === 'home' || type === 'middle') {
-        if (firstItem.type === 'box' && this._isValidStart(firstItem)) {
-          return true;
-        }
-
-        if (firstItem.type === 'text' && this._isValidStart(firstItem)) {
-          return true;
-        }
-      }
+      return this._canPlaceAtStart(firstItem, type);
     }
 
+    // 检查结束位置
     if (offset === this._endOffset) {
-      if (lastItem.type === 'widget') {
-        if (lastItem.indexPosition === 'after' && this._isValidEnd(lastItem)) {
-          return true;
-        }
+      return this._canPlaceAtEnd(lastItem, type);
+    }
 
-        if (lastItem.indexPosition === 'before') {
-          if (this._isValidStart(lastItem)) {
-            return true;
-          }
-          const previousItem = this._findPreviousValidItem();
-          if (previousItem) {
-            return true;
-          }
-        }
+    // 检查是否在行的中间范围内
+    if (offset > this._startOffset && offset < this._endOffset) {
+      return this._validateMiddleOffset(offset, firstItem, lastItem);
+    }
+
+    return false;
+  }
+
+  /**
+   * 检查是否可以在行首放置光标
+   */
+  private _canPlaceAtStart(firstItem: LineItem, type: SimpleBlockPositionType): boolean {
+    if (firstItem.type === 'widget') {
+      return this._canPlaceAtWidgetStart(firstItem);
+    }
+
+    if (type === 'home' || type === 'middle') {
+      return (firstItem.type === 'box' || firstItem.type === 'text') && this._isValidStart(firstItem);
+    }
+
+    return false;
+  }
+
+  /**
+   * 检查是否可以在行尾放置光标
+   */
+  private _canPlaceAtEnd(lastItem: LineItem, type: SimpleBlockPositionType): boolean {
+    if (lastItem.type === 'widget') {
+      return this._canPlaceAtWidgetEnd(lastItem);
+    }
+
+    if (type === 'end' || type === 'middle') {
+      if (lastItem.type === 'text') {
+        return this._isValidEnd(lastItem);
       }
-
-      if (type === 'end' || type === 'middle') {
-        if (lastItem.type === 'box') {
-          if (this._isValidEnd(lastItem)) {
-            return true;
-          }
-          const preItem = this._findPreviousValidItem();
-          if (preItem) {
-            return true;
-          }
-        }
-
-        if (lastItem.type === 'text' && this._isValidEnd(lastItem)) {
-          return true;
-        }
+      if (lastItem.type === 'box') {
+        return this._isValidEnd(lastItem) || !!this._findPreviousValidItem();
       }
     }
 
-    if (offset < firstItem.endBlockOffset && offset > firstItem.startBlockOffset) {
-      if (!this._isValidStart(firstItem)) {
-        assert(false, '第一个item必须有有效的开始位置');
-      }
+    return false;
+  }
+
+  /**
+   * 检查widget位置的起始放置
+   */
+  private _canPlaceAtWidgetStart(widget: WidgetLineItem): boolean {
+    if (widget.indexPosition === 'before' && this._isValidStart(widget)) {
+      return true;
+    }
+    if (widget.indexPosition === 'after') {
+      return this._isValidEnd(widget) || !!this._findNextValidItem();
+    }
+    return false;
+  }
+
+  /**
+   * 检查widget位置的结束放置
+   */
+  private _canPlaceAtWidgetEnd(widget: WidgetLineItem): boolean {
+    if (widget.indexPosition === 'after' && this._isValidEnd(widget)) {
+      return true;
+    }
+    if (widget.indexPosition === 'before') {
+      return this._isValidStart(widget) || !!this._findPreviousValidItem();
+    }
+    return false;
+  }
+
+  /**
+   * 验证中间偏移量的有效性
+   */
+  private _validateMiddleOffset(offset: number, firstItem: LineItem, lastItem: LineItem): boolean {
+    // 检查是否在第一个item内部
+    if (offset > firstItem.startBlockOffset && offset < firstItem.endBlockOffset) {
+      assert(this._isValidStart(firstItem), '第一个item必须有有效的开始位置');
+      return true;
     }
 
+    // 检查是否在最后一个item内部
     if (offset > lastItem.startBlockOffset && offset < lastItem.endBlockOffset) {
-      if (!this._isValidEnd(lastItem)) {
-        assert(false, '最后一个item必须有有效的结束位置');
-      }
+      assert(this._isValidEnd(lastItem), '最后一个item必须有有效的结束位置');
+      return true;
     }
 
-    return offset > this._startOffset && offset < this._endOffset;
+    return true;
   }
 }
 
@@ -718,6 +716,60 @@ export class LineBreaker {
     }
   }
 
+  findNextWidgetItem(line: TextLine, item: LineItem): WidgetLineItem | undefined {
+    const currentLineIndex = this._lines.indexOf(line);
+    if (currentLineIndex === -1) {
+      return undefined;
+    }
+
+    const currentItemIndex = line.items.indexOf(item);
+    if (currentItemIndex === -1) {
+      return undefined;
+    }
+
+    // 从当前行的当前item之后开始查找
+    const result = this._searchWidgetInLines(currentLineIndex, currentItemIndex + 1, item.child);
+    return result;
+  }
+
+  private _searchWidgetInLines(startLineIndex: number, startItemIndex: number, targetChild: TextBlockContentChild): WidgetLineItem | undefined {
+    for (let lineIndex = startLineIndex; lineIndex < this._lines.length; lineIndex++) {
+      const currentLine = this._lines[lineIndex];
+      const itemStartIndex = lineIndex === startLineIndex ? startItemIndex : 0;
+
+      for (let itemIndex = itemStartIndex; itemIndex < currentLine.items.length; itemIndex++) {
+        const currentItem = currentLine.items[itemIndex];
+
+        if (isWidgetLineItem(currentItem) &&
+            (currentItem.virtualType === 'valid' || currentItem.virtualType === 'valid-end')) {
+          return currentItem;
+        }
+
+        // 如果遇到不同child的item，停止在当前行的查找
+        if (currentItem.child !== targetChild) {
+          return undefined;
+        }
+      }
+    }
+
+    return undefined;
+  }
+
+  /**
+   * 获取下一个widget的位置矩形，用于复用代码
+   */
+  private _getNextWidgetRect(line: TextLine, item: LineItem, fallbackRect: DOMRect): DOMRect {
+    const nextWidgetItem = this.findNextWidgetItem(line, item);
+    if (nextWidgetItem) {
+      return new DOMRect(
+        nextWidgetItem.contentRect.right,
+        nextWidgetItem.contentRect.top,
+        1,
+        nextWidgetItem.contentRect.height
+      );
+    }
+    return fallbackRect;
+  }
   /**
    * 根据偏移量获取矩形位置（双向检索：偏移量 -> 坐标）
    */
@@ -727,12 +779,14 @@ export class LineBreaker {
     for (const item of line.items) {
       if (position.offset === item.startBlockOffset) {
         const contentRect = item.contentRect;
-        return new DOMRect(contentRect.left, contentRect.top, 1, contentRect.height);
+        const fallbackRect = new DOMRect(contentRect.left, contentRect.top, 1, contentRect.height);
+        return this._getNextWidgetRect(line, item, fallbackRect);
       }
 
       if (position.offset === item.endBlockOffset) {
         const contentRect = item.contentRect;
-        return new DOMRect(contentRect.right, contentRect.top, 1, contentRect.height);
+        const fallbackRect = new DOMRect(contentRect.right, contentRect.top, 1, contentRect.height);
+        return this._getNextWidgetRect(line, item, fallbackRect);
       }
 
       // 处理文本类型的 item

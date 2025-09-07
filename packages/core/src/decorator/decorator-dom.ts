@@ -17,9 +17,11 @@ export const createWidgetWrapper = (widgetElement: HTMLElement, widgetDecorator:
   const span = createElement('span',  ['editor-widget'], null);
   span.setAttribute('data-widget-type', widgetDecorator.name);
 
-  if (canWidgetWrap(widgetElement)) {
+  if (widgetDecorator.options.wrap) {
     span.setAttribute('data-widget-breakable', 'true');
   }
+
+  span.setAttribute('data-index-position', widgetDecorator.options.indexPosition || 'before');
 
   span.appendChild(widgetElement);
 

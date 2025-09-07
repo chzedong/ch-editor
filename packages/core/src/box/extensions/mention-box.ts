@@ -55,11 +55,6 @@ export class MentionBox implements BoxInstance {
     usernameElement.textContent = `@${mentionData.displayName || mentionData.username}`;
     mentionElement.appendChild(usernameElement);
 
-    // 添加点击事件
-    mentionElement.addEventListener('click', (e) => {
-      e.preventDefault();
-      this._handleMentionClick(mentionData);
-    });
 
     // 添加悬停效果
     mentionElement.addEventListener('mouseenter', () => {
@@ -86,24 +81,6 @@ export class MentionBox implements BoxInstance {
    */
   canWrap(): boolean {
     return true;
-  }
-
-  /**
-   * 处理提及点击事件
-   */
-  private _handleMentionClick(mentionData: MentionData): void {
-    // 可以在这里实现点击提及后的行为，比如：
-    // - 跳转到用户资料页
-    // - 显示用户信息卡片
-    // - 触发自定义事件
-    console.log('Mention clicked:', mentionData);
-
-    // 触发自定义事件，让外部可以监听
-    const event = new CustomEvent('mention-click', {
-      detail: mentionData,
-      bubbles: true
-    });
-    document.dispatchEvent(event);
   }
 
   /**

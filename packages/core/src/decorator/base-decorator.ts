@@ -1,5 +1,4 @@
 import { Editor } from '../editor/editor';
-import { EditorSelectionRange } from '../selection/selection-range';
 
 import { TextBlockContentChild } from '../index.type';
 
@@ -9,16 +8,8 @@ import { TextBlockContentChild } from '../index.type';
 export interface DecoratorRenderContext {
   /** 编辑器实例 */
   editor: Editor;
-  /** 当前渲染的DOM元素 */
-  element: TextBlockContentChild;
-  /** 当前块的ID */
-  blockId: string;
-  /** 当前文本在块中的起始偏移量 */
-  startOffset: number;
-  /** 当前文本在块中的结束偏移量 */
-  endOffset: number;
-  /** 编辑器当前选区 */
-  selection: EditorSelectionRange;
+  /** 自定义数据 */
+  data?: any;
 }
 
 /**
@@ -65,22 +56,6 @@ export interface DecoratorApplyResult {
 }
 
 /**
- * Widget渲染上下文
- */
-export interface WidgetRenderContext {
-  /** 编辑器实例 */
-  editor: Editor;
-  /** 当前块的ID */
-  blockId: string;
-  /** Widget在块中的位置偏移量 */
-  offset: number;
-  /** 编辑器当前选区 */
-  selection: EditorSelectionRange;
-  /** Widget的自定义数据 */
-  data?: any;
-}
-
-/**
  * Widget范围描述
  */
 export interface WidgetRange {
@@ -122,7 +97,7 @@ export abstract class BaseDecorator {
    * @param context 渲染上下文
    * @returns 装饰器范围列表
    */
-  abstract calculateRanges(context: Omit<DecoratorRenderContext, 'element' | 'startOffset' | 'endOffset'>): DecoratorRange[];
+  abstract calculateRanges(context: DecoratorRenderContext): DecoratorRange[];
 
   /**
    * 获取装饰器的优先级
@@ -184,7 +159,7 @@ export abstract class WidgetDecorator {
    * @param context 渲染上下文（不包含element相关信息）
    * @returns Widget范围列表
    */
-  abstract calculateWidgetRanges(context: Omit<WidgetRenderContext, 'offset' | 'data'>): WidgetRange[];
+  abstract calculateWidgetRanges(context: DecoratorRenderContext): WidgetRange[];
 
   /**
    * 获取Widget装饰器的优先级
