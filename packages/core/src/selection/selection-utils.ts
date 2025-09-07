@@ -11,6 +11,7 @@ import { assert } from '../utils/assert';
 import { BlockElement, DocBlockTextActions } from '../index.type';
 import { LineBreaker } from '../main';
 import { assertLineBreaker } from '../text/line/text-line';
+import { getDocTextLength } from '../text/text-utils';
 
 export function transformSelection(editor: Editor, blockId: string, delta: DocBlockTextActions) {
   const { range } = editor.selection;
@@ -34,18 +35,20 @@ export function transformSelection(editor: Editor, blockId: string, delta: DocBl
   return new EditorSelectionRange(editor, { anchor: newAnchor, focus: newFocus });
 }
 
-export function clearAllSelection(editor: Editor) {
-  editor.rootContainer.querySelectorAll('[data-type="editor-block"]').forEach((block) => {
-    removeBackgrounds(block as BlockElement);
-  });
-}
-
 export function updateSelection(editor: Editor, weakMap?: WeakMap<BlockElement, LineBreaker>) {
   editor.selection.getSelectedBlocks().forEach((selectedBlockInfo) => {
     const blockData = editor.getBlockData(selectedBlockInfo.block);
     const blockClass = editor.editorBlocks.getBlockClass(blockData.type);
 
     const lineBreaker = assertLineBreaker(selectedBlockInfo.block, weakMap);
+
+    // TODO：调试代码，后续需要干掉
+    const lastLine = lineBreaker.lines[lineBreaker.lines.length - 1];
+    assert(lastLine, '最后一行不能为空');
+    const lastOffset = lastLine.end;
+    const blockLen = getDocTextLength(blockData.text!);
+    assert(lastOffset === blockLen, `最后一行偏移量必须等于块长度，当前偏移量：${lastOffset}，块长度：${blockLen}`);
+
     blockClass?.updateSelection(editor, selectedBlockInfo.block, selectedBlockInfo.anchor, selectedBlockInfo.focus, lineBreaker);
   });
 }

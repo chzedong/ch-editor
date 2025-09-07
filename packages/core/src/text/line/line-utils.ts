@@ -78,7 +78,8 @@ export function isMultiLineChild(childRects: DOMRectList): boolean {
 export function doesNextChildStartNewLine(currentChildRects: DOMRectList, nextChildRects: DOMRectList): boolean {
   const currentEndRect = getLastClientRect(currentChildRects);
   const nextStartRect = getFirstClientRect(nextChildRects);
-  return nextStartRect.left < currentEndRect.right;
+  // 允许有一个像素的误差
+  return nextStartRect.left + 1 < currentEndRect.right;
 }
 
 /**
@@ -88,7 +89,7 @@ export function doesNextChildStartNewLine(currentChildRects: DOMRectList, nextCh
  * @param y 坐标y
  * @returns 文本节点和偏移量信息
  */
-export function getOffsetFromPoint(targetTextNode: Node | null, x: number, y: number): { textNode: Node | null; offset: number } {
+export function getOffsetFromPoint(targetTextNode: Node | null, x: number, y: number, isQuick: boolean): { textNode: Node | null; offset: number } {
   // 第一步：尝试快速定位
   const fastResult = tryFastPositioning(x, y);
 
@@ -99,6 +100,10 @@ export function getOffsetFromPoint(targetTextNode: Node | null, x: number, y: nu
     (fastResult.textNode === targetTextNode || fastResult.textNode.parentNode === targetTextNode)
   ) {
     return fastResult;
+  }
+
+  if (isQuick) {
+    return { textNode: null, offset: -1 };
   }
 
   // 第二步：降级使用精确定位

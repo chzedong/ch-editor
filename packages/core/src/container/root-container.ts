@@ -4,9 +4,10 @@ import { getBlockType, getParentBlock } from '../block/block-dom';
 import { EditorBlockPosition } from '../selection/block-position';
 import { editorGetNextWordEnd, editorGetPreWordStart } from '../editor/actions/word-navigation-utils';
 import { isTextKindBlock } from '../editor/editor-blocks';
-import { ContainerElement } from '../index.type';
 import { getParentScrollContainer } from '../utils/dom';
 import { assertLineBreaker } from '../text/line/text-line';
+
+import { ContainerElement } from '../index.type';
 
 export class RootContainer {
   private isDragging = false;

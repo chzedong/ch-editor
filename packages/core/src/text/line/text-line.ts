@@ -1,5 +1,5 @@
 import { SimpleBlockPositionType, SimpleBlockPosition } from '../../selection/block-position';
-import { getTextBlockContentChildTextLength, getTextBlockContentChildren, getTextBlockLength } from '../text-utils';
+import { getDocTextLength, getTextBlockContentChildTextLength, getTextBlockContentChildren, getTextBlockLength } from '../text-utils';
 import {
   isMultiLineChild,
   doesNextChildStartNewLine,
@@ -11,19 +11,14 @@ import {
 import { assert } from '../../utils/assert';
 import { createExpandedRange } from '../../utils/dom';
 import { BoxDomUtils } from '../../box/box-dom-utils';
+import { canWidgetWrap, getWidgetIndexPosition, isWidgetElement } from '../../decorator/decorator-dom';
 
 import { TextBlockContentChild, BlockElement } from '../../index.type';
-import { isWidgetElement } from '../../decorator/decorator-dom';
 
 /**
  * 行项虚拟类型
  */
 export type LineItemVirtualType = 'valid' | 'valid-start' | 'valid-end' | 'virtual';
-
-/**
- * Line item 类型
- */
-export type LineItemType = 'text' | 'box';
 
 /**
  * 基础 LineItem 接口
@@ -40,6 +35,7 @@ export interface BaseLineItem {
  */
 export interface TextLineItem extends BaseLineItem {
   type: 'text';
+  virtualType: LineItemVirtualType;
 }
 
 /**
@@ -52,6 +48,9 @@ export interface BoxLineItem extends BaseLineItem {
 
 export interface WidgetLineItem extends BaseLineItem {
   type: 'widget';
+  // 新增一个字段，表示索引位置应该位于widget的前面还是后面
+  indexPosition: 'before' | 'after';
+  virtualType: LineItemVirtualType;
 }
 
 /**
@@ -108,9 +107,25 @@ export class TextLine {
   /**
    * 向当前行添加文本子元素
    */
-  addChild(child: TextBlockContentChild, textLength: number, contentRect: DOMRect): void {
+  addChild(child: TextBlockContentChild, textLength: number, contentRect: DOMRect, isValidStart: boolean = true, isValidEnd: boolean = true): void {
     const startOffset = this._endOffset;
-    const endOffset = startOffset + textLength;
+
+    let virtualType: LineItemVirtualType;
+    if (isValidStart && isValidEnd) {
+      virtualType = 'valid';
+    } else if (isValidStart) {
+      virtualType = 'valid-start';
+    } else if (isValidEnd) {
+      virtualType = 'valid-end';
+    } else {
+      virtualType = 'virtual';
+    }
+
+    if (['valid', 'valid-end'].includes(virtualType)) {
+      assert(textLength !== -1, '文本长度不能为-1,且结束位置必须有效');
+    }
+
+    const endOffset = ['valid', 'valid-end'].includes(virtualType)  ? startOffset + textLength : startOffset;
 
     assert(
       textLength <= getTextBlockContentChildTextLength(child),
@@ -122,7 +137,8 @@ export class TextLine {
       child,
       startBlockOffset: startOffset,
       endBlockOffset: endOffset,
-      contentRect
+      contentRect,
+      virtualType
     };
 
     this._items.push(item);
@@ -163,16 +179,29 @@ export class TextLine {
     this._endOffset = endOffset;
   }
 
-  addWidget(element: TextBlockContentChild, contentRect: DOMRect) {
+  addWidget(element: TextBlockContentChild, contentRect: DOMRect,  isValidStart: boolean = true, isValidEnd: boolean = true, indexPosition: 'before' | 'after') {
     const startOffset = this._endOffset;
     const endOffset =  startOffset;
+
+    let virtualType: LineItemVirtualType;
+    if (isValidStart && isValidEnd) {
+      virtualType = 'valid';
+    } else if (isValidStart) {
+      virtualType = 'valid-start';
+    } else if (isValidEnd) {
+      virtualType = 'valid-end';
+    } else {
+      virtualType = 'virtual';
+    }
 
     const item: WidgetLineItem = {
       type: 'widget',
       child: element,
       startBlockOffset: startOffset,
       endBlockOffset: endOffset,
-      contentRect
+      contentRect,
+      indexPosition,
+      virtualType
     };
 
     this._items.push(item);
@@ -198,27 +227,136 @@ export class TextLine {
     );
   }
 
-  /**
-   * 获取行的矩形区域（别名方法，用于调试可视化）
-   * TODO: 目前没有使用到，可能的场景是用来标识块级行的react
-   */
-  getRect(): DOMRect {
-    return this.getLineRect();
+  _isValidStart(item: LineItem) {
+    if (!('virtualType' in item)) {
+      return true;
+    }
+    return ['valid', 'valid-start'].includes(item.virtualType);
   }
 
+  _isValidEnd(item: LineItem) {
+    if (!('virtualType' in item)) {
+      return true;
+    }
+    return ['valid', 'valid-end'].includes(item.virtualType);
+  }
+
+  checkValid() {
+    const firstItem = this._items[0];
+    assert(this._isValidStart(firstItem), '第一行必须是有有效的结尾');
+    const lastItem = this._items[this._items.length - 1];
+    assert(this._isValidEnd(lastItem), '最后一行必须是有效的开始');
+  }
+
+  // 获取当前行前序type为 valid 或者 valid-start的item
+  _findPreviousValidItem() {
+    let item: LineItem | undefined;
+    for (let i = this._items.length - 1; i >= 0; i--) {
+      const currentItem = this._items[i];
+      if (this._isValidStart(currentItem)) {
+        item = currentItem;
+        break;
+      }
+    }
+    return item;
+  }
+
+  _findNextValidItem() {
+    let item: LineItem | undefined;
+    for (let i = 0; i < this._items.length; i++) {
+      const currentItem = this._items[i];
+      if (this._isValidEnd(currentItem)) {
+        item = currentItem;
+        break;
+      }
+    }
+    return item;
+  }
+
+
   /**
-   * 检查偏移量是否在当前行范围内
+   * 检查偏移量是否在当前行范围内 TODO: 考虑无效偏移, 虚拟节点
    */
   containsOffset(offset: number, type: SimpleBlockPositionType = 'middle'): boolean {
-    // home 和 end 类型用于标识多行文本换行处的索引位置
-    if (type === 'home') {
-      return offset === this._startOffset;
-    } else if (type === 'end') {
-      return offset === this._endOffset;
-    } else {
-      // middle 类型：检查偏移量是否在行范围内
-      return offset >= this._startOffset && offset <= this._endOffset;
+    // this.checkValid();
+    const firstItem = this._items[0];
+    const lastItem = this._items[this._items.length - 1];
+
+    if (offset === this._startOffset) {
+      if (firstItem.type === 'widget') {
+        if (firstItem.indexPosition === 'before' && this._isValidStart(firstItem)) {
+          return true;
+        }
+
+        if (firstItem.indexPosition === 'after') {
+          if (this._isValidEnd(firstItem)) {
+            return true;
+          }
+          const nextItem = this._findNextValidItem();
+          if (nextItem) {
+            return true;
+          }
+        }
+      }
+
+      if (type === 'home' || type === 'middle') {
+        if (firstItem.type === 'box' && this._isValidStart(firstItem)) {
+          return true;
+        }
+
+        if (firstItem.type === 'text' && this._isValidStart(firstItem)) {
+          return true;
+        }
+      }
     }
+
+    if (offset === this._endOffset) {
+      if (lastItem.type === 'widget') {
+        if (lastItem.indexPosition === 'after' && this._isValidEnd(lastItem)) {
+          return true;
+        }
+
+        if (lastItem.indexPosition === 'before') {
+          if (this._isValidStart(lastItem)) {
+            return true;
+          }
+          const previousItem = this._findPreviousValidItem();
+          if (previousItem) {
+            return true;
+          }
+        }
+      }
+
+      if (type === 'end' || type === 'middle') {
+        if (lastItem.type === 'box') {
+          if (this._isValidEnd(lastItem)) {
+            return true;
+          }
+          const preItem = this._findPreviousValidItem();
+          if (preItem) {
+            return true;
+          }
+        }
+
+        if (lastItem.type === 'text' && this._isValidEnd(lastItem)) {
+          return true;
+        }
+      }
+    }
+
+    if (offset < firstItem.endBlockOffset && offset > firstItem.startBlockOffset) {
+      if (!this._isValidStart(firstItem)) {
+        assert(false, '第一个item必须有有效的开始位置');
+      }
+    }
+
+    if (offset > lastItem.startBlockOffset && offset < lastItem.endBlockOffset) {
+      if (!this._isValidEnd(lastItem)) {
+        assert(false, '最后一个item必须有有效的结束位置');
+      }
+    }
+
+    return offset > this._startOffset && offset < this._endOffset;
   }
 }
 
@@ -305,26 +443,50 @@ export class LineBreaker {
    * 处理单行子元素
    */
   private _processSingleLineChild(child: TextBlockContentChild, childLength: number, currentLine: TextLine): void {
-    // 检查是否为 widget 元素
-    if (isWidgetElement(child)) {
-      currentLine.addWidget(child, this.getChildRects(child)[0]);
-      return;
-    }
-
-    // 检查是否为 box 元素
-    if (BoxDomUtils.isBoxWrapper(child)) {
-      assert(this.getChildRects(child).length > 0, 'box 元素应该有矩形区域');
-
-      // box 元素的逻辑长度始终为 1，不使用 childLength
-      currentLine.addBox(child, this.getChildRects(child)[0]);
-      return;
-    }
-
-    // 处理普通文本元素
     const mergedRects = mergeTextRects(this.getChildRects(child));
     assert(mergedRects.length === 1, `期望单行子元素只有一个矩形区域，实际获取到 ${this.getChildRects(child).length} 个`);
 
+    // 检查是否为 widget 元素
+    if (isWidgetElement(child)) {
+      const indexPosition = getWidgetIndexPosition(child);
+      currentLine.addWidget(child, mergedRects[0], true, true, indexPosition);
+      return;
+    }
+    // 检查是否为 box 元素
+    if (BoxDomUtils.isBoxWrapper(child)) {
+      // box 元素的逻辑长度始终为 1，不使用 childLength
+      currentLine.addBox(child, mergedRects[0]);
+      return;
+    }
+
     currentLine.addChild(child, childLength, mergedRects[0]);
+  }
+
+  /**
+   * 通用矩形迭代器，处理多行元素的矩形遍历和换行逻辑
+   */
+  private _iterateRects<T extends DOMRect[] | DOMRectList>(
+    rects: T,
+    currentLine: TextLine,
+    processRect: (rect: DOMRect, rectIndex: number, currentLine: TextLine) => void
+  ): TextLine {
+    let resultLine = currentLine;
+    const rectArray = Array.from(rects);
+
+    for (let rectIndex = 0; rectIndex < rectArray.length; rectIndex++) {
+      const rect = rectArray[rectIndex];
+      processRect(rect, rectIndex, resultLine);
+
+      // 检查下一个矩形是否需要换行
+      if (rectIndex < rectArray.length - 1) {
+        const nextRect = rectArray[rectIndex + 1];
+        if (!areRectsOnSameLine(rect, nextRect)) {
+          resultLine = this._createNewLine(resultLine.end);
+        }
+      }
+    }
+
+    return resultLine;
   }
 
   /**
@@ -333,56 +495,32 @@ export class LineBreaker {
   private _processMultiLineChild(child: TextBlockContentChild, currentLine: TextLine): TextLine {
     // 检查是否为 widget 元素
     if (isWidgetElement(child)) {
-      let resultLine = currentLine;
+      assert(canWidgetWrap(child), 'widget 元素必须包含 ch-widget-wrap 类名');
+
       const childRects = this.getChildRects(child);
-
-      for (let rectIndex = 0; rectIndex < childRects.length; rectIndex++) {
-        const rect = childRects[rectIndex];
-        resultLine.addWidget(child, rect);
-
-        // 检查下一个矩形是否需要换行
-        if (rectIndex < childRects.length - 1) {
-          const nextRect = childRects[rectIndex + 1];
-          if (!areRectsOnSameLine(rect, nextRect)) {
-            resultLine = this._createNewLine(resultLine.end);
-          }
-        }
-      }
-
-      return resultLine;
+      const indexPosition = getWidgetIndexPosition(child);
+      return this._iterateRects(childRects, currentLine, (rect, rectIndex, currentLine) => {
+        const isValidStart = rectIndex === 0;
+        const isValidEnd = rectIndex === childRects.length - 1;
+        currentLine.addWidget(child, rect, isValidStart, isValidEnd, indexPosition);
+      });
     }
 
-
     // 检查是否为可跨行的 box 元素
-    if (BoxDomUtils.isBoxWrapper(child) && BoxDomUtils.canBoxWrap(child)) {
-      let resultLine = currentLine;
+    if (BoxDomUtils.isBoxWrapper(child)) {
+      assert(BoxDomUtils.canBoxWrap(child), 'box 元素必须包含 ch-box-wrap 类名');
+
       const childRects = this.getChildRects(child);
+      const totalRects = childRects.length;
+      return this._iterateRects(childRects, currentLine, (rect, rectIndex, currentLine) => {
+        // box 跨多行时，每行都占用逻辑长度 1，但实际上 box 的总逻辑长度仍为 1
+        // 这里需要特殊处理：第一行添加 box，后续行标记为无效索引
+        const isValidStart = rectIndex === 0;
+        const isValidEnd = rectIndex === totalRects - 1;
+        currentLine.addBox(child, rect, isValidStart, isValidEnd);
 
-      // box 跨多行时，每行都占用逻辑长度 1，但实际上 box 的总逻辑长度仍为 1
-      // 这里需要特殊处理：第一行添加 box，后续行标记为无效索引
-      for (let rectIndex = 0; rectIndex < childRects.length; rectIndex++) {
-        const rect = childRects[rectIndex];
-        if (rectIndex === 0) {
-          // 第一行：start 值有效，end 值无效
-          resultLine.addBox(child, rect, true, false); // 第四个参数表示第一行的特殊情况
-        } else if (rectIndex === childRects.length - 1) {
-          // 最后一行：end 值有效，start 值无效
-          resultLine.addBox(child, rect, false, true);
-        } else {
-          // 后续行创建特殊的 box 项，标记为跨行延续
-          resultLine.addBox(child, rect, false, false);
-        }
-
-        // 检查下一个矩形是否需要换行
-        if (rectIndex < childRects.length - 1) {
-          const nextRect = childRects[rectIndex + 1];
-          if (!areRectsOnSameLine(rect, nextRect)) {
-            resultLine = this._createNewLine(resultLine.end);
-          }
-        }
-      }
-
-      return resultLine;
+        return currentLine;
+      });
     }
 
     // 处理普通多行文本元素
@@ -391,24 +529,45 @@ export class LineBreaker {
 
     const textRects = getTextNodeRects(textNode);
     let processedOffset = 0;
-    let resultLine = currentLine;
+    let isPreRightOffsetValid = true; // 上一行的最后一个位置是否有效
 
-    for (const [rectIndex, rect] of textRects.entries()) {
-      const offsetInfo = getOffsetFromPoint(textNode, rect.right, rect.bottom - 1);
-
-      assert(offsetInfo.textNode === textNode, '偏移量计算应返回同一文本节点');
-
-      const segmentLength = offsetInfo.offset - processedOffset;
-      resultLine.addChild(child, segmentLength, rect);
-      processedOffset = offsetInfo.offset;
-
-      // 最后一个矩形不需要换行
-      if (rectIndex < textRects.length - 1) {
-        resultLine = this._createNewLine(resultLine.end);
+    return this._iterateRects(textRects, currentLine, (rect, rectIndex, currentLine) => {
+      let offsetInfo = getOffsetFromPoint(textNode, rect.right - 1, rect.bottom - 1, true);
+      if (offsetInfo.offset ===  -1 && rectIndex < textRects.length - 1) {
+        const nextRect = textRects[rectIndex + 1];
+        offsetInfo = getOffsetFromPoint(textNode, nextRect.left + 1, nextRect.bottom - 1, true);
       }
-    }
 
-    return resultLine;
+      // 精准定位，通常位于视口内
+      if (offsetInfo.offset !== -1) {
+        assert(offsetInfo.textNode === textNode, '偏移量计算应返回同一文本节点');
+
+        if (isPreRightOffsetValid) {
+          currentLine.addChild(child, offsetInfo.offset - processedOffset, rect);
+          processedOffset = offsetInfo.offset;
+        } else {
+          // 尝试计算当前行的起始位置
+          currentLine.addChild(child, offsetInfo.offset, rect, false, true);
+          processedOffset = offsetInfo.offset;
+        }
+
+        isPreRightOffsetValid = true;
+        return currentLine;
+      }
+      // 非精准定位，通常位于视口外
+      if (rectIndex === 0) {
+        currentLine.addChild(child, -1, rect, true, false);
+      } else if (rectIndex === textRects.length - 1) {
+        // 直接使用计算值
+        const len = textNode.length - processedOffset;
+        currentLine.addChild(child, len, rect, false, true);
+      } else {
+        currentLine.addChild(child, -1, rect, false, false);
+      }
+
+      isPreRightOffsetValid = false;
+      return currentLine;
+    });
   }
 
   /**
@@ -498,7 +657,7 @@ export class LineBreaker {
         if (isTextLineItem(item)) {
           const textNode = item.child.firstChild;
           if (textNode instanceof Text) {
-            const offsetInfo = getOffsetFromPoint(textNode, x, y);
+            const offsetInfo = getOffsetFromPoint(textNode, x, y, false);
 
             if (offsetInfo.textNode === textNode && offsetInfo.offset >= 0) {
               const relativeOffset = offsetInfo.offset;
@@ -694,7 +853,6 @@ export class LineBreaker {
   }
 }
 
-// 关键函数
 /**
  * 获取文本光标矩形位置
  * @param block 块元素

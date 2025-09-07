@@ -216,7 +216,7 @@ export class LineModelVisualizer {
    * 绘制单个line
    */
   private drawLine(line: TextLine, lineIndex: number, startY: number): number {
-    const lineRect = line.getRect();
+    const lineRect = line.getLineRect();
     let currentY = startY;
 
     // 绘制line标题

@@ -1,5 +1,5 @@
-import { BlockElement } from '../index.type';
 import { createElement } from '../utils/dom';
+import { BlockElement } from '../index.type';
 
 export function removeBackgrounds(block: BlockElement) {
   const bgElem = block.querySelector(':scope >div[data-type=block-background]');

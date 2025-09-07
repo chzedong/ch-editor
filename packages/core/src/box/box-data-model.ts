@@ -20,7 +20,7 @@ export function isTextOp(op: DocBlockTextOp) {
 export function createBoxInsertOp(boxData: BoxData): DocBlockTextOp {
   const op: DocBlockTextOp = {
     attributes: { insertBox: boxData },
-    insert: '\u200b'
+    insert: '\u200b' // 零宽度空格, box逻辑长度为1，可以支持复杂的编辑操作
   };
 
   return op;

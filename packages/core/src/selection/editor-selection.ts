@@ -1,12 +1,13 @@
 import { Editor } from '../editor/editor';
 import { EditorSelectionRange } from './selection-range';
-import { clearAllSelection, getRangeBlocks, updateSelection } from './selection-utils';
-import { getBlockId, getBlockType } from '../block/block-dom';
+import { getRangeBlocks, updateSelection } from './selection-utils';
+import {  getBlockType } from '../block/block-dom';
 import { Caret } from '../caret/caret';
 import { EditorBlockPosition } from './block-position';
 import { assert } from '../utils/assert';
 import { BlockElement } from '../index.type';
 import { LineBreaker } from '../main';
+import { removeBackgrounds } from '../block/block-background';
 
 export class EditorSelection {
   readonly caret: Caret;
@@ -47,20 +48,28 @@ export class EditorSelection {
     }
 
     weakMap = weakMap || new WeakMap();
-    clearAllSelection(this.editor);
+
+    const oldSelectBlocks = this.getSelectedBlocks();
 
     this._range = newRange;
     this.caret.update(weakMap);
-
-    // update selection
-    updateSelection(this.editor, weakMap);
-
     // 更新目标列位置状态
     // 如果不是上下键导航，则更新目标列状态
     // 如果是上下键导航，则保持当前的目标列状态
     if (!isVerticalNavigation) {
       this.editor.updateTargetColumnX(weakMap);
     }
+    // update selection
+    updateSelection(this.editor, weakMap);
+
+    // clear other block selection
+    const selectBlocks = this.getSelectedBlocks().map((item) => item.block);
+    const outerBlocks = oldSelectBlocks.filter((item) => !selectBlocks.includes(item.block));
+    requestAnimationFrame(() => {
+      outerBlocks.forEach((block) => {
+        removeBackgrounds(block.block);
+      });
+    });
 
     // 只在非垂直导航时自动聚焦和滚动
     // 垂直导航的滚动由具体的 action 控制

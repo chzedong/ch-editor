@@ -1,9 +1,10 @@
 import { Editor } from '../editor/editor';
 import { isTextKindBlock } from '../editor/editor-blocks';
-import { BlockElement } from '../index.type';
 import { assertLineBreaker, getTextCaretRect, LineBreaker } from '../text/line/text-line';
 import { createElement } from '../utils/dom';
 import './caret.scss';
+
+import { BlockElement } from '../index.type';
 
 export class Caret {
   caret: HTMLElement;
@@ -41,17 +42,19 @@ export class Caret {
     const rect: DOMRect = getTextCaretRect(block, pos, lineBreaker);
 
     const contentRect = this.editor.rootContainer.getBoundingClientRect();
-    const x = rect.left - contentRect.left;
-    const y = rect.top - contentRect.top;
-    this.caret.style.left = `${x}px`;
-    this.caret.style.top = `${y}px`;
-    this.caret.style.height = `${rect.height}px`;
 
-    const input = this.editor.input.inputElement;
-    input.style.left = `${x}px`;
-    // 需要微调
-    input.style.top = `${y}px`;
+    requestAnimationFrame(() => {
+      const x = rect.left - contentRect.left;
+      const y = rect.top - contentRect.top;
+      this.caret.style.left = `${x}px`;
+      this.caret.style.top = `${y}px`;
+      this.caret.style.height = `${rect.height}px`;
 
+      const input = this.editor.input.inputElement;
+      input.style.left = `${x}px`;
+      // 需要微调
+      input.style.top = `${y}px`;
+    });
   }
 }
 

@@ -44,6 +44,13 @@ export interface DecoratorOptions {
   excludes?: string[];
 }
 
+export interface WidgetOptions extends DecoratorOptions {
+  /** 是否可以折行 */
+  wrap?: boolean;
+  /** 定义索引位置 */
+  indexPosition?: 'before' | 'after';
+}
+
 /**
  * 装饰器应用结果
  */
@@ -152,12 +159,14 @@ export abstract class WidgetDecorator {
   abstract readonly name: string;
 
   /** Widget装饰器的配置选项 */
-  readonly options: DecoratorOptions;
+  readonly options: WidgetOptions;
 
-  constructor(options: DecoratorOptions = {}) {
+  constructor(options: WidgetOptions = {}) {
     this.options = {
       priority: 0,
       composable: true,
+      wrap: false,
+      indexPosition: 'before',
       ...options
     };
   }
@@ -201,14 +210,4 @@ export abstract class WidgetDecorator {
    * 清理Widget装饰器资源（可选）
    */
   dispose?(): void;
-
-  /**
-   * 获取Widget的默认数据
-   */
-  getDefaultData?(): any;
-
-  /**
-   * 验证Widget数据是否有效
-   */
-  validateData?(data: any): boolean;
 }

@@ -18,7 +18,6 @@ export { getBuiltInDecorators } from './built-in-decorators';
 
 export * from './widget-decorators';
 
-
 // 装饰器样式
 import './decorator-styles.css';
 import './widget-styles.css';

@@ -1,14 +1,16 @@
 import { Editor } from '../editor/editor';
-import { ContainerElement } from '../index.type';
 import { getContainerBlocksElement } from './container-dom';
+import { ContainerElement } from '../index.type';
 
-export function loadBlocks(editor: Editor, container: ContainerElement, path = []) {
-  const containerId = 'root';
+/**
+ * 加载容器下的所有块
+ */
+export function loadBlocks(editor: Editor, container: ContainerElement, containerId: string) {
   const blocks = editor.editorDoc.getContainerBlocks(containerId);
   const fragment = document.createDocumentFragment();
 
   blocks.forEach((block, index) => {
-    const blockElement = editor.editorBlocks.createBlock([{ containerId: 'root', blockIndex: index }], container, block);
+    const blockElement = editor.editorBlocks.createBlock([{ containerId, blockIndex: index }], container, block);
     fragment.appendChild(blockElement);
   });
 

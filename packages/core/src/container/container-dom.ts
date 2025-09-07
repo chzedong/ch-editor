@@ -1,5 +1,6 @@
 import { Editor } from '../editor/editor';
 import { BlockElement, ContainerElement } from '../index.type';
+import { createElement } from '../main';
 import { assert } from '../utils/assert';
 
 export function getContainerBlocksElement(container: ContainerElement) {
@@ -19,7 +20,7 @@ export const getChildBlocks = (container: ContainerElement) => {
 
 export const getContainerId = (container: ContainerElement) => {
   const id = container.getAttribute('data-container-id');
-  assert(id, 'avalid container');
+  assert(id, '容器ID不存在');
   return id;
 };
 
@@ -31,4 +32,12 @@ export const getContainerById = (editor: Editor, id: string) => {
   const container = editor.rootContainer.querySelector(`div[data-container-id=${id}]`);
   assert(container, 'no container');
   return container as ContainerElement;
+};
+
+export const createContainerElement = (id: string): ContainerElement => {
+  const container = createElement('div', [], null);
+  container.setAttribute('data-container-id', id);
+  container.setAttribute('data-type', 'editor-container');
+
+  return container;
 };

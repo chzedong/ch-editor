@@ -15,12 +15,14 @@ export function updateSelection(editor: Editor, block: BlockElement, from: numbe
   lineBreaker = assertLineBreaker(block, lineBreaker);
   const rects = lineBreaker.getSelectionRects(from, to);
 
-  const background = getBlockBackground(block);
-  removeBackgrounds(block);
-  const blockRect = block.getBoundingClientRect();
-  const left = blockRect.left;
-  const top = blockRect.top;
-  rects.forEach((rect) => {
-    createBackgroundChild(background, new DOMRect(rect.left - left, rect.top - top, rect.width, rect.height));
+  requestAnimationFrame(() => {
+    const background = getBlockBackground(block);
+    removeBackgrounds(block);
+    const blockRect = block.getBoundingClientRect();
+    const left = blockRect.left;
+    const top = blockRect.top;
+    rects.forEach((rect) => {
+      createBackgroundChild(background, new DOMRect(rect.left - left, rect.top - top, rect.width, rect.height));
+    });
   });
 }
