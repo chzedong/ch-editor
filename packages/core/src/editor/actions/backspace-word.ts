@@ -1,10 +1,9 @@
-import { getBlockType } from '../../block/block-dom';
 import { Editor } from '../editor';
+import { getBlockType } from '../../block/block-dom';
+import { deleteText, isEmptyTextBlock } from '../../text/';
+import { deleteEmptyBlock, mergeSiblingBlocks } from '../utils/block-utils';
+import { editorGetPreWordStart } from '../utils/word-navigation-utils';
 import { assert } from '../../utils/assert';
-import { deleteText } from '../../text/text-action';
-import { isEmptyTextBlock } from '../../text/text-dom';
-import { deleteEmptyBlock, mergeSiblingBlocks } from './utils';
-import { editorGetPreWordStart } from './word-navigation-utils';
 
 export function backspaceWord(editor: Editor) {
   if (!editor.selection.range.isCollapsed()) {

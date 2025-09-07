@@ -1,9 +1,8 @@
+import { Editor } from '../editor';
 import { getBlockIndex } from '../../block/block-dom';
 import { getContainerId, getParentContainer } from '../../container/container-dom';
-import { Editor } from '../editor';
-import { deleteEmptyBlock, deleteSelection, mergeSiblingBlocks } from './utils';
-import { isEmptyTextBlock } from '../../text/text-dom';
-import { createDeleteActions } from '../../text/text-op';
+import { deleteEmptyBlock, deleteSelection, mergeSiblingBlocks } from '../utils/block-utils';
+import { isEmptyTextBlock, createDeleteActions } from '../../text';
 
 export function backspace(editor: Editor) {
   const focusPos = editor.selection.range.focus;

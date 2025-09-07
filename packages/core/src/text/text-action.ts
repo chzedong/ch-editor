@@ -1,6 +1,6 @@
 import { getBlockIndex } from '../block/block-dom';
 import { getParentContainer, getContainerId } from '../container/container-dom';
-import { deleteSelection } from '../editor/actions/utils';
+import { deleteSelection } from '../editor/utils/block-utils';
 import { Editor } from '../editor/editor';
 import { createDeleteActions, createInsertOp } from './text-op';
 import { getTextAttributes } from './text-op';

@@ -2,6 +2,7 @@ import { getBlockId, getBlockType, isBlock, isFirstBlock } from '../../block/blo
 import { Editor } from '../editor';
 import { assert } from '../../utils/assert';
 import { EditorBlockPosition } from '../../selection/block-position';
+
 import { BlockElement } from '../../index.type';
 
 export function moveLeft(editor: Editor) {

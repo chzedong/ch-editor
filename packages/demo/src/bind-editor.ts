@@ -34,12 +34,12 @@ editor.on('docChange', () => {
 
   localStorage.setItem('doc', JSON.stringify(editor.editorDoc.getDoc().doc));
 });
-// editor.on('selectionChange', () => {
-//   const blockId = editor.selection.range.start.blockId;
-//   const block = editor.findBlockById(blockId)!;
-//   const lineBreaker = new LineBreaker(block);
+editor.on('selectionChange', () => {
+  const blockId = editor.selection.range.start.blockId;
+  const block = editor.findBlockById(blockId)!;
+  const lineBreaker = new LineBreaker(block);
 
-//   requestIdleCallback(() => {
-//     debugManager.updateLines(lineBreaker.lines as TextLine[]);
-//   });
-// });
+  requestIdleCallback(() => {
+    debugManager.updateLines(lineBreaker.lines as TextLine[]);
+  });
+});

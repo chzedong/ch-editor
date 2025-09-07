@@ -1,10 +1,11 @@
 import { getBlockId, getBlockType, isFirstBlock } from '../../block/block-dom';
 import { Editor } from '../editor';
-import { BlockElement, DocBlockText } from '../../index.type';
-import { assert } from '../../utils/assert';
 import { EditorBlockPosition } from '../../selection/block-position';
-import { isTextKindBlock } from '../../text/text-block';
-import { editorGetPreWordStart } from './word-navigation-utils';
+import { isTextKindBlock } from '../../text';
+import { editorGetPreWordStart } from '../utils/word-navigation-utils';
+import { assert } from '../../utils/assert';
+
+import { BlockElement, DocBlockText } from '../../index.type';
 
 export function moveWordLeft(editor: Editor) {
 

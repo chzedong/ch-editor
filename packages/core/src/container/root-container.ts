@@ -2,7 +2,7 @@ import { assert } from '../utils/assert';
 import { Editor } from '../editor/editor';
 import { getBlockType, getParentBlock } from '../block/block-dom';
 import { EditorBlockPosition } from '../selection/block-position';
-import { editorGetNextWordEnd, editorGetPreWordStart } from '../editor/actions/word-navigation-utils';
+import { editorGetNextWordEnd, editorGetPreWordStart } from '../editor/utils/word-navigation-utils';
 import { isTextKindBlock } from '../text/text-block';
 import { getParentScrollContainer } from '../utils/dom';
 import { assertLineBreaker } from '../text/line/text-line';

@@ -1,8 +1,8 @@
 import { getBlockId, getBlockType, getPrevBlock, isFirstBlock } from '../../block/block-dom';
 import { Editor } from '../editor';
-import { assert } from '../../utils/assert';
 import { EditorBlockPosition } from '../../selection/block-position';
-import { isTextKindBlock } from '../../text/text-block';
+import { isTextKindBlock } from '../../text';
+import { assert } from '../../utils/assert';
 
 export function selectLeft(editor: Editor) {
 

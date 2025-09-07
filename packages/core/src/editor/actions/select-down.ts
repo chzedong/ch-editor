@@ -1,7 +1,7 @@
 import { Editor } from '../editor';
 import { assert } from '../../utils/assert';
-import { isTextKindBlock } from '../../text/text-block';
-import { findDownPosition } from './navigation-utils';
+import { isTextKindBlock } from '../../text';
+import { findDownPosition } from '../utils/navigation-utils';
 
 export function selectDown(editor: Editor) {
   const range = editor.selection.range;

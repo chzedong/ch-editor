@@ -1,8 +1,9 @@
 import { getBlockId, getBlockType, isLastBlock } from '../../block/block-dom';
 import { Editor } from '../editor';
-import { assert } from '../../utils/assert';
 import { EditorBlockPosition } from '../../selection/block-position';
-import { isTextKindBlock } from '../../text/text-block';
+import { isTextKindBlock } from '../../text';
+import { assert } from '../../utils/assert';
+
 import { BlockElement } from '../../index.type';
 
 export function selectRight(editor: Editor) {

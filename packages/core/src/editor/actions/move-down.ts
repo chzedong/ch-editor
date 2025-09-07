@@ -1,5 +1,5 @@
 import { Editor } from '../editor';
-import { findDownPosition } from './navigation-utils';
+import { findDownPosition } from '../utils/navigation-utils';
 
 export function moveDown(editor: Editor) {
   const range = editor.selection.range;

@@ -12,7 +12,8 @@ export {
   splitToThree,
   getDocTextLength,
   isEmptyBlockText,
-  getTextAttributes
+  getTextAttributes,
+  splitText
 } from './text-op';
 
 // 文本动作和编辑
