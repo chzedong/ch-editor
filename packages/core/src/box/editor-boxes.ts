@@ -1,7 +1,6 @@
-import '../styles/box.css';
 import { BoxData } from '../index.type';
 import { assert } from '../main';
-import { MentionBox } from '../extensions/boxes/mention-box';
+import { MentionBox } from './extensions/mention-box';
 
 /**
  * Box 构造函数接口

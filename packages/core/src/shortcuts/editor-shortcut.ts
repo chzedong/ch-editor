@@ -1,4 +1,4 @@
-import { Editor } from './editor';
+import { Editor } from '../editor/editor';
 import { clientType } from '../utils/client';
 import { parseShortcut } from '../utils/key';
 

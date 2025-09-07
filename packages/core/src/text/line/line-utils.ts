@@ -1,5 +1,4 @@
 import { assert } from '../../utils/assert';
-import { TextBlockContentChild } from '../../index.type';
 import { createExpandedRange } from '../../utils/dom';
 
 // 常量

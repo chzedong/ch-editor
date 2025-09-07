@@ -1,0 +1,16 @@
+/* Widget装饰器样式 */
+[data-type="editor-container"] {
+
+  /* 基础widget样式 */
+  .editor-widget {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 2px;
+    user-select: none;
+  }
+
+  /* 可包裹的widget样式 */
+  .editor-widget[data-widget-breakable="true"] {
+    display: inline;
+  }
+}

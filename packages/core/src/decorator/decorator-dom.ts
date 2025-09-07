@@ -1,7 +1,8 @@
-
+import { createElement } from '../utils/dom';
+import { WidgetDecorator } from './base-decorator';
 
 export const isWidgetElement = (element: HTMLElement) => {
-  return element.classList.contains('ch-widget');
+  return element.classList.contains('editor-widget');
 };
 
 export const getWidgetIndexPosition = (element: HTMLElement): 'before' | 'after' => {
@@ -9,5 +10,18 @@ export const getWidgetIndexPosition = (element: HTMLElement): 'before' | 'after'
 };
 
 export const canWidgetWrap = (element: HTMLElement) => {
-  return element.classList.contains('ch-widget-wrap');
+  return element.getAttribute('data-widget-breakable') === 'true';
+};
+
+export const createWidgetWrapper = (widgetElement: HTMLElement, widgetDecorator: WidgetDecorator) => {
+  const span = createElement('span',  ['editor-widget'], null);
+  span.setAttribute('data-widget-type', widgetDecorator.name);
+
+  if (canWidgetWrap(widgetElement)) {
+    span.setAttribute('data-widget-breakable', 'true');
+  }
+
+  span.appendChild(widgetElement);
+
+  return span;
 };

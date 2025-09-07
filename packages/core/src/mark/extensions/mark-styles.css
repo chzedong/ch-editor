@@ -76,12 +76,3 @@
 [data-type="editor-container"] .style-link.style-bold {
   font-weight: bold;
 }
-
-/* 链接中的格式保持 */
-.style-link.style-bold {
-  font-weight: bold;
-}
-
-.style-link.style-italic {
-  font-style: italic;
-}

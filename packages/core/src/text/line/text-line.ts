@@ -1,5 +1,5 @@
 import { SimpleBlockPositionType, SimpleBlockPosition } from '../../selection/block-position';
-import { getDocTextLength, getTextBlockContentChildTextLength, getTextBlockContentChildren, getTextBlockLength } from '../text-utils';
+import { getTextBlockContentChildTextLength, getTextBlockContentChildren, getTextBlockLength } from '../text-dom';
 import {
   isMultiLineChild,
   doesNextChildStartNewLine,
@@ -10,7 +10,7 @@ import {
 } from './line-utils';
 import { assert } from '../../utils/assert';
 import { createExpandedRange } from '../../utils/dom';
-import { BoxDomUtils } from '../../box/box-dom-utils';
+import { isBoxWrapper, canBoxWrap } from '../../box/box-dom';
 import { canWidgetWrap, getWidgetIndexPosition, isWidgetElement } from '../../decorator/decorator-dom';
 
 import { TextBlockContentChild, BlockElement } from '../../index.type';
@@ -453,7 +453,7 @@ export class LineBreaker {
       return;
     }
     // 检查是否为 box 元素
-    if (BoxDomUtils.isBoxWrapper(child)) {
+    if (isBoxWrapper(child)) {
       // box 元素的逻辑长度始终为 1，不使用 childLength
       currentLine.addBox(child, mergedRects[0]);
       return;
@@ -507,8 +507,8 @@ export class LineBreaker {
     }
 
     // 检查是否为可跨行的 box 元素
-    if (BoxDomUtils.isBoxWrapper(child)) {
-      assert(BoxDomUtils.canBoxWrap(child), 'box 元素必须包含 ch-box-wrap 类名');
+    if (isBoxWrapper(child)) {
+      assert(canBoxWrap(child), 'box 元素必须包含 ch-box-wrap 类名');
 
       const childRects = this.getChildRects(child);
       const totalRects = childRects.length;

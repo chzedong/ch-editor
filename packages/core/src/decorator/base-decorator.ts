@@ -1,5 +1,6 @@
 import { Editor } from '../editor/editor';
 import { EditorSelectionRange } from '../selection/selection-range';
+
 import { TextBlockContentChild } from '../index.type';
 
 /**

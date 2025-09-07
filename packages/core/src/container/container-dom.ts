@@ -1,7 +1,9 @@
 import { Editor } from '../editor/editor';
-import { BlockElement, ContainerElement } from '../index.type';
-import { createElement } from '../main';
+import { createElement } from '../utils/dom';
 import { assert } from '../utils/assert';
+import './container.scss';
+
+import { BlockElement, ContainerElement } from '../index.type';
 
 export function getContainerBlocksElement(container: ContainerElement) {
   return container.querySelector(':scope > .container-blocks') as HTMLElement;

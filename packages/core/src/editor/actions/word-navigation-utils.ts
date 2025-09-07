@@ -1,5 +1,6 @@
 import { DocBlockText, DocBlockTextOp } from '../../index.type';
-import { isBoxOp, isTextOp } from '../../box/box-data-model';
+import { isBoxOp } from '../../box/box-op';
+import { isTextOp } from '../../text/text-op';
 
 /**
  * 导航元素类型枚举

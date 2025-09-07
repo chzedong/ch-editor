@@ -1,5 +1,4 @@
-import { getBlockBackground } from '../block/block-background';
-import { createBackgroundChild, removeBackgrounds } from '../block/block-background';
+import { getBlockBackground, createBackgroundChild, removeBackgrounds } from './text-dom';
 import { BlockElement } from '../index.type';
 import { assertLineBreaker, LineBreaker } from './line/text-line';
 import { Editor } from '../editor/editor';

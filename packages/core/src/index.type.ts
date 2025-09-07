@@ -94,3 +94,48 @@ export type ContainerElement = HTMLDivElement;
 export type BlockElement = HTMLDivElement;
 export type BlockContentElement = HTMLDivElement;
 export type TextBlockContentChild = HTMLSpanElement;
+
+// Editor related types
+export interface EditorOptions {
+  initDoc?: import('./doc/doc').Doc;
+}
+
+/**
+ * Editor 接口定义，用于避免循环引用
+ */
+export interface IEditor {
+  // 属性
+  parent: HTMLElement;
+  editorDoc: any; // EditorDoc
+  rootContainerObject: any; // RootContainer
+  rootContainer: ContainerElement;
+  input: any; // EditorInput
+  selection: any; // EditorSelection
+  editorBlocks: any; // EditorBlocks
+  editorBoxes: any; // EditorBoxes
+  markManager: any; // MarkManager
+  decoratorManager: any; // DecoratorManager
+
+  // 方法
+  focus(autoScroll?: boolean, weakMap?: WeakMap<BlockElement, import('./text/line/text-line').LineBreaker>): void;
+  scrollIntoView(weakMap?: WeakMap<BlockElement, import('./text/line/text-line').LineBreaker>): void;
+  getFirstBlock(): BlockElement;
+  getBlockById(id: string): BlockElement;
+  findBlockById(id: string): BlockElement | null;
+  findBlockByIndex(containerId: string, index: number): BlockElement | null;
+  getBlockData(blockElement: BlockElement): DocBlock;
+  getBlockTextLength(blockElement: BlockElement): number;
+  insertBlock(containerId: string, index: number, blockData: DocBlock): void;
+  deleteBlock(blockElement: BlockElement, newRange?: any): void; // EditorSelectionRange
+  getTargetColumnX(): number | null;
+  setTargetColumnX(x: number): void;
+  clearTargetColumnX(): void;
+  updateTargetColumnX(weakMap?: WeakMap<BlockElement, import('./text/line/text-line').LineBreaker>): void;
+  insertBox(boxData: BoxData): void;
+  deleteBox(): void;
+
+  // 事件相关方法 (继承自 TypedEmitter)
+  on(event: string, listener: (...args: any[]) => void): this;
+  off(event: string, listener: (...args: any[]) => void): this;
+  emit(event: string, ...args: any[]): boolean;
+}

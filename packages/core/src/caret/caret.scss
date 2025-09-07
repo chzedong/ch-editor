@@ -10,7 +10,7 @@
   }
 }
 
-.editor-caret {
+[data-type='editor-container'] .editor-caret {
   height: 22px;
   width: 2px;
   background-color: red;
@@ -20,7 +20,7 @@
   z-index: 1;
 }
 
-.editor-input {
+[data-type='editor-container'] .editor-input {
   position: absolute;
   opacity: 0;
   pointer-events: none;

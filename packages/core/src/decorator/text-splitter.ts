@@ -1,7 +1,8 @@
 import { DocBlockText, DocBlockTextOp } from '../index.type';
-import { isBoxOp, isTextOp } from '../box/box-data-model';
+import { isBoxOp } from '../box/box-op';
+import { isTextOp } from '../text/text-op';
 import { BaseDecorator, DecoratorRange, WidgetDecorator, WidgetRange } from './base-decorator';
-import { assert } from '../main';
+import { assert } from '../utils/assert';
 
 /**
  * 文本操作片段

@@ -1,6 +1,6 @@
 import { applyMarkToSelection, toggleMark } from '@ch-editor/core';
 import { editor } from './bind-editor';
-import { MentionBox } from '@ch-editor/core/src/extensions/boxes/mention-box';
+import { MentionBox } from '@ch-editor/core';
 
 // 生成唯一ID的工具函数
 function generateId(): string {

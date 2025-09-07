@@ -1,33 +1,24 @@
 import 'events';
 import { TypedEmitter } from 'tiny-typed-emitter';
-import EditorBlocks, { isTextKindBlock } from './editor-blocks';
-import { EditorBoxes } from './editor-boxes';
-import { EditorDoc } from './editor-doc';
+import EditorBlocks from '../block/editor-blocks';
+import { EditorBoxes } from '../box/editor-boxes';
+import { EditorDoc } from '../doc/editor-doc';
 import { RootContainer } from '../container/root-container';
 import { getChildBlocks, getContainerById, getContainerId, getParentContainer } from '../container/container-dom';
-import { createRootContainer } from '../container/create-root-container';
-import TextBlock from '../text/text-block';
+import { createRootContainer } from '../container/container-render';
+import { TextBlock, isTextKindBlock, assertLineBreaker, LineBreaker } from '../text';
 import { EditorInput } from './editor-input';
 import { EditorSelection } from '../selection/editor-selection';
-import { EditorShortcuts } from './editor-shortcut';
-import { defaultShortcuts } from './default-shortcuts';
+import { EditorShortcuts } from '../shortcuts/editor-shortcut';
+import { defaultShortcuts } from '../shortcuts/default-shortcuts';
 import { getBlockIndex, getFirstBlock } from '../block/block-dom';
 import { EditorSelectionRange } from '../selection/selection-range';
+import { MarkManager, getBuiltInMarks } from '../mark';
+import { DecoratorManager, DividerWidgetDecorator, SearchHighlightDecorator } from '../decorator';
 import { assert } from '../utils/assert';
-import { assertLineBreaker, LineBreaker } from '../text/line/text-line';
-import { MarkManager } from '../mark/mark-manager';
-import { getBuiltInMarks } from '../mark/built-in-marks';
-import { DecoratorManager } from '../decorator/decorator-manager';
-import { getBuiltInDecorators } from '../decorator/built-in-decorators';
 import { scrollIntoView } from '../utils/scroll-into-view';
 
-import { BlockElement, BoxData, ContainerElement, DocBlock } from '../index.type';
-import { Doc } from '../doc/doc';
-import { DividerWidgetDecorator } from '../decorator';
-
-export interface EditorOptions {
-  initDoc?: Doc;
-}
+import { BlockElement, BoxData, ContainerElement, DocBlock, EditorOptions } from '../index.type';
 
 export class Editor extends TypedEmitter<any> {
   parent: HTMLElement;
@@ -64,7 +55,7 @@ export class Editor extends TypedEmitter<any> {
 
     // 初始化装饰器管理器
     this.decoratorManager = new DecoratorManager(this);
-    this.decoratorManager.registerAll(getBuiltInDecorators());
+    this.decoratorManager.registerAll([new SearchHighlightDecorator()]);
     this.decoratorManager.registerAllWidgets([new DividerWidgetDecorator()]);
 
     // this.options = options;

@@ -1,5 +1,6 @@
-import { SimpleMark, MarkRenderContext, MarkApplyResult, BaseMark } from './base-mark';
+import { SimpleMark, MarkRenderContext, MarkApplyResult, BaseMark } from '../base-mark';
 import AttributeMap from 'quill-delta/dist/AttributeMap';
+import './mark-styles.css';
 
 /**
  * 加粗Mark

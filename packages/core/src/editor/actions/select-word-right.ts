@@ -3,7 +3,7 @@ import { Editor } from '../editor';
 import { BlockElement, DocBlockText } from '../../index.type';
 import { assert } from '../../utils/assert';
 import { EditorBlockPosition } from '../../selection/block-position';
-import { isTextKindBlock } from '../editor-blocks';
+import { isTextKindBlock } from '../../text/text-block';
 import { editorGetNextWordEnd } from './word-navigation-utils';
 
 export function selectWordRight(editor: Editor) {

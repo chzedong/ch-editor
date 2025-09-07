@@ -2,10 +2,11 @@ import { getBlockIndex, getBlockType, getBlockId } from '../../block/block-dom';
 import { getParentContainer, getContainerId } from '../../container/container-dom';
 import { EditorBlockPosition } from '../../selection/block-position';
 import { EditorSelectionRange } from '../../selection/selection-range';
-import { getRangeBlocks } from '../../selection/selection-utils';
-import { RichText } from '../../text/delta';
+import { getRangeBlocks } from '../../selection/selection-dom';
+import { RichText } from '../../utils/delta';
 import { createDeleteActions } from '../../text/text-op';
-import { isEmptyBlockText, isEmptyTextBlock } from '../../text/text-utils';
+import { isEmptyBlockText } from '../../text/text-op';
+import { isEmptyTextBlock } from '../../text/text-dom';
 import { Editor } from '../editor';
 import { assert } from '../../utils/assert';
 

@@ -1,8 +1,8 @@
-import { Editor } from './editor';
-import { createBlockElement, getBlockType } from '../block/block-dom';
+import { Editor } from '../editor/editor';
+import { createBlockElement } from './block-dom';
 import { assert } from '../utils/assert';
 
-import { Block, BlockElement, BlockPath, ContainerElement, DocBlock } from '../index.type';
+import { Block, BlockPath, ContainerElement, DocBlock } from '../index.type';
 
 export default class EditorBlocks {
   private blocks = new Map<string, Block>();
@@ -40,6 +40,4 @@ export default class EditorBlocks {
   }
 }
 
-export function isTextKindBlock(editor: Editor, block: BlockElement) {
-  return editor.editorBlocks.getBlockClass(getBlockType(block)).blockType === 'text';
-}
+

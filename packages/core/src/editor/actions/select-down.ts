@@ -1,6 +1,6 @@
 import { Editor } from '../editor';
 import { assert } from '../../utils/assert';
-import { isTextKindBlock } from '../editor-blocks';
+import { isTextKindBlock } from '../../text/text-block';
 import { findDownPosition } from './navigation-utils';
 
 export function selectDown(editor: Editor) {

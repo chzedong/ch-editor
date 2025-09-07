@@ -2,11 +2,11 @@ import { Editor } from '../editor/editor';
 import { getBlockIndex } from '../block/block-dom';
 import { getContainerId, getParentContainer } from '../container/container-dom';
 import { assert } from '../utils/assert';
-import { splitToThree } from './text-utils';
+import { splitToThree } from './text-op';
 import { DocBlockTextActions } from '../index.type';
 import AttributeMap from 'quill-delta/dist/AttributeMap';
-import { updateSelection } from '../selection/selection-utils';
-import { isTextKindBlock } from '../editor/editor-blocks';
+import { updateSelection } from '../selection/selection-dom';
+import { isTextKindBlock } from './text-block';
 
 /**
  * 给选中的文本应用格式

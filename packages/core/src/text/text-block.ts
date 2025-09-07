@@ -1,8 +1,8 @@
 import { Editor } from '../editor/editor';
-import { getBlockContent, getBlockId } from '../block/block-dom';
-import { updateBlockContent } from './update-block-content';
-import { getTextBlockContentChildTextLength } from './text-utils';
-import { updateSelection } from './update-selection';
+import { getBlockContent, getBlockId, getBlockType } from '../block/block-dom';
+import { updateBlockContent } from './text-block-render';
+import { getTextBlockContentChildTextLength } from './text-dom';
+import { updateSelection } from './text-selection-render';
 import { EditorBlockPosition } from '../selection/block-position';
 import { patchNode } from '../utils/patch-node';
 import { assert } from '../utils/assert';
@@ -10,7 +10,7 @@ import { createElement } from '../utils/dom';
 
 import { Block, BlockElement, BlockPath, DocBlock, DocBlockText } from '../index.type';
 import { assertLineBreaker, getPositionFromPoint, LineBreaker } from './line/text-line';
-import { getTextBlockContentChildren } from './text-utils';
+import { getTextBlockContentChildren } from './text-dom';
 
 function createBlockContent(editor: Editor, path: BlockPath, container: Element, blockElement: Element, blockData: DocBlock) {
   const content = createElement('div', [], null);
@@ -63,4 +63,7 @@ const TextBlock: Block = {
   getCursorRect
 };
 
-export default TextBlock;
+export default TextBlock;export function isTextKindBlock(editor: Editor, block: BlockElement) {
+  return editor.editorBlocks.getBlockClass(getBlockType(block)).blockType === 'text';
+}
+

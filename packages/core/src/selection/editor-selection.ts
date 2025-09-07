@@ -1,13 +1,14 @@
 import { Editor } from '../editor/editor';
 import { EditorSelectionRange } from './selection-range';
-import { getRangeBlocks, updateSelection } from './selection-utils';
+import { getRangeBlocks, updateSelection } from './selection-dom';
 import {  getBlockType } from '../block/block-dom';
-import { Caret } from '../caret/caret';
+import { Caret } from '../caret/caret-render';
 import { EditorBlockPosition } from './block-position';
 import { assert } from '../utils/assert';
+import { LineBreaker } from '../text/line/text-line';
+import { removeBackgrounds } from '../text/text-dom';
+
 import { BlockElement } from '../index.type';
-import { LineBreaker } from '../main';
-import { removeBackgrounds } from '../block/block-background';
 
 export class EditorSelection {
   readonly caret: Caret;

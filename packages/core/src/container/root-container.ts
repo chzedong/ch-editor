@@ -3,7 +3,7 @@ import { Editor } from '../editor/editor';
 import { getBlockType, getParentBlock } from '../block/block-dom';
 import { EditorBlockPosition } from '../selection/block-position';
 import { editorGetNextWordEnd, editorGetPreWordStart } from '../editor/actions/word-navigation-utils';
-import { isTextKindBlock } from '../editor/editor-blocks';
+import { isTextKindBlock } from '../text/text-block';
 import { getParentScrollContainer } from '../utils/dom';
 import { assertLineBreaker } from '../text/line/text-line';
 

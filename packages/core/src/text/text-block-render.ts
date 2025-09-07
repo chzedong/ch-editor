@@ -1,13 +1,14 @@
 import { Editor } from '../editor/editor';
 import { createElement } from '../utils/dom';
-import { getDocTextLength, isEmptyBlockText } from './text-utils';
-import { BoxDomUtils } from '../box/box-dom-utils';
-import { isBoxOp } from '../box/box-data-model';
+import { isEmptyBlockText } from './text-op';
+import { getDocTextLength } from './text-op';
+import { createBoxWrapper } from '../box/box-dom';
+import { isBoxOp } from '../box/box-op';
 import { TextSplitter, TextOpSegment } from '../decorator/text-splitter';
+import { DecoratorRange, WidgetRange } from '../decorator';
+import { assert } from '../utils/assert';
 
 import { BlockPath, DocBlockText } from '../index.type';
-import { DecoratorRange, WidgetRange } from '../decorator';
-import { assert } from '../main';
 
 export function updateBlockContent(editor: Editor, path: BlockPath, blockId: string, content: Element, blockText: DocBlockText) {
   if (isEmptyBlockText(blockText)) {
@@ -65,8 +66,8 @@ function renderBoxSegment(editor: Editor, segment: TextOpSegment, fragment: Docu
 
   // 通过 editor-boxes 渲染 box 内容
   const { boxContent, canWrap } = editor.editorBoxes.renderBox(boxData);
-  // 使用 BoxDomUtils 创建标准的 box 包装器
-  const boxElement = BoxDomUtils.createBoxWrapper(boxData, boxContent, canWrap);
+  // 使用 createBoxWrapper 创建标准的 box 包装器
+  const boxElement = createBoxWrapper(boxData, boxContent, canWrap);
 
   // 应用装饰器到Box元素
   if (segment.decorators.length > 0) {
@@ -123,11 +124,7 @@ function renderWidgetSegment(editor: Editor, segment: TextOpSegment, fragment: D
   assert(segment.widgetDecorator, 'Widget segment should have widget decorator');
 
   // 使用widget装饰器渲染widget
-  const widgetElement = segment.widgetDecorator.render(segment.widgetData || {});
-
-  const span = createElement('span',  ['ch-widget'], null);
-  span.setAttribute('data-widget-type', segment.widgetDecorator.name);
-  span.appendChild(widgetElement);
+  const span = editor.decoratorManager.renderWidget(segment.widgetDecorator, segment.widgetData);
 
   fragment.appendChild(span);
 }

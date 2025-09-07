@@ -1,14 +1,15 @@
-import { Editor } from './editor';
+import { Editor } from '../editor/editor';
 import { transformSelection } from '../selection/selection-utils';
-import { Doc } from '../doc/doc';
+import { Doc } from './doc';
 import { assert } from '../utils/assert';
 
-import { BoxData, DocBlock, DocBlockTextActions } from '../index.type';
-import { isTextKindBlock } from './editor-blocks';
+import { isTextKindBlock } from '../text/text-block';
 import { getBlockId, getBlockType, getLastBlock } from '../block/block-dom';
 import { getChildBlocks, getContainerBlocksElement, getContainerById } from '../container/container-dom';
 import { EditorBlockPosition } from '../selection/block-position';
 import { EditorSelectionRange } from '../selection/selection-range';
+
+import { BoxData, DocBlock, DocBlockTextActions } from '../index.type';
 
 export class EditorDoc {
   private doc: Doc;
@@ -55,7 +56,6 @@ export class EditorDoc {
     // 渲染处理
     const block = this.editor.getBlockById(blockData.id);
     assert(isTextKindBlock(this.editor, block), 'block is not text kind');
-
     const type = getBlockType(block);
     this.editor.editorBlocks.getBlockClass(type).setBlockText(this.editor, block, newText);
 

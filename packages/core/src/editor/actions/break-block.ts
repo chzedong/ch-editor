@@ -2,12 +2,12 @@ import { cloneDeep } from 'lodash-es';
 import { getBlockIndex } from '../../block/block-dom';
 import { getContainerId, getParentContainer } from '../../container/container-dom';
 import { DocBlock, DocBlockText } from '../../index.type';
-import { deleteText } from '../../text/delete-text';
-import { splitText } from '../../text/text-utils';
+import { deleteText } from '../../text/text-action';
+import { splitText } from '../../text/text-op';
 import { assert } from '../../utils/assert';
 import { genId } from '../../utils/get-id';
 import { Editor } from '../editor';
-import { isTextKindBlock } from '../editor-blocks';
+import { isTextKindBlock } from '../../text/text-block';
 import { deleteSelection } from './utils';
 
 const breakCollapsedBlock = (editor: Editor) => {

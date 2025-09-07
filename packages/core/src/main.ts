@@ -1,19 +1,10 @@
 // Core library exports
 export { Editor } from './editor/editor';
-export { EditorDoc } from './editor/editor-doc';
+export { EditorDoc } from './doc/editor-doc';
 export { Doc } from './doc/doc';
 export { default as TextBlock } from './text/text-block';
 export { EditorSelection } from './selection/editor-selection';
 export { TextLine, LineBreaker } from './text/line/text-line';
-
-// Box system exports
-export { EditorBoxes } from './editor/editor-boxes';
-export { BoxDomUtils } from './box/box-dom-utils';
-export { isBoxOp, isTextOp, createBoxInsertOp } from './box/box-data-model';
-
-// Mark system exports
-export * from './mark';
-export { formatSelectedText, toggleTextFormat, applyMarkToSelection, toggleMark } from './text/format-text';
 
 // Types
 export type { DocBlock, DocBlockTextOp, Block, BlockPath, ShortcutsRecord, InputHandler, DocObject } from './index.type';
@@ -21,13 +12,54 @@ export type { DocBlock, DocBlockTextOp, Block, BlockPath, ShortcutsRecord, Input
 // Utils
 export { assert } from './utils/assert';
 export { genId as getId } from './utils/get-id';
-export * from './utils/key';
-export * from './utils/dom';
+export { parseShortcut } from './utils/key';
+export { createElement, addClass, createRange, createExpandedRange, getParentScrollContainer } from './utils/dom';
+
+// Box system exports
+export { EditorBoxes } from './box/editor-boxes';
+export {
+  createBoxWrapper,
+  isBoxWrapper,
+  isBoxContent,
+  getBoxId,
+  getBoxType,
+  canBoxWrap,
+  getBoxContent
+} from './box/box-dom';
+export { isBoxOp, createBoxInsertOp } from './box/box-op';
+export { MentionBox } from './box/extensions/mention-box';
+
+// Mark system exports
+export {
+  BaseMark,
+  SimpleMark,
+  MarkManager,
+  BoldMark,
+  ItalicMark,
+  UnderlineMark,
+  StrikethroughMark,
+  CodeMark,
+  SuperscriptMark,
+  SubscriptMark,
+  ColorMark,
+  BackgroundColorMark,
+  FontSizeMark,
+  LinkMark,
+  getBuiltInMarks,
+  type MarkRenderContext,
+  type MarkApplyResult,
+  type MarkOptions,
+  type ConflictResolution,
+  type MarkApplyOptions
+} from './mark';
+export { formatSelectedText, toggleTextFormat, applyMarkToSelection, toggleMark } from './text/format-text';
 
 // Decorator
-export * from './decorator';
-
-// Import styles
-import './caret/caret.scss';
-import './block/block.scss';
-import './style.scss';
+export {
+  BaseDecorator,
+  DecoratorManager,
+  SearchHighlightDecorator,
+  DividerWidgetDecorator,
+  type DecoratorRenderContext,
+  type DecoratorOptions
+} from './decorator';

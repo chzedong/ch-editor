@@ -1,6 +1,8 @@
 import { Editor } from '../editor/editor';
-import { TextBlockContentChild } from '../index.type';
 import { BaseDecorator, DecoratorRange, WidgetDecorator, WidgetRange } from './base-decorator';
+
+import { TextBlockContentChild } from '../index.type';
+import { createWidgetWrapper } from './decorator-dom';
 
 /**
  * 装饰器管理器
@@ -218,6 +220,11 @@ export class DecoratorManager {
     for (const decorator of decorators) {
       decorator.apply(this.editor, element);
     }
+  }
+
+  renderWidget(widgetDecorator: WidgetDecorator,  widgetData: any) {
+    const widgetElement = widgetDecorator.render(widgetData);
+    return createWidgetWrapper(widgetElement, widgetDecorator);
   }
 
   /**

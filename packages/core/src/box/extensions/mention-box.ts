@@ -1,4 +1,4 @@
-import { BoxInstance } from '../../editor/editor-boxes';
+import { BoxInstance } from '../../box/editor-boxes';
 import './mention-box.css';
 import { BoxData } from '../../index.type';
 

@@ -1,8 +1,8 @@
 import { getBlockType } from '../../block/block-dom';
 import { Editor } from '../editor';
 import { assert } from '../../utils/assert';
-import { deleteText } from '../../text/delete-text';
-import { isEmptyTextBlock } from '../../text/text-utils';
+import { deleteText } from '../../text/text-action';
+import { isEmptyTextBlock } from '../../text/text-dom';
 import { deleteEmptyBlock, mergeSiblingBlocks } from './utils';
 import { editorGetPreWordStart } from './word-navigation-utils';
 

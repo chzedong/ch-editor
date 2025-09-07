@@ -13,11 +13,9 @@ export {
 export { DecoratorManager } from './decorator-manager';
 
 // 内置装饰器实现
-export * from './built-in-decorators';
-export { getBuiltInDecorators } from './built-in-decorators';
-
-export * from './widget-decorators';
+export { SearchHighlightDecorator } from './extensions/demo-decorator';
+// Widget装饰器
+export { DividerWidgetDecorator } from './extensions/demo-widget';
 
 // 装饰器样式
-import './decorator-styles.css';
-import './widget-styles.css';
+import './decorator.scss';

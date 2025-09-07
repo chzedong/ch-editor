@@ -1,10 +1,10 @@
-import { RichText } from '../text/delta';
+import { RichText } from '../utils/delta';
 import { createEmptyDoc } from './doc-utils';
 import { assert } from '../utils/assert';
-import { createBoxInsertOp, isBoxOp, isTextOp } from '../box/box-data-model';
-import { BoxData } from '../index.type';
+import { createBoxInsertOp, isBoxOp } from '../box/box-op';
+import { isTextOp } from '../text/text-op';
 
-import { DocBlock, DocBlockTextActions, DocObject } from '../index.type';
+import { DocBlock, DocBlockTextActions, DocObject, BoxData } from '../index.type';
 
 export class Doc {
   doc: DocObject;

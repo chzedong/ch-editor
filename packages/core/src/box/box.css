@@ -1,0 +1,21 @@
+/* Box 组件样式 */
+
+[data-type="editor-container"] {
+
+  /* Box 包装器基础样式 */
+  [data-box-type] {
+    display: inline-block;
+    position: relative;
+    vertical-align: baseline;
+    user-select: none;
+    cursor: default;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  /* 可跨行的 Box */
+  [data-box-breakable="true"] {
+    white-space: normal;
+    word-break: break-word;
+  }
+}

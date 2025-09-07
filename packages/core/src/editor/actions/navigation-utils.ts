@@ -1,7 +1,7 @@
 import { getBlockId, isFirstBlock, isLastBlock, findPrevBlock, findNextBlock } from '../../block/block-dom';
 import { Editor } from '../editor';
 import { EditorBlockPosition } from '../../selection/block-position';
-import { isTextKindBlock } from '../editor-blocks';
+import { isTextKindBlock } from '../../text/text-block';
 import { LineBreaker, TextLine } from '../../text/line/text-line';
 import { assert } from '../../utils/assert';
 import { BlockElement } from '../../index.type';

@@ -24,3 +24,11 @@ div[data-type='editor-block'] {
     }
   }
 }
+
+div[data-type="editor-block"]:first-child {
+  margin-top: 0;
+}
+
+div[data-type="editor-block"] {
+  margin-top: 0.6em;
+}

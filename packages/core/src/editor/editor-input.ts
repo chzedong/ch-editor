@@ -1,5 +1,5 @@
 import { Editor } from './editor';
-import { editorInsertText } from '../text/insert-text';
+import { editorInsertText } from '../text/text-action';
 import { createElement } from '../utils/dom';
 
 import { InputHandler } from '../index.type';

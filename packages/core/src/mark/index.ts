@@ -1,5 +1,3 @@
-import './mark-styles.css';
-
 // 基础Mark类和接口
 export {
   BaseMark,
@@ -30,15 +28,4 @@ export {
   FontSizeMark,
   LinkMark,
   getBuiltInMarks
-} from './built-in-marks';
-
-// Mark组合和继承
-export {
-  ComposedMark,
-  InheritedMark,
-  MarkFactory,
-  extendMarkManager,
-  PREDEFINED_COMBINATIONS,
-  type MarkCompositionConfig,
-  type MarkInheritanceConfig
-} from './mark-composition';
+} from './extensions/built-in-marks';

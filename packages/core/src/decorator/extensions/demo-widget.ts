@@ -1,11 +1,13 @@
-import { assert } from '../main';
-import { getDocTextLength } from '../text/text-utils';
-import { WidgetDecorator, WidgetRenderContext, WidgetRange } from './base-decorator';
+import { assert } from '../../main';
+import { getDocTextLength } from '../../text/text-op';
+import { WidgetDecorator, WidgetRenderContext, WidgetRange } from '../base-decorator';
+
 
 /**
  * 分隔线Widget装饰器
  * 创建分隔线Widget
  */
+
 export class DividerWidgetDecorator extends WidgetDecorator {
   name: string = 'divider-widget';
 
@@ -40,4 +42,3 @@ export class DividerWidgetDecorator extends WidgetDecorator {
     }];
   }
 }
-
