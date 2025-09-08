@@ -5,7 +5,6 @@ export {
   type DecoratorRenderContext,
   type DecoratorRange,
   type DecoratorOptions,
-  type WidgetRenderContext,
   type WidgetRange
 } from './base-decorator';
 
@@ -15,7 +14,7 @@ export { DecoratorManager } from './decorator-manager';
 // 内置装饰器实现
 export { SearchHighlightDecorator } from './extensions/demo-decorator';
 // Widget装饰器
-export { DividerWidgetDecorator } from './extensions/demo-widget';
+export { CompositionWidgetDecorator } from './extensions/composition-widget';
 
 // 装饰器样式
 import './decorator.scss';

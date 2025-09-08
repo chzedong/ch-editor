@@ -222,8 +222,11 @@ export class DecoratorManager {
     }
   }
 
-  renderWidget(widgetDecorator: WidgetDecorator,  widgetData: any) {
-    const widgetElement = widgetDecorator.render(widgetData);
+  /**
+   * 渲染widget装饰器
+   */
+  renderWidget(editor: Editor, widgetDecorator: WidgetDecorator, widgetData?: any) {
+    const widgetElement = widgetDecorator.render(editor, widgetData);
     return createWidgetWrapper(widgetElement, widgetDecorator);
   }
 

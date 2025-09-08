@@ -1,8 +1,9 @@
 import { Editor } from '../editor/editor';
 import { createBlockElement } from './block-dom';
 import { assert } from '../utils/assert';
+import { isTextBlock } from '../text';
 
-import { Block, BlockPath, ContainerElement, DocBlock } from '../index.type';
+import { Block, BlockPath, ContainerElement, DocBlock, BlockElement } from '../index.type';
 
 export default class EditorBlocks {
   private blocks = new Map<string, Block>();
@@ -37,6 +38,17 @@ export default class EditorBlocks {
     }
 
     return blockElement;
+  }
+
+  /**
+   * 强制重新渲染指定的block
+   */
+  forceRenderBlock(blockElement: BlockElement) {
+    const blockData = this.editor.getBlockData(blockElement);
+    if (isTextBlock(blockData)) {
+      const blockClass = this.getBlockClass(blockData.type);
+      blockClass.setBlockText(this.editor, blockElement, blockData.text);
+    }
   }
 }
 

@@ -59,7 +59,6 @@ export {
   BaseDecorator,
   DecoratorManager,
   SearchHighlightDecorator,
-  DividerWidgetDecorator,
   type DecoratorRenderContext,
   type DecoratorOptions
 } from './decorator';

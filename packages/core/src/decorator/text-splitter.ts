@@ -264,6 +264,17 @@ export class TextSplitter {
       }
     }
 
+    // 处理最后一个分割点，如果它是widget类型
+    if (splitPoints.length > 0) {
+      const lastPoint = splitPoints[splitPoints.length - 1];
+      if (lastPoint.type.includes('widget')) {
+        const widgetSegment = this.createWidgetSegment(lastPoint, widgetRanges);
+        if (widgetSegment) {
+          segments.push(widgetSegment);
+        }
+      }
+    }
+
     return segments;
   }
 

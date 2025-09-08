@@ -13,7 +13,8 @@ export {
   getDocTextLength,
   isEmptyBlockText,
   getTextAttributes,
-  splitText
+  splitText,
+  isTextBlock
 } from './text-op';
 
 // 文本动作和编辑

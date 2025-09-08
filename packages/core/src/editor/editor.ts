@@ -14,7 +14,7 @@ import { defaultShortcuts } from '../shortcuts/default-shortcuts';
 import { getBlockIndex, getFirstBlock } from '../block/block-dom';
 import { EditorSelectionRange } from '../selection/selection-range';
 import { MarkManager, getBuiltInMarks } from '../mark';
-import { DecoratorManager, DividerWidgetDecorator, SearchHighlightDecorator } from '../decorator';
+import { DecoratorManager, SearchHighlightDecorator, CompositionWidgetDecorator } from '../decorator';
 import { assert } from '../utils/assert';
 import { scrollIntoView } from '../utils/scroll-into-view';
 
@@ -55,8 +55,10 @@ export class Editor extends TypedEmitter<any> {
 
     // 初始化装饰器管理器
     this.decoratorManager = new DecoratorManager(this);
-    this.decoratorManager.registerAll([new SearchHighlightDecorator()]);
-    this.decoratorManager.registerAllWidgets([new DividerWidgetDecorator()]);
+    // this.decoratorManager.registerAll([new SearchHighlightDecorator()]);
+    this.decoratorManager.registerAllWidgets([
+      new CompositionWidgetDecorator()
+    ]);
 
     // this.options = options;
     this.input = new EditorInput(this);

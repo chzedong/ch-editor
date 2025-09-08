@@ -124,7 +124,7 @@ function renderWidgetSegment(editor: Editor, segment: TextOpSegment, fragment: D
   assert(segment.widgetDecorator, 'Widget segment should have widget decorator');
 
   // 使用widget装饰器渲染widget
-  const span = editor.decoratorManager.renderWidget(segment.widgetDecorator, segment.widgetData);
+  const span = editor.decoratorManager.renderWidget(editor, segment.widgetDecorator, segment.widgetData);
 
   fragment.appendChild(span);
 }

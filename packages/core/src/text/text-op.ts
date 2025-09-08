@@ -57,7 +57,7 @@ export function isTextOp(op: DocBlockTextOp) {
  * 判断是否为文本操作数组
  */
 export function isTextBlock(block: DocBlock): block is DocBlock & { text: DocBlockTextOp[]} {
-  return block.text !== undefined && Array.isArray(block.text) && block.text.every(isTextOp);
+  return block.text !== undefined && Array.isArray(block.text) && block.text.every((op) => isTextOp(op) || isBoxOp(op));
 }
 
 export function splitText(docText: DocBlockText, offset: number) {

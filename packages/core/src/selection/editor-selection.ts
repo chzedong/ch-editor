@@ -49,21 +49,36 @@ export class EditorSelection {
     }
 
     weakMap = weakMap || new WeakMap();
-
     const oldSelectBlocks = this.getSelectedBlocks();
-
+    // 更新选区状态
     this._range = newRange;
+
+    // 执行渲染逻辑
+    this.renderSelection(oldSelectBlocks, isVerticalNavigation, weakMap);
+
+    this.editor.emit('selectionChange');
+    return this._range;
+  }
+
+  /**
+   * 渲染选区相关的视觉效果
+   * @param oldSelectBlocks 之前选中的块
+   * @param isVerticalNavigation 是否为垂直导航
+   * @param weakMap LineBreaker缓存
+   */
+  renderSelection(oldSelectBlocks: any[], isVerticalNavigation?: boolean, weakMap?: WeakMap<BlockElement, LineBreaker>) {
+    // 更新光标位置
     this.caret.update(weakMap);
+
     // 更新目标列位置状态
-    // 如果不是上下键导航，则更新目标列状态
-    // 如果是上下键导航，则保持当前的目标列状态
     if (!isVerticalNavigation) {
       this.editor.updateTargetColumnX(weakMap);
     }
-    // update selection
+
+    // 更新选区渲染
     updateSelection(this.editor, weakMap);
 
-    // clear other block selection
+    // 清理旧的选区背景
     const selectBlocks = this.getSelectedBlocks().map((item) => item.block);
     const outerBlocks = oldSelectBlocks.filter((item) => !selectBlocks.includes(item.block));
     requestAnimationFrame(() => {
@@ -74,14 +89,7 @@ export class EditorSelection {
 
     // 只在非垂直导航时自动聚焦和滚动
     // 垂直导航的滚动由具体的 action 控制
-    if (!isVerticalNavigation) {
-      this.editor.focus(true, weakMap);
-    } else {
-      // 垂直导航时只聚焦，不滚动
-      this.editor.focus(false, weakMap);
-    }
-    this.editor.emit('selectionChange');
-    return this._range;
+    this.editor.focus(!isVerticalNavigation, weakMap);
   }
 
   getSelectedBlocks() {

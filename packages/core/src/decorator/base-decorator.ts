@@ -152,7 +152,7 @@ export abstract class WidgetDecorator {
    * @param data Widget数据
    * @returns 渲染的DOM元素
    */
-  abstract render(data: any): HTMLElement;
+  abstract render(editor: Editor, data?: any): HTMLElement;
 
   /**
    * 计算Widget应该插入的位置
