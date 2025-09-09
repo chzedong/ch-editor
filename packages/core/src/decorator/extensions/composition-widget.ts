@@ -3,6 +3,7 @@ import { DecoratorRenderContext, WidgetDecorator, WidgetRange } from '../base-de
 import { createElement } from '../../utils/dom';
 import { assert } from '../../utils/assert';
 import './composition-widget.scss';
+
 /**
  * 合成文本Widget装饰器
  */

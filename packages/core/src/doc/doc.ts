@@ -85,7 +85,7 @@ export class Doc {
 
     // 创建 box 插入操作
     const boxInsertOp = createBoxInsertOp(boxData);
-    const insertAction = [
+    const insertAction: DocBlockTextActions = [
       {
         retain: offset
       },
@@ -98,7 +98,7 @@ export class Doc {
     const newText = RichText.apply(blockData.text, insertAction);
     blockData.text = newText;
 
-    return { newText, blockData, boxData };
+    return { newText, insertAction };
   }
 
   /**
@@ -116,23 +116,27 @@ export class Doc {
     assert(deletedBoxData, 'no box');
 
     // 创建删除操作
-    let deleteAction;
+    let deleteAction: DocBlockTextActions = [];
     if (offset === 0) {
-      deleteAction = {
-        delete: 1 // box 的逻辑长度为 1
-      };
+      deleteAction = [
+        {
+          delete: 1 // box 的逻辑长度为 1
+        }
+      ];
     } else {
-      deleteAction = {
-        retain: offset,
-        delete: 1 // box 的逻辑长度为 1
-      };
+      deleteAction = [
+        {
+          retain: offset,
+          delete: 1 // box 的逻辑长度为 1
+        }
+      ];
     }
 
     // 应用操作到文本
-    const newText = RichText.apply(blockData.text, [deleteAction]);
+    const newText = RichText.apply(blockData.text, deleteAction);
     blockData.text = newText;
 
-    return { newText, blockData, deletedBoxData };
+    return { newText, deleteAction, deletedBoxData };
   }
 
   /**

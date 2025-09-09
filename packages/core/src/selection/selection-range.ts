@@ -1,5 +1,10 @@
-import { EditorBlockPosition } from './block-position';
+import { EditorBlockPosition, SimpleBlockPosition } from './block-position';
 import { Editor } from '../editor/editor';
+
+export interface SelectionRangeSnapshot {
+  anchor: SimpleBlockPosition;
+  focus: SimpleBlockPosition;
+}
 
 export class EditorSelectionRange {
   readonly editor: Editor;
@@ -59,5 +64,19 @@ export class EditorSelectionRange {
       this.end.type === end.type;
 
     return ret;
+  }
+
+  toJSON(): SelectionRangeSnapshot {
+    return {
+      anchor: this.anchor.toJSON(),
+      focus: this.focus.toJSON()
+    };
+  }
+
+  static fromJSON(editor: Editor, json: SelectionRangeSnapshot) {
+    return new EditorSelectionRange(editor, {
+      anchor: EditorBlockPosition.fromJSON(json.anchor),
+      focus: EditorBlockPosition.fromJSON(json.focus)
+    });
   }
 }

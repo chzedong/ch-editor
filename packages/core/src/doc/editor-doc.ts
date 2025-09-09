@@ -2,6 +2,7 @@ import { Editor } from '../editor/editor';
 import { transformSelection } from '../selection/selection-utils';
 import { Doc } from './doc';
 import { assert } from '../utils/assert';
+import { LifecycleHooks } from './hooks';
 
 import { isTextKindBlock } from '../text/text-block';
 import { getBlockId, getBlockType, getLastBlock } from '../block/block-dom';
@@ -13,9 +14,11 @@ import { BoxData, DocBlock, DocBlockTextActions } from '../index.type';
 
 export class EditorDoc {
   private doc: Doc;
+  public readonly hooks: LifecycleHooks; // 公开钩子系统供外部扩展使用
 
   constructor(private editor: Editor, doc?: Doc) {
     this.doc = doc || new Doc();
+    this.hooks = new LifecycleHooks();
   }
 
   getDoc(): Doc {
@@ -51,20 +54,28 @@ export class EditorDoc {
   }
 
   localUpdateBlockText(containerId: string, blockIndex: number, actions: DocBlockTextActions) {
-    const result = this.doc.updateBlockText(containerId, blockIndex, actions);
-    const { newText, blockData } = result;
+    // 触发before钩子
+    this.hooks.trigger('beforeUpdateBlock', {
+      containerId,
+      blockIndex,
+      actions
+    });
+
+    // 数据层处理
+    const { newText, blockData } = this.doc.updateBlockText(containerId, blockIndex, actions);
+    const newRange = transformSelection(this.editor, blockData.id, actions);
+
     // 渲染处理
     const block = this.editor.getBlockById(blockData.id);
     assert(isTextKindBlock(this.editor, block), 'block is not text kind');
     const type = getBlockType(block);
     this.editor.editorBlocks.getBlockClass(type).setBlockText(this.editor, block, newText);
 
-    // 选择处理
-    const newRange = transformSelection(this.editor, blockData.id, actions);
+    // 选区更新
     this.editor.selection.setSelection(newRange.anchor, newRange.focus);
 
-    // 事件触发
-    this.editor.emit('docChange', {
+    // 触发文档变化事件
+    this.hooks.trigger('docChange', {
       type: 'update',
       containerId,
       blockIndex,
@@ -75,8 +86,17 @@ export class EditorDoc {
   }
 
   localInsertBlock(containerId: string, blockIndex: number, blockData: DocBlock) {
+    // 触发before钩子
+    this.hooks.trigger('beforeInsertBlock', {
+      containerId,
+      blockIndex,
+      blockData
+    });
+
+    // 数据层处理
     const insertedBlock = this.doc.insertBlock(containerId, blockIndex, blockData);
 
+    // 渲染处理
     const container = getContainerById(this.editor, containerId);
     const blockElement = this.editor.editorBlocks.createBlock([{ containerId, blockIndex: blockIndex }], container, blockData);
 
@@ -92,8 +112,8 @@ export class EditorDoc {
     const pos = new EditorBlockPosition(blockData.id, 0);
     this.editor.selection.setSelection(pos, pos);
 
-    // 事件触发
-    this.editor.emit('docChange', {
+    // 触发文档变化事件
+    this.hooks.trigger('docChange', {
       type: 'insert',
       containerId,
       blockIndex,
@@ -104,6 +124,12 @@ export class EditorDoc {
   }
 
   localDeleteBlock(containerId: string, blockIndex: number, newRange?: EditorSelectionRange) {
+    // 触发before钩子
+    this.hooks.trigger('beforeDeleteBlock', {
+      containerId,
+      blockIndex
+    });
+
     const blockElement = this.editor.findBlockByIndex(containerId, blockIndex);
     assert(blockElement, 'no block element');
 
@@ -112,30 +138,28 @@ export class EditorDoc {
     const container = getContainerById(this.editor, containerId);
 
     const blockClass = this.editor.editorBlocks.getBlockClass(deletedBlock.type);
-    if (blockClass.deleteBlock) {
-      return blockClass.deleteBlock(this.editor, blockElement);
-    }
-    blockElement.remove();
+    if (!blockClass.deleteBlock?.(this.editor, blockElement)) {
+      blockElement.remove();
 
-    if (newRange) {
-      this.editor.selection.setSelection(newRange.anchor, newRange.focus);
-      return;
-    }
-
-    const curIndexBlock = this.editor.findBlockByIndex(containerId, blockIndex);
-    if (curIndexBlock) {
-      const curIndexBlockId = getBlockId(curIndexBlock);
-      const pos = new EditorBlockPosition(curIndexBlockId, 0);
-      this.editor.selection.setSelection(pos, pos);
-    } else {
-      const lastBlock = getLastBlock(container);
-      const lastBlockId = getBlockId(lastBlock);
-      const pos = new EditorBlockPosition(lastBlockId, 0);
-      this.editor.selection.setSelection(pos, pos);
+      if (newRange) {
+        this.editor.selection.setSelection(newRange.anchor, newRange.focus);
+        return;
+      } else {
+        const curIndexBlock = this.editor.findBlockByIndex(containerId, blockIndex);
+        if (curIndexBlock) {
+          const curIndexBlockId = getBlockId(curIndexBlock);
+          const pos = new EditorBlockPosition(curIndexBlockId, 0);
+          this.editor.selection.setSelection(pos, pos);
+        } else {
+          const lastBlock = getLastBlock(container);
+          const lastBlockId = getBlockId(lastBlock);
+          const pos = new EditorBlockPosition(lastBlockId, 0);
+          this.editor.selection.setSelection(pos, pos);
+        }}
     }
 
-    // 事件触发
-    this.editor.emit('docChange', {
+    // 触发文档变化事件
+    this.hooks.trigger('docChange', {
       type: 'delete',
       containerId,
       blockIndex
@@ -146,18 +170,30 @@ export class EditorDoc {
 
   // Box 相关方法
   localInsertBox(containerId: string, blockIndex: number, offset: number, boxData: BoxData) {
+    // 触发before钩子
+    this.hooks.trigger('beforeInsertBox', {
+      containerId,
+      blockIndex,
+      offset,
+      boxData
+    });
+
     const result = this.doc.insertBox(containerId, blockIndex, offset, boxData);
-    const { newText, blockData } = result;
+    const { newText, insertAction } = result;
 
     // 渲染处理 - 重新渲染包含 box 的文本块
+    const blockData = this.doc.getBlockData(containerId, blockIndex);
     const block = this.editor.getBlockById(blockData.id);
     assert(isTextKindBlock(this.editor, block), 'block is not text kind');
-
     const type = getBlockType(block);
     this.editor.editorBlocks.getBlockClass(type).setBlockText(this.editor, block, newText);
 
+    // 选区设置
+    const newRange = transformSelection(this.editor, blockData.id, insertAction);
+    this.editor.selection.setSelection(newRange.anchor, newRange.focus);
+
     // 触发文档变化事件
-    this.editor.emit('docChange', {
+    this.hooks.trigger('docChange', {
       type: 'insertBox',
       containerId,
       blockIndex,
@@ -169,18 +205,30 @@ export class EditorDoc {
   }
 
   localDeleteBox(containerId: string, blockIndex: number, offset: number) {
+    // 触发before钩子
+    this.hooks.trigger('beforeDeleteBox', {
+      containerId,
+      blockIndex,
+      offset
+    });
+
     const result = this.doc.deleteBox(containerId, blockIndex, offset);
-    const { newText, blockData } = result;
+    const { newText, deleteAction } = result;
 
     // 渲染处理 - 重新渲染包含 box 的文本块
+    const blockData = this.doc.getBlockData(containerId, blockIndex);
     const block = this.editor.getBlockById(blockData.id);
     assert(isTextKindBlock(this.editor, block), 'block is not text kind');
 
     const type = getBlockType(block);
     this.editor.editorBlocks.getBlockClass(type).setBlockText(this.editor, block, newText);
 
+    // 选区设置
+    const newRange = transformSelection(this.editor, blockData.id, deleteAction);
+    this.editor.selection.setSelection(newRange.anchor, newRange.focus);
+
     // 触发文档变化事件
-    this.editor.emit('docChange', {
+    this.hooks.trigger('docChange', {
       type: 'deleteBox',
       containerId,
       blockIndex,

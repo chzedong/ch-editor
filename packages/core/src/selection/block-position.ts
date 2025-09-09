@@ -16,4 +16,16 @@ export class EditorBlockPosition implements SimpleBlockPosition {
     this.offset = offset;
     this.type = type;
   }
+
+  toJSON(): SimpleBlockPosition {
+    return {
+      blockId: this.blockId,
+      offset: this.offset,
+      type: this.type
+    };
+  }
+
+  static fromJSON(json: SimpleBlockPosition) {
+    return new EditorBlockPosition(json.blockId, json.offset, json.type);
+  }
 }
