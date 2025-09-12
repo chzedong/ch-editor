@@ -80,7 +80,7 @@ export class EditorDoc {
     this.editor.editorBlocks.getBlockClass(type).setBlockText(this.editor, block, newText);
 
     // 选区更新
-    this.editor.selection.setSelection(newRange.anchor, newRange.focus);
+    this.editor.selection.setSelection(newRange.anchor, newRange.focus, { syncRender: false });
 
     // 触发文档变化事件
     this.hooks.trigger('docChange', {
@@ -118,7 +118,7 @@ export class EditorDoc {
     }
 
     const pos = new EditorBlockPosition(blockData.id, 0);
-    this.editor.selection.setSelection(pos, pos);
+    this.editor.selection.setSelection(pos, pos, { syncRender: false });
 
     // 触发文档变化事件
     this.hooks.trigger('docChange', {
@@ -140,9 +140,7 @@ export class EditorDoc {
 
     const blockElement = this.editor.findBlockByIndex(containerId, blockIndex);
     assert(blockElement, 'no block element');
-
     const deletedBlock = this.doc.deleteBlock(containerId, blockIndex);
-
     const container = getContainerById(this.editor, containerId);
 
     const blockClass = this.editor.editorBlocks.getBlockClass(deletedBlock.type);
@@ -150,20 +148,21 @@ export class EditorDoc {
       blockElement.remove();
 
       if (newRange) {
-        this.editor.selection.setSelection(newRange.anchor, newRange.focus);
+        this.editor.selection.setSelection(newRange.anchor, newRange.focus, { syncRender: false });
         return;
+      }
+
+      const curIndexBlock = this.editor.findBlockByIndex(containerId, blockIndex);
+      if (curIndexBlock) {
+        const curIndexBlockId = getBlockId(curIndexBlock);
+        const pos = new EditorBlockPosition(curIndexBlockId, 0);
+        this.editor.selection.setSelection(pos, pos, { syncRender: false });
       } else {
-        const curIndexBlock = this.editor.findBlockByIndex(containerId, blockIndex);
-        if (curIndexBlock) {
-          const curIndexBlockId = getBlockId(curIndexBlock);
-          const pos = new EditorBlockPosition(curIndexBlockId, 0);
-          this.editor.selection.setSelection(pos, pos);
-        } else {
-          const lastBlock = getLastBlock(container);
-          const lastBlockId = getBlockId(lastBlock);
-          const pos = new EditorBlockPosition(lastBlockId, 0);
-          this.editor.selection.setSelection(pos, pos);
-        }}
+        const lastBlock = getLastBlock(container);
+        const lastBlockId = getBlockId(lastBlock);
+        const pos = new EditorBlockPosition(lastBlockId, 0);
+        this.editor.selection.setSelection(pos, pos, { syncRender: false });
+      }
     }
 
     // 触发文档变化事件

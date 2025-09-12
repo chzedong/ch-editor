@@ -8,7 +8,7 @@ export function moveUp(editor: Editor) {
   const targetPos = findUpPosition(editor, focusPos);
 
   if (targetPos) {
-    editor.selection.setSelection(targetPos, targetPos, true);
+    editor.selection.setSelection(targetPos, targetPos, { isVerticalNavigation: true });
     // 使用智能滚动确保光标可见
     editor.scrollIntoView();
     return true;

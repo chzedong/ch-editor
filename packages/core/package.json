@@ -12,7 +12,8 @@
     "build": "npm run build:code && npm run build:pkg",
     "build:code": "vite build && tsc --emitDeclarationOnly",
     "build:pkg": "node scripts/build-package.js",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "ts:check": "tsc --noEmit"
   },
   "dependencies": {
     "@types/lodash-es": "^4.17.12",

@@ -43,7 +43,7 @@ export class Caret {
 
     const contentRect = this.editor.rootContainer.getBoundingClientRect();
 
-    requestAnimationFrame(() => {
+    this.editor.selection.scheduleDomOperation(() => {
       const x = rect.left - contentRect.left;
       const y = rect.top - contentRect.top;
       this.caret.style.left = `${x}px`;

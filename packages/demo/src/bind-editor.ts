@@ -23,23 +23,23 @@ const debugManager = initDebugTools();
 // 监听文档变化
 editor.editorDoc.hooks.register('docChange', () => {
   debugManager.updateDocInfo(editor.editorDoc.getDoc().doc);
-  // debugManager.updateLines(editor.doc.doc.blocks);
-  const blockId = editor.selection.range.start.blockId;
-  const block = editor.findBlockById(blockId)!;
-  const lineBreaker = new LineBreaker(block);
 
   requestIdleCallback(() => {
+    const blockId = editor.selection.range.start.blockId;
+    const block = editor.findBlockById(blockId)!;
+    const lineBreaker = new LineBreaker(block);
     debugManager.updateLines(lineBreaker.lines as TextLine[]);
   });
 
   localStorage.setItem('doc', JSON.stringify(editor.editorDoc.getDoc().doc));
 });
+
 editor.on('selectionChange', () => {
-  const blockId = editor.selection.range.start.blockId;
-  const block = editor.findBlockById(blockId)!;
-  const lineBreaker = new LineBreaker(block);
 
   requestIdleCallback(() => {
+    const blockId = editor.selection.range.start.blockId;
+    const block = editor.findBlockById(blockId)!;
+    const lineBreaker = new LineBreaker(block);
     debugManager.updateLines(lineBreaker.lines as TextLine[]);
   });
 });

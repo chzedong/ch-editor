@@ -51,7 +51,7 @@ export class RootContainer {
     this.dragStartPos = startPos;
 
     // 设置初始选区（光标位置）
-    this.editor.selection.setSelection(startPos, startPos, false, weakMap);
+    this.editor.selection.setSelection(startPos, startPos, { isVerticalNavigation: false, weakMap });
 
     // 阻止默认的文本选择行为
     e.preventDefault();
@@ -148,7 +148,7 @@ export class RootContainer {
     const endPos = new EditorBlockPosition(block.id, currentPos.offset, currentPos.type);
 
     // 更新选区
-    this.editor.selection.setSelection(this.dragStartPos, endPos, false, weakMap);
+    this.editor.selection.setSelection(this.dragStartPos, endPos, { isVerticalNavigation: false, weakMap });
   };
 
   handleMouseUp = (e: MouseEvent) => {

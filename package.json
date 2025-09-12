@@ -10,7 +10,8 @@
     "build:demo": "pnpm --filter @ch-editor/demo build",
     "serve": "pnpm --filter @ch-editor/demo serve",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
-    "lint:fix": "eslint . --report-unused-disable-directives --max-warnings 0 --fix"
+    "lint:fix": "eslint . --report-unused-disable-directives --max-warnings 0 --fix",
+    "ts:check": "pnpm --filter @ch-editor/core ts:check"
   },
   "packageManager": "pnpm@9.1.0",
   "devDependencies": {

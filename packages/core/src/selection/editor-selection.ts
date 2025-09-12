@@ -1,7 +1,7 @@
 import { Editor } from '../editor/editor';
 import { EditorSelectionRange, SelectionRangeSnapshot } from './selection-range';
 import { getRangeBlocks, updateSelection } from './selection-dom';
-import { getBlockId, getBlockType } from '../block/block-dom';
+import { getBlockId } from '../block/block-dom';
 import { Caret } from '../caret/caret-render';
 import { EditorBlockPosition, SimpleBlockPositionType } from './block-position';
 import { assert } from '../utils/assert';
@@ -16,6 +16,9 @@ export class EditorSelection {
   _range: EditorSelectionRange;
 
   _selectedBlocks: Set<string> = new Set();
+
+  private _rafId: number | null = null;
+  private _domOperations: (() => void)[] = [];
 
   constructor(private editor: Editor) {
     this.caret = new Caret(this.editor);
@@ -42,8 +45,11 @@ export class EditorSelection {
   setSelection(
     anchor: EditorBlockPosition,
     focus: EditorBlockPosition,
-    isVerticalNavigation?: boolean,
-    weakMap?: WeakMap<BlockElement, LineBreaker>
+    options?: {
+      isVerticalNavigation?: boolean;
+      weakMap?: WeakMap<BlockElement, LineBreaker>;
+      syncRender?: boolean;
+    }
   ) {
     if (!focus) {
       focus = anchor;
@@ -55,12 +61,18 @@ export class EditorSelection {
       return this._range;
     }
 
-    weakMap = weakMap || new WeakMap();
+    const isVerticalNavigation = options?.isVerticalNavigation;
+    const weakMap = options?.weakMap || new WeakMap();
+    const syncRender = options?.syncRender ?? true;
     // 更新选区状态
     this._range = newRange;
 
     // 执行渲染逻辑
-    this.renderSelection(isVerticalNavigation, weakMap);
+    if (syncRender) {
+      this.renderSelection(isVerticalNavigation, weakMap);
+    } else {
+      this.renderSelectionAsync(isVerticalNavigation);
+    }
 
     this.editor.emit('selectionChange');
     return this._range;
@@ -72,6 +84,37 @@ export class EditorSelection {
    * @param weakMap LineBreaker缓存
    */
   renderSelection(isVerticalNavigation?: boolean, weakMap?: WeakMap<BlockElement, LineBreaker>) {
+    this.performRenderSelection(isVerticalNavigation, weakMap);
+    // 批量执行收集到的DOM操作
+    this._domOperations.forEach(op => op());
+    this._domOperations = [];
+  }
+
+  /**
+   * 异步渲染选区相关的视觉效果
+   * @param isVerticalNavigation 是否为垂直导航
+   */
+  renderSelectionAsync(isVerticalNavigation?: boolean) {
+    if (this._rafId !== null) {
+      cancelAnimationFrame(this._rafId);
+    }
+
+    this._rafId = requestAnimationFrame(() => {
+      this._rafId = null;
+      // 执行渲染逻辑，此时所有DOM操作会被收集
+      this.performRenderSelection(isVerticalNavigation, new WeakMap());
+      // 批量执行收集到的DOM操作
+      this._domOperations.forEach(op => op());
+      this._domOperations = [];
+    });
+  }
+
+  /**
+   * 执行选区渲染的核心逻辑
+   * @param isVerticalNavigation 是否为垂直导航
+   * @param weakMap LineBreaker缓存（可选）
+   */
+  private performRenderSelection(isVerticalNavigation?: boolean, weakMap?: WeakMap<BlockElement, LineBreaker>) {
     // 更新光标位置
     this.caret.update(weakMap);
 
@@ -83,6 +126,18 @@ export class EditorSelection {
     // 更新选区渲染
     updateSelection(this.editor, weakMap);
 
+    // 处理选中块的背景清理
+    this.updateSelectedBlocksBackground();
+
+    // 只在非垂直导航时自动聚焦和滚动
+    // 垂直导航的滚动由具体的 action 控制
+    this.editor.focus(!isVerticalNavigation, weakMap);
+  }
+
+  /**
+   * 更新选中块的背景状态
+   */
+  private updateSelectedBlocksBackground() {
     const oldSelectBlocks = [...this._selectedBlocks];
     // 清理旧的选区背景
     this._selectedBlocks.clear();
@@ -94,16 +149,12 @@ export class EditorSelection {
     const outerBlocks = oldSelectBlocks.filter((item) => {
       return !selectBlocks.includes(item);
     });
-    requestAnimationFrame(() => {
+    this.scheduleDomOperation(() => {
       outerBlocks.forEach((blockId) => {
         const block = this.editor.findBlockById(blockId);
         block && removeBackgrounds(block);
       });
     });
-
-    // 只在非垂直导航时自动聚焦和滚动
-    // 垂直导航的滚动由具体的 action 控制
-    this.editor.focus(!isVerticalNavigation, weakMap);
   }
 
   getSelectedBlocks() {
@@ -195,5 +246,25 @@ export class EditorSelection {
         type: getPositionType(focus)
       }
     };
+  }
+
+  /**
+   * 调度DOM操作，如果当前处于异步渲染模式则收集操作，否则立即执行
+   * @param operation DOM操作函数
+   */
+  scheduleDomOperation(operation: () => void) {
+    this._domOperations.push(operation);
+  }
+
+  /**
+   * 清理资源，取消未完成的异步渲染任务
+   */
+  destroy() {
+    if (this._rafId !== null) {
+      cancelAnimationFrame(this._rafId);
+      this._rafId = null;
+    }
+    this._domOperations = [];
+    this._selectedBlocks.clear();
   }
 }
