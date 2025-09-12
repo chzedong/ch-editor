@@ -1,7 +1,6 @@
 import { Editor } from '../editor/editor';
 import { getBlockContent, getBlockId, getBlockType } from '../block/block-dom';
 import { updateBlockContent } from './text-block-render';
-import { getTextBlockContentChildTextLength } from './text-dom';
 import { updateSelection } from './text-selection-render';
 import { EditorBlockPosition } from '../selection/block-position';
 import { patchNode } from '../utils/patch-node';
@@ -10,7 +9,7 @@ import { createElement } from '../utils/dom';
 
 import { Block, BlockElement, BlockPath, DocBlock, DocBlockText } from '../index.type';
 import { assertLineBreaker, getPositionFromPoint, LineBreaker } from './line/text-line';
-import { getTextBlockContentChildren } from './text-dom';
+import { getDocTextLength } from './text-op';
 
 function createBlockContent(editor: Editor, path: BlockPath, container: Element, blockElement: Element, blockData: DocBlock) {
   const content = createElement('div', [], null);
@@ -31,12 +30,9 @@ function updateBlockText(editor: Editor, block: BlockElement, text: DocBlockText
   patchNode(oldContent, newBlockContent);
 }
 
-function getBlockTextLength(block: BlockElement) {
-  const children = getTextBlockContentChildren(block);
-  let count = 0;
-  children.forEach((child) => {
-    count += getTextBlockContentChildTextLength(child);
-  });
+function getBlockTextLength(block: DocBlock) {
+  assert(block.text, 'no text');
+  const count = getDocTextLength(block.text);
 
   return count;
 }

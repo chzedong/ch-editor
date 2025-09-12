@@ -21,7 +21,7 @@ editor.focus();
 // 初始化调试工具
 const debugManager = initDebugTools();
 // 监听文档变化
-editor.on('docChange', () => {
+editor.editorDoc.hooks.register('docChange', () => {
   debugManager.updateDocInfo(editor.editorDoc.getDoc().doc);
   // debugManager.updateLines(editor.doc.doc.blocks);
   const blockId = editor.selection.range.start.blockId;

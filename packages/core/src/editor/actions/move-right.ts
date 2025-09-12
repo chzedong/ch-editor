@@ -10,7 +10,7 @@ export function moveRight(editor: Editor) {
   const focusPos = range.focus;
   const block = editor.getBlockById(focusPos.blockId);
   const blockClass = editor.editorBlocks.getBlockClass(getBlockType(block));
-  const blockLen = blockClass.getBlockTextLength(block);
+  const blockLen = blockClass.getBlockTextLength(editor.getBlockData(block));
 
   if (!range.isCollapsed()) {
     editor.selection.setSelection(range.end, range.end);

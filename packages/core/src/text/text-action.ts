@@ -14,7 +14,7 @@ export const deleteText = (editor: Editor, block: BlockElement, from: number, to
 
   const blockData = editor.getBlockData(block);
   const blockClass = editor.editorBlocks.getBlockClass(blockData.type);
-  const blockLen = blockClass.getBlockTextLength(block);
+  const blockLen = blockClass.getBlockTextLength(blockData);
   assert(to <= blockLen, 'to must <= blockLen');
 
   const container = getParentContainer(block);

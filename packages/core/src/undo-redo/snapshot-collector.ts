@@ -1,5 +1,5 @@
 import { LifecycleHooks, BeforeUpdateBlockContext, BeforeInsertBlockContext, BeforeDeleteBlockContext, BeforeInsertBoxContext, BeforeDeleteBoxContext, DocChangeContext } from '../doc/hooks';
-import { EditorSelectionRange, SelectionRangeSnapshot } from '../selection/selection-range';
+import { SelectionRangeSnapshot } from '../selection/selection-range';
 import { Editor } from '../main';
 import { DocBlock } from '../index.type';
 import { cloneDeep } from 'lodash-es';

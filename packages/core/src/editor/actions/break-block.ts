@@ -25,7 +25,7 @@ const breakCollapsedBlock = (editor: Editor) => {
   const containerId = getContainerId(getParentContainer(block));
   const blockIndex = getBlockIndex(block);
   const blockClass = editor.editorBlocks.getBlockClass(blockData.type);
-  const blockLen = blockClass.getBlockTextLength(block);
+  const blockLen = blockClass.getBlockTextLength(blockData);
 
   if (blockLen - offset > 0) {
     deleteText(editor, block, offset, blockLen);

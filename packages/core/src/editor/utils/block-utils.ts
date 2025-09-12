@@ -125,7 +125,7 @@ export function deleteEmptyBlock(editor: Editor, block: BlockElement) {
   const prevBlock = editor.findBlockByIndex(containerId, blockIndex - 1);
   if (prevBlock) {
     const blockClass = editor.editorBlocks.getBlockClass(getBlockType(prevBlock));
-    const blockLen = blockClass.getBlockTextLength(prevBlock);
+    const blockLen = blockClass.getBlockTextLength(editor.getBlockData(prevBlock));
     const pos = new EditorBlockPosition(getBlockId(prevBlock), blockLen);
     editor.deleteBlock(block, new EditorSelectionRange(editor, { anchor: pos, focus: pos }));
     return true;

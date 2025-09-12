@@ -53,6 +53,14 @@ export class EditorDoc {
     return this.doc.getBlockData(containerId, blockIndex);
   }
 
+  forEachContainer(callback: (containerId: string) => void) {
+    this.doc.forEachContainer(callback);
+  }
+
+  forEachBlock(callback: (containerId: string, blockIndex: number, blockData: DocBlock) => void) {
+    this.doc.forEachBlock(callback);
+  }
+
   localUpdateBlockText(containerId: string, blockIndex: number, actions: DocBlockTextActions) {
     // 触发before钩子
     this.hooks.trigger('beforeUpdateBlock', {

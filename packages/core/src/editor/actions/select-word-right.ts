@@ -11,7 +11,7 @@ export function selectWordRight(editor: Editor) {
   const focusPos = editor.selection.range.focus;
   const block = editor.getBlockById(focusPos.blockId);
   const blockClass = editor.editorBlocks.getBlockClass(getBlockType(block));
-  const blockLen = blockClass.getBlockTextLength(block);
+  const blockLen = blockClass.getBlockTextLength(editor.getBlockData(block));
   assert(focusPos.offset <= blockLen, 'focusPos.offset not <= blockLen');
   const blockData = editor.getBlockData(block);
   assert(isTextKindBlock(editor, block), 'not text kind block');
@@ -33,7 +33,7 @@ export function selectWordRight(editor: Editor) {
 
     const nextBlockData = editor.getBlockData(nextBlock);
     const nextBlockClass = editor.editorBlocks.getBlockClass(getBlockType(nextBlock));
-    const nextBlockLen = nextBlockClass.getBlockTextLength(nextBlock);
+    const nextBlockLen = nextBlockClass.getBlockTextLength(nextBlockData);
     const offset = editorGetNextWordEnd(nextBlockData.text as DocBlockText, 0, nextBlockLen);
     const newFocusPos = new EditorBlockPosition(getBlockId(nextBlock), offset === -1 ? nextBlockLen : offset);
     editor.selection.setSelection(editor.selection.range.anchor, newFocusPos);

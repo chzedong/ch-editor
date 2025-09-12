@@ -10,7 +10,7 @@ export function moveLeft(editor: Editor) {
   const focusPos = range.focus;
   const block = editor.getBlockById(focusPos.blockId);
   const blockClass = editor.editorBlocks.getBlockClass(getBlockType(block));
-  const blockLen = blockClass.getBlockTextLength(block);
+  const blockLen = blockClass.getBlockTextLength(editor.getBlockData(block));
   assert(focusPos.offset <= blockLen, 'focusPos.offset not <= blockLen');
 
   if (!range.isCollapsed()) {
@@ -31,7 +31,7 @@ export function moveLeft(editor: Editor) {
       assert(isBlock(prevBlock), 'no next block');
 
       const prevBlockClass = editor.editorBlocks.getBlockClass(getBlockType(prevBlock));
-      const prevBlockLen = prevBlockClass.getBlockTextLength(prevBlock);
+      const prevBlockLen = prevBlockClass.getBlockTextLength(editor.getBlockData(prevBlock));
       const newFocusPos = new EditorBlockPosition(getBlockId(prevBlock), prevBlockLen);
       editor.selection.setSelection(newFocusPos, newFocusPos);
       return true;

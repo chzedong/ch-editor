@@ -66,7 +66,7 @@ export class EditorInput {
     const block = this.editor.getBlockById(blockId);
 
     this.editor.editorBlocks.forceRenderBlock(block);
-    this.editor.selection.renderSelection(this.editor.selection.getSelectedBlocks(), false, new WeakMap());
+    this.editor.selection.renderSelection(false, new WeakMap());
   };
 
   handleCompositionEnd = (event: CompositionEvent) => {

@@ -19,6 +19,7 @@ import { assert } from '../utils/assert';
 import { scrollIntoView } from '../utils/scroll-into-view';
 
 import { BlockElement, BoxData, ContainerElement, DocBlock, EditorOptions } from '../index.type';
+import { SnapshotCollector } from '../undo-redo';
 
 export class Editor extends TypedEmitter<any> {
   parent: HTMLElement;
@@ -70,6 +71,7 @@ export class Editor extends TypedEmitter<any> {
     this.input.addHandler(shortcuts);
     shortcuts.shortcuts = [defaultShortcuts];
 
+    this.undomanager = new SnapshotCollector(this, this.editorDoc.hooks);
   }
 
   focus(autoScroll: boolean = true, weakMap?: WeakMap<BlockElement, LineBreaker>) {
@@ -133,7 +135,7 @@ export class Editor extends TypedEmitter<any> {
   getBlockTextLength(blockElement: BlockElement) {
     const blockData = this.getBlockData(blockElement);
     const blockClass = this.editorBlocks.getBlockClass(blockData.type);
-    return blockClass.getBlockTextLength(blockElement);
+    return blockClass.getBlockTextLength(blockData);
   }
 
   insertBlock(containerId: string, index: number, blockData: DocBlock) {

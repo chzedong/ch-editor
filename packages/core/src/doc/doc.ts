@@ -48,6 +48,40 @@ export class Doc {
     return blockData;
   }
 
+  forEachContainer(callback: (containerId: string) => boolean | void): boolean {
+    const result = callback('root');
+    // 如果callback返回false，则停止遍历
+    return result !== false;
+  }
+
+  forEachBlock(callback: (containerId: string, blockIndex: number, blockData: DocBlock) => boolean | void): boolean {
+    let shouldContinue = true;
+
+    this.forEachContainer((containerId) => {
+      if (!shouldContinue) {
+        return false; // 熔断：停止容器遍历
+      }
+
+      const blocks = this.getContainerBlocks(containerId);
+
+      // 使用传统for循环以支持提前退出
+      for (let blockIndex = 0; blockIndex < blocks.length; blockIndex++) {
+        const blockData = blocks[blockIndex];
+        const result = callback(containerId, blockIndex, blockData);
+
+        // 如果callback返回false，则停止遍历
+        if (result === false) {
+          shouldContinue = false;
+          break;
+        }
+      }
+
+      return shouldContinue;
+    });
+
+    return shouldContinue;
+  }
+
   updateBlockText(containerId: string, blockIndex: number, actions: DocBlockTextActions) {
     const blockData = this.getBlockData(containerId, blockIndex);
     assert(blockData.text, 'no text');

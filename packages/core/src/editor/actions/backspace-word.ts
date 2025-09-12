@@ -26,7 +26,7 @@ export function backspaceWord(editor: Editor) {
   assert(blockData.text, 'not has text');
   const preOffset = editorGetPreWordStart(blockData.text, focusPos.offset);
 
-  const blockLen = blockClass.getBlockTextLength(block);
+  const blockLen = blockClass.getBlockTextLength(blockData);
   assert(focusPos.offset <= blockLen, 'focusPos.offset not <= blockLen');
 
   deleteText(editor, block, preOffset, focusPos.offset);

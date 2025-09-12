@@ -11,7 +11,7 @@ export function selectWordLeft(editor: Editor) {
   const focusPos = editor.selection.range.focus;
   const block = editor.getBlockById(focusPos.blockId);
   const blockClass = editor.editorBlocks.getBlockClass(getBlockType(block));
-  const blockLen = blockClass.getBlockTextLength(block);
+  const blockLen = blockClass.getBlockTextLength(editor.getBlockData(block));
   assert(focusPos.offset <= blockLen, 'focusPos.offset not <= blockLen');
   const blockData = editor.getBlockData(block);
   assert(isTextKindBlock(editor, block), 'not text kind block');
@@ -37,7 +37,7 @@ export function selectWordLeft(editor: Editor) {
     const prevBlockClass = editor.editorBlocks.getBlockClass(
       getBlockType(prevBlock)
     );
-    const prevBlockLen = prevBlockClass.getBlockTextLength(prevBlock);
+    const prevBlockLen = prevBlockClass.getBlockTextLength(editor.getBlockData(prevBlock));
     const prevBlockData = editor.getBlockData(prevBlock);
     const offset = editorGetPreWordStart(prevBlockData.text as DocBlockText, prevBlockLen);
     const newFocusPos = new EditorBlockPosition(

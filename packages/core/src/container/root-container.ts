@@ -77,7 +77,7 @@ export class RootContainer {
 
     // 获取块的文本数据
     const blockData = this.editor.getBlockData(block);
-    const blockLen = blockClass.getBlockTextLength(block);
+    const blockLen = blockClass.getBlockTextLength(blockData);
     const currentOffset = pos.offset;
 
     assert(blockData.text, 'no text');

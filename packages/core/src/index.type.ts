@@ -58,7 +58,7 @@ export interface Block {
 
   setBlockText: (editor: Editor, block: BlockElement, text: DocBlockText) => void;
 
-  getBlockTextLength: (block: BlockElement) => number;
+  getBlockTextLength: (block: DocBlock) => number;
 
   getRangeFormPoint: (editor: Editor, block: BlockElement, x: number, y: number, lineBreaker?: LineBreaker) => EditorBlockPosition;
   getCursorRect: (editor: Editor, block: BlockElement, position: EditorBlockPosition, lineBreaker?: LineBreaker) => DOMRect;
