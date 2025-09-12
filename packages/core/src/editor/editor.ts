@@ -1,4 +1,3 @@
-import 'events';
 import { TypedEmitter } from 'tiny-typed-emitter';
 import EditorBlocks from '../block/editor-blocks';
 import { EditorBoxes } from '../box/editor-boxes';
@@ -14,12 +13,12 @@ import { defaultShortcuts } from '../shortcuts/default-shortcuts';
 import { getBlockIndex, getFirstBlock } from '../block/block-dom';
 import { EditorSelectionRange } from '../selection/selection-range';
 import { MarkManager, getBuiltInMarks } from '../mark';
-import { DecoratorManager, SearchHighlightDecorator, CompositionWidgetDecorator } from '../decorator';
+import { DecoratorManager, CompositionWidgetDecorator } from '../decorator';
 import { assert } from '../utils/assert';
 import { scrollIntoView } from '../utils/scroll-into-view';
 
 import { BlockElement, BoxData, ContainerElement, DocBlock, EditorOptions } from '../index.type';
-import { SnapshotCollector } from '../undo-redo';
+import { UndoManager } from '../undo-redo/undo-manager';
 
 export class Editor extends TypedEmitter<any> {
   parent: HTMLElement;
@@ -41,6 +40,8 @@ export class Editor extends TypedEmitter<any> {
   markManager: MarkManager;
 
   decoratorManager: DecoratorManager;
+
+  undoManager: UndoManager;
 
   // 上下键导航的目标列位置状态
   private _targetColumnX: number | null = null;
@@ -71,7 +72,7 @@ export class Editor extends TypedEmitter<any> {
     this.input.addHandler(shortcuts);
     shortcuts.shortcuts = [defaultShortcuts];
 
-    this.undomanager = new SnapshotCollector(this, this.editorDoc.hooks);
+    this.undoManager = new UndoManager(this);
   }
 
   focus(autoScroll: boolean = true, weakMap?: WeakMap<BlockElement, LineBreaker>) {
@@ -213,5 +214,45 @@ export class Editor extends TypedEmitter<any> {
     const containerId = getContainerId(container);
 
     this.editorDoc.localDeleteBox(containerId, blockIndex, pos.offset);
+  }
+
+  /**
+   * 执行undo操作
+   * @returns 是否成功执行
+   */
+  undo(): boolean {
+    return this.undoManager.undo();
+  }
+
+  /**
+   * 执行redo操作
+   * @returns 是否成功执行
+   */
+  redo(): boolean {
+    return this.undoManager.redo();
+  }
+
+  /**
+   * 检查是否可以undo
+   * @returns 是否可以undo
+   */
+  canUndo(): boolean {
+    return this.undoManager.canUndo();
+  }
+
+  /**
+   * 检查是否可以redo
+   * @returns 是否可以redo
+   */
+  canRedo(): boolean {
+    return this.undoManager.canRedo();
+  }
+
+  /**
+   * 获取undo/redo状态
+   * @returns 当前状态信息
+   */
+  getUndoRedoState() {
+    return this.undoManager.getState();
   }
 }

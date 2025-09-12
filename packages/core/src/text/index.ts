@@ -14,7 +14,8 @@ export {
   isEmptyBlockText,
   getTextAttributes,
   splitText,
-  isTextBlock
+  isTextBlock,
+  transformTextBlockToActions
 } from './text-op';
 
 // 文本动作和编辑

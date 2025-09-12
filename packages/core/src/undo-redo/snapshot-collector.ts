@@ -1,8 +1,24 @@
-import { LifecycleHooks, BeforeUpdateBlockContext, BeforeInsertBlockContext, BeforeDeleteBlockContext, BeforeInsertBoxContext, BeforeDeleteBoxContext, DocChangeContext } from '../doc/hooks';
-import { SelectionRangeSnapshot } from '../selection/selection-range';
-import { Editor } from '../main';
-import { DocBlock } from '../index.type';
+import { TypedEmitter } from 'tiny-typed-emitter';
 import { cloneDeep } from 'lodash-es';
+import {
+  LifecycleHooks,
+  BeforeUpdateBlockContext,
+  BeforeInsertBlockContext,
+  BeforeDeleteBlockContext,
+  BeforeInsertBoxContext,
+  BeforeDeleteBoxContext,
+  DocChangeContext
+} from '../doc/hooks';
+import { SelectionRangeSnapshot } from '../selection/selection-range';
+import { Editor } from '../editor/editor';
+import { DocBlock } from '../index.type';
+
+/**
+ * SnapshotCollector事件接口
+ */
+interface SnapshotCollectorEvents {
+  snapshot: (snapshot: OperationSnapshot) => void;
+}
 
 // 操作快照接口
 export interface OperationSnapshot {
@@ -17,13 +33,14 @@ export interface OperationSnapshot {
 }
 
 // 快照收集器类
-export class SnapshotCollector {
+export class SnapshotCollector extends TypedEmitter<SnapshotCollectorEvents> {
   private operationSnapshots: OperationSnapshot[] = [];
   private maxSnapshotCount: number = 100;
   private currentOperation: Partial<OperationSnapshot> | null = null;
   private unregisterCallbacks: (() => void)[] = [];
 
   constructor(private editor: Editor, private hooks: LifecycleHooks) {
+    super();
     this.registerHooks();
   }
 
@@ -119,6 +136,9 @@ export class SnapshotCollector {
       this.operationSnapshots.shift();
     }
 
+    // 发布快照事件
+    this.emit('snapshot', snapshot);
+
     // 清空当前操作
     this.currentOperation = null;
   }
@@ -127,7 +147,7 @@ export class SnapshotCollector {
    * 销毁收集器，取消所有钩子注册
    */
   destroy(): void {
-    this.unregisterCallbacks.forEach(unregister => unregister());
+    this.unregisterCallbacks.forEach((unregister) => unregister());
     this.unregisterCallbacks = [];
     this.operationSnapshots = [];
     this.currentOperation = null;

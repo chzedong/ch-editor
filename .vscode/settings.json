@@ -1,5 +1,5 @@
 {
-  "editor.formatOnSave": true,
+  "editor.formatOnSave": false,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
@@ -7,11 +7,12 @@
     "javascript",
     "typescript"
   ],
-  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
-  "[typescript]": {
+  "[javascript]": {
+    "editor.formatOnSave": true,
     "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   },
-  "[javascript]": {
+  "[typescript]": {
+    "editor.formatOnSave": true,
     "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   },
   "[scss]": {

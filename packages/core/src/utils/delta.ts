@@ -16,6 +16,10 @@ export class RichText {
   static transformCursor(cursor: number, ops: DocBlockTextActions) {
     return new Delta(ops).transformPosition(cursor);
   }
+
+  static diff(text: DocBlockText, newText: DocBlockText) {
+    return new Delta(text).diff(new Delta(newText));
+  }
 }
 
 // TODO: 测试

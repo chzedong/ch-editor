@@ -56,7 +56,7 @@ export function isTextOp(op: DocBlockTextOp) {
 /**
  * 判断是否为文本操作数组
  */
-export function isTextBlock(block: DocBlock): block is DocBlock & { text: DocBlockTextOp[]} {
+export function isTextBlock(block: DocBlock): block is DocBlock & { text: DocBlockTextOp[] } {
   return block.text !== undefined && Array.isArray(block.text) && block.text.every((op) => isTextOp(op) || isBoxOp(op));
 }
 
@@ -105,7 +105,8 @@ export function getDocTextLength(ops: DocBlockText) {
     }
   });
   return count;
-} export const isEmptyBlockText = (blockText: DocBlockText) => {
+}
+export const isEmptyBlockText = (blockText: DocBlockText) => {
   return !blockText.length || (blockText.length === 1 && !blockText[0].insert);
 };
 
@@ -135,3 +136,19 @@ export function getTextAttributes(editor: Editor, containerId: string, blockInde
   return lastOp.attributes;
 }
 
+export function transformTextBlockToActions(text: DocBlockText): DocBlockTextActions {
+  const actions: DocBlockTextActions = [{ retain: 0 }];
+
+  text.forEach((op) => {
+    if (isTextOp(op)) {
+
+      const action: DocBlockTextActionOp = { insert: op.insert };
+      if (op.attributes) {
+        action.attributes = op.attributes;
+      }
+      actions.push(action);
+    }
+  });
+
+  return actions;
+}

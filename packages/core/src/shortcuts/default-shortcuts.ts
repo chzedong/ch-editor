@@ -13,6 +13,7 @@ import { selectUp } from '../editor/actions/select-up';
 import { selectDown } from '../editor/actions/select-down';
 import { selectWordLeft } from '../editor/actions/select-word-left';
 import { selectWordRight } from '../editor/actions/select-word-right';
+import { redo, undo } from '../editor/actions/undo-redo';
 
 export const defaultShortcuts = {
   ArrowRight: moveRight,
@@ -29,5 +30,9 @@ export const defaultShortcuts = {
   'CMDORCTRL+SHIFT+ArrowRight': selectWordRight,
   Backspace: backspace,
   'CMDORCTRL+Backspace': backspaceWord,
-  Enter: breakBlock
+  Enter: breakBlock,
+  // undo redo
+  'CMDORCTRL+Z': undo,
+  'CMDORCTRL+Y': redo,
+  'CMDORCTRL+SHIFT+Z': redo
 };
