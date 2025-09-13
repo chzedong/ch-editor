@@ -1,7 +1,9 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "strictPropertyInitialization": false
+    "strictPropertyInitialization": false,
+    "jsxImportSource": "solid-js",
+    "types": ["vite/client"]
   },
   "include": [
     "src/**/*"

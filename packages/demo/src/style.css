@@ -9,23 +9,68 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
-  background: #fafafa;
   color: #333;
   box-sizing: border-box;
+}
+
+/* 主编辑器容器 */
+#app {
+  height: 100vh;
+}
+
+/* App容器布局 */
+.app-container {
+  display: flex;
+  height: 100%;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* Debug切换按钮 */
+.debug-toggle-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: #007acc;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* 主编辑器容器 */
-#app {
-  /* width: calc(100vw - 320px); */
-  width: 1000px;
-  min-height: 100vh;
-  padding: 1rem 4rem;
-  background: white;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
-  position: relative;
+.debug-toggle-btn:hover {
+  background: #005a9e;
+  transform: scale(1.1);
+}
+
+/* 主内容区域 */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 16px;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+/* Debug侧边栏 */
+.debug-sidebar {
+  width: 400px;
+  flex-shrink: 0;
+  border-left: 1px solid #3e3e42;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
 }
 
 /* 工具栏样式 */
@@ -37,7 +82,6 @@ body {
   background: #f8f9fa;
   border: 1px solid #e9ecef;
   border-radius: 6px;
-  margin-bottom: 16px;
   flex-wrap: wrap;
 }
 
@@ -122,39 +166,14 @@ body {
 
 /* 编辑器容器样式 */
 #editor {
-  border: 1px solid #dee2e6;
+  flex: 1;
+  min-height: 0;
+  border: 1px solid #2e2f30;
   border-radius: 6px;
-  height: 1100px;
   text-align: left;
   background: white;
   overflow-y: auto;
   overflow-x: hidden;
-}
-
-/* 调试信息样式 */
-#debug {
-  text-align: left;
-  background: #f8f9fa;
-  padding: 16px;
-  border-radius: 6px;
-  border: 1px solid #e9ecef;
-}
-
-#debug h3 {
-  margin-top: 0;
-  margin-bottom: 12px;
-  color: #495057;
-}
-
-#doc-info,
-#selection-info {
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
-  background: white;
-  padding: 8px;
-  border-radius: 4px;
-  margin-bottom: 8px;
-  border: 1px solid #dee2e6;
-  white-space: pre-wrap;
-  overflow-x: auto;
+  margin-left: 40px;
+  margin-right: 40px;
 }

@@ -1,0 +1,365 @@
+/* Debug组件通用样式 */
+.debug-component {
+  background: #1e1e1e;
+  border: 1px solid #3e3e42;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.debug-component-title {
+  background: #2d2d30;
+  color: #cccccc;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  border-bottom: 1px solid #3e3e42;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.debug-component-toolbar {
+  background: #252526;
+  padding: 8px 12px;
+  border-bottom: 1px solid #3e3e42;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.debug-component-content {
+  padding: 12px;
+  color: #d4d4d4;
+  font-size: 12px;
+  line-height: 1.4;
+  min-height: 0;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* 按钮样式 */
+.debug-button {
+  padding: 4px 8px;
+  border: 1px solid #3e3e42;
+  border-radius: 3px;
+  background: #2d2d30;
+  color: #cccccc;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.debug-button:hover {
+  background: #3e3e42;
+  border-color: #007acc;
+}
+
+.debug-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.debug-button-primary {
+  background: #007acc;
+  border-color: #007acc;
+  color: white;
+}
+
+.debug-button-primary:hover {
+  background: #005a9e;
+  border-color: #005a9e;
+}
+
+.debug-button-success {
+  background: #4CAF50;
+  border-color: #4CAF50;
+  color: white;
+}
+
+.debug-button-success:hover {
+  background: #45a049;
+  border-color: #45a049;
+}
+
+.debug-button-secondary {
+  background: #6c757d;
+  border-color: #6c757d;
+  color: white;
+}
+
+.debug-button-secondary:hover {
+  background: #5a6268;
+  border-color: #5a6268;
+}
+
+/* 统计信息样式 */
+.debug-stats {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: #cccccc;
+}
+
+.debug-stats span {
+  padding: 2px 6px;
+  background: #3e3e42;
+  border-radius: 2px;
+}
+
+/* 空状态样式 */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #888;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-text {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #cccccc;
+}
+
+.empty-hint {
+  font-size: 12px;
+  color: #888;
+  line-height: 1.4;
+}
+
+/* Tab样式 */
+.debug-tabs {
+  display: flex;
+  background: #252526;
+  border-bottom: 1px solid #3e3e42;
+}
+
+.debug-tab {
+  padding: 8px 16px;
+  background: transparent;
+  border: none;
+  color: #cccccc;
+  font-size: 12px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.debug-tab:hover {
+  background: #2d2d30;
+  color: #ffffff;
+}
+
+.debug-tab.active {
+  color: #007acc;
+  border-bottom-color: #007acc;
+  background: #1e1e1e;
+}
+
+/* DocInfo组件特定样式 */
+.doc-structure-info {
+  margin-bottom: 16px;
+}
+
+.doc-structure-info h4 {
+  margin: 0 0 8px 0;
+  color: #cccccc;
+  font-size: 13px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 8px;
+  background: #2d2d30;
+  border-radius: 3px;
+}
+
+.info-label {
+  color: #888;
+  font-size: 11px;
+}
+
+.info-value {
+  color: #cccccc;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.doc-raw-data {
+  margin-top: 16px;
+}
+
+.collapsible-header {
+  margin: 0 0 8px 0;
+  color: #cccccc;
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.collapsible-header:hover {
+  color: #007acc;
+}
+
+.json-display {
+  background: #0d1117;
+  border: 1px solid #3e3e42;
+  border-radius: 3px;
+  padding: 8px;
+  margin: 0;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 10px;
+  line-height: 1.4;
+  color: #d4d4d4;
+  overflow-x: auto;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.error-message {
+  color: #f85149;
+  font-size: 11px;
+  padding: 8px;
+  background: rgba(248, 81, 73, 0.1);
+  border: 1px solid rgba(248, 81, 73, 0.3);
+  border-radius: 3px;
+}
+
+/* LineModel可视化样式 */
+.line-stats {
+  font-size: 11px;
+  color: #cccccc;
+  padding: 2px 6px;
+  background: #3e3e42;
+  border-radius: 2px;
+}
+
+
+
+.debug-scroll-container {
+  flex: 1;
+  overflow-y: auto;
+  background: #1e1e1e;
+  border: 1px solid #3e3e42;
+  border-radius: 3px;
+  padding: 8px;
+}
+
+.debug-canvas {
+  display: block;
+  cursor: pointer;
+  width: 100%;
+  height: auto;
+  border-radius: 3px;
+}
+
+/* BlockRect可视化样式 */
+.block-rect-canvas-container {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  background: #1e1e1e;
+  border: 1px solid #3e3e42;
+  border-radius: 3px;
+  padding: 8px;
+}
+
+/* 高亮覆盖层样式 */
+.line-model-highlight-overlay {
+  position: fixed;
+  border: 2px solid #ff6b6b;
+  background: rgba(255, 107, 107, 0.1);
+  pointer-events: none;
+  z-index: 9999;
+  box-sizing: border-box;
+}
+
+.line-model-highlight-label {
+  position: absolute;
+  top: -25px;
+  left: 0;
+  background: #ff6b6b;
+  color: white;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-family: monospace;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+/* 滚动条样式 */
+.debug-component-content::-webkit-scrollbar,
+.json-display::-webkit-scrollbar {
+  width: 8px;
+}
+
+.debug-component-content::-webkit-scrollbar-track,
+.json-display::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.debug-component-content::-webkit-scrollbar-thumb,
+.json-display::-webkit-scrollbar-thumb {
+  background: #3e3e42;
+  border-radius: 4px;
+}
+
+.debug-component-content::-webkit-scrollbar-thumb:hover,
+.json-display::-webkit-scrollbar-thumb:hover {
+  background: #4e4e52;
+}
+
+.block-rect-canvas {
+  display: block;
+  cursor: pointer;
+  width: 100%;
+  height: auto;
+  border-radius: 3px;
+  max-width: 100%;
+}
+
+/* 高亮覆盖层样式 - Block */
+.block-rect-highlight-overlay {
+  position: fixed;
+  background: rgba(255, 107, 107, 0.3);
+  border: 2px solid #ff6b6b;
+  pointer-events: none;
+  z-index: 10000;
+  box-sizing: border-box;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .debug-component-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .debug-stats {
+    justify-content: center;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+}

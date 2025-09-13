@@ -1,0 +1,73 @@
+
+/* 调试面板主容器 */
+.debug-panel {
+  height: 100%;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* 调试面板标题栏 */
+.debug-panel-header {
+  padding: 15px;
+  background: #252526;
+  border-bottom: 1px solid #3e3e42;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* Tab容器 */
+.debug-tab-container {
+  display: flex;
+  background: #2d2d30;
+  border-bottom: 1px solid #3e3e42;
+  overflow-x: auto;
+}
+
+/* Tab按钮 */
+.debug-tab {
+  padding: 10px 15px;
+  background: transparent;
+  border: none;
+  color: #cccccc;
+  cursor: pointer;
+  font-size: 12px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+}
+
+.debug-tab:hover {
+  background: #37373d;
+  color: #ffffff;
+}
+
+.debug-tab.active {
+  background: #1e1e1e;
+  color: #007acc;
+  border-bottom-color: #007acc;
+}
+
+/* Tab内容容器 */
+.debug-content-container {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 深色主题变量 */
+:root {
+  --debug-bg-primary: #1e1e1e;
+  --debug-bg-secondary: #252526;
+  --debug-bg-tertiary: #2d2d30;
+  --debug-border: #3e3e42;
+  --debug-text-primary: #d4d4d4;
+  --debug-text-secondary: #cccccc;
+  --debug-text-muted: #888888;
+  --debug-accent: #007acc;
+  --debug-accent-hover: #005a9e;
+  --debug-highlight: #ff6b6b;
+  --debug-success: #4CAF50;
+}

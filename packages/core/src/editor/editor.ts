@@ -150,6 +150,10 @@ export class Editor extends TypedEmitter<any> {
     this.editorDoc.localDeleteBlock(containerId, blockIndex, newRange);
   }
 
+  getChildBlocks(container: ContainerElement) {
+    return getChildBlocks(container);
+  }
+
   /**
    * 获取目标列位置的X坐标
    */
