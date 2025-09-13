@@ -31,18 +31,18 @@ export const DebugPanel: Component<DebugPanelProps> = (props) => {
     {
       id: 'line-model',
       label: 'Line模型',
-      component: () => <LineModelVisualizer lines={lines} />,
+      component: () => <LineModelVisualizer lines={lines} />
     },
     {
       id: 'block-rect',
       label: 'Block矩形',
-      component: () => <BlockRectVisualizer blocks={blocks} />,
+      component: () => <BlockRectVisualizer blocks={blocks} />
     },
     {
       id: 'doc-info',
       label: 'Doc信息',
-      component: () => <DocInfoPanel docInfo={docInfo} />,
-    },
+      component: () => <DocInfoPanel docInfo={docInfo} />
+    }
   ];
 
   const updateDebugInfo = () => {
@@ -50,7 +50,7 @@ export const DebugPanel: Component<DebugPanelProps> = (props) => {
     if (!editor) {
       return;
     }
-      // 防抖处理，避免频繁更新
+    // 防抖处理，避免频繁更新
     if (updateTimer) {
       cancelIdleCallback(updateTimer);
     }
@@ -86,7 +86,7 @@ export const DebugPanel: Component<DebugPanelProps> = (props) => {
   });
 
   return (
-    <div class={`debug-panel`}>
+    <div class={'debug-panel'}>
       {/* 标题栏 */}
       <div class="debug-panel-header">
         <span>CH Editor 调试面板</span>

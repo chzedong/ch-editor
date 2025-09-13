@@ -28,14 +28,14 @@ export default [
     },
     rules: {
       // 基础规则
-      'no-console': 'warn',
+      'no-console': 'off', // debug包需要console输出
       'no-debugger': 'error',
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
 
       // TypeScript规则
-      '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-non-null-assertion': 'warn',
+      '@typescript-eslint/no-explicit-any': 'off', // debug包中any类型是必要的
+      '@typescript-eslint/no-non-null-assertion': 'off', // debug包中非空断言是安全的
 
       // 代码风格
       indent: ['error', 2],

@@ -29,8 +29,8 @@ body {
 /* Debug切换按钮 */
 .debug-toggle-btn {
   position: fixed;
-  top: 20px;
-  right: 20px;
+  top: 4px;
+  right: 8px;
   z-index: 1000;
   width: 40px;
   height: 40px;

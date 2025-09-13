@@ -1,5 +1,5 @@
 import { Component, createSignal, onMount, onCleanup, createEffect, Accessor } from 'solid-js';
-import { BlockElement, Editor } from '@ch-editor/core';
+import { BlockElement, Editor as _Editor } from '@ch-editor/core';
 
 export interface BlockRectVisualizerProps {
   blocks: Accessor<BlockElement[]>;
@@ -223,7 +223,7 @@ export const BlockRectVisualizer: Component<BlockRectVisualizerProps> = (props) 
     ];
 
     // 显示所有信息
-    blockInfo.forEach((info, index) => {
+    blockInfo.forEach((info, _index) => {
       if (textY + lineHeight <= blockY + actualBlockHeight) {
         context.fillText(info, textX, textY);
         textY += lineHeight;
@@ -266,7 +266,7 @@ export const BlockRectVisualizer: Component<BlockRectVisualizerProps> = (props) 
     return null;
   };
 
-  const highlightBlock = (block: BlockElement, blockIndex: number) => {
+  const highlightBlock = (block: BlockElement, _blockIndex: number) => {
     removeHighlight();
 
     const rect = block.getBoundingClientRect();

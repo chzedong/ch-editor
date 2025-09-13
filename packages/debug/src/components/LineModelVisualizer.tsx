@@ -224,7 +224,7 @@ export const LineModelVisualizer: Component<LineModelVisualizerProps> = (props) 
     const virtualTypeColor = config.colors.virtualTypes[item.virtualType as keyof typeof config.colors.virtualTypes] || config.colors.text;
 
     // 边框颜色优先使用item类型颜色
-    let borderColor = itemTypeColor;
+    const borderColor = itemTypeColor;
 
     // 绘制item背景（渐变效果，使用item类型颜色）
     const gradient = context.createLinearGradient(itemX, startY, itemX + itemWidth, startY);

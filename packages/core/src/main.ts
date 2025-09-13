@@ -7,7 +7,7 @@ export { EditorSelection } from './selection/editor-selection';
 export { TextLine, LineBreaker } from './text/line/text-line';
 
 // Types
-export type * from './index.type';
+export * from './index.type';
 
 // Utils
 export { assert } from './utils/assert';
