@@ -13,11 +13,11 @@ export function updateSelection(editor: Editor, block: BlockElement, from: numbe
 
   lineBreaker = assertLineBreaker(block, lineBreaker);
   const rects = lineBreaker.getSelectionRects(from, to);
+  const blockRect = block.getBoundingClientRect();
 
   editor.selection.scheduleDomOperation(() => {
     const background = getBlockBackground(block);
     removeBackgrounds(block);
-    const blockRect = block.getBoundingClientRect();
     const left = blockRect.left;
     const top = blockRect.top;
     rects.forEach((rect) => {
