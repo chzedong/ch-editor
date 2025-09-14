@@ -43,11 +43,12 @@ const breakCollapsedBlock = (editor: Editor) => {
 };
 
 export const breakBlock = (editor: Editor) => {
-  const isCollapsed = editor.selection.range.isCollapsed();
-  if (isCollapsed) {
+  return editor.undoManager.executeInGroup(() => {
+    const isCollapsed = editor.selection.range.isCollapsed();
+    if (isCollapsed) {
+      return breakCollapsedBlock(editor);
+    }
+    deleteSelection(editor, editor.selection.range);
     return breakCollapsedBlock(editor);
-  }
-
-  deleteSelection(editor, editor.selection.range);
-  return breakCollapsedBlock(editor);
+  });
 };
