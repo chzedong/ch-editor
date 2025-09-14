@@ -27,7 +27,7 @@ export class EditorSelection {
     this._range = new EditorSelectionRange(editor, { anchor: pos, focus: pos });
 
     setTimeout(() => {
-      this.caret.update();
+      this.renderSelection();
     });
   }
 
