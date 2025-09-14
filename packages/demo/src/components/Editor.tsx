@@ -53,7 +53,7 @@ export const Editor: Component<EditorProps> = (props) => {
 
       // 创建编辑器实例
       const editor = new CoreEditor(editorContainer, {
-        initDoc: new Doc(initDoc),
+        initDoc: new Doc(initDoc)
       });
 
       editor.focus();

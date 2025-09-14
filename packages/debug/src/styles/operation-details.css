@@ -1,0 +1,251 @@
+/* OperationDetails 组件样式 */
+.operation-details-panel {
+  background: var(--debug-bg-primary, #1e1e1e);
+  border: 1px solid var(--debug-border, #3e3e42);
+  border-radius: 4px;
+  overflow: hidden;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--debug-bg-secondary, #252526);
+  border-bottom: 1px solid var(--debug-border, #3e3e42);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.details-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.title-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--debug-text-primary, #d4d4d4);
+}
+
+.operation-id {
+  font-size: 10px;
+  color: var(--debug-text-muted, #888888);
+  background: var(--debug-bg-tertiary, #2d2d30);
+  padding: 2px 4px;
+  border-radius: 2px;
+  font-family: monospace;
+}
+
+.header-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.collapse-button,
+.close-button {
+  background: none;
+  border: none;
+  color: var(--debug-text-muted, #888888);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.collapse-button:hover,
+.close-button:hover {
+  background: var(--debug-bg-tertiary, #2d2d30);
+  color: var(--debug-text-primary, #d4d4d4);
+}
+
+.close-button:hover {
+  color: var(--debug-error, #f44747);
+}
+
+.details-section {
+  padding: 12px;
+  border-bottom: 1px solid var(--debug-border, #3e3e42);
+}
+
+.details-section:last-child {
+  border-bottom: none;
+}
+
+.section-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--debug-text-secondary, #cccccc);
+  margin: 0 0 8px 0;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--debug-border, #3e3e42);
+}
+
+.info-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.info-item {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 8px;
+  align-items: start;
+}
+
+.info-item label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--debug-text-muted, #888888);
+  padding-top: 2px;
+}
+
+.info-value {
+  font-size: 11px;
+  color: var(--debug-text-primary, #d4d4d4);
+}
+
+.operation-type-badge,
+.operation-source-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.operation-type-badge {
+  background: var(--debug-accent, #007acc);
+  color: white;
+}
+
+.operation-source-badge {
+  background: var(--debug-success, #4CAF50);
+  color: white;
+}
+
+.type-description,
+.source-description {
+  margin: 4px 0 0 0;
+  font-size: 9px;
+  color: var(--debug-text-muted, #888888);
+  line-height: 1.4;
+}
+
+.timestamp,
+.duration,
+.description {
+  font-family: monospace;
+  font-size: 10px;
+}
+
+.code-value {
+  background: var(--debug-bg-tertiary, #2d2d30);
+  padding: 2px 4px;
+  border-radius: 2px;
+  font-family: monospace;
+  font-size: 9px;
+  color: var(--debug-text-secondary, #cccccc);
+}
+
+.selection-comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.selection-before h4,
+.selection-after h4 {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--debug-text-secondary, #cccccc);
+  margin: 0 0 4px 0;
+}
+
+.json-content {
+  background: var(--debug-bg-tertiary, #2d2d30);
+  border: 1px solid var(--debug-border, #3e3e42);
+  border-radius: 3px;
+  padding: 8px;
+  font-family: monospace;
+  font-size: 9px;
+  color: var(--debug-text-secondary, #cccccc);
+  overflow-x: auto;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.impact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.impact-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.impact-item label {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--debug-text-muted, #888888);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.impact-value {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--debug-text-primary, #d4d4d4);
+}
+
+.stack-trace-container,
+.raw-data-container {
+  background: var(--debug-bg-tertiary, #2d2d30);
+  border: 1px solid var(--debug-border, #3e3e42);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.stack-trace-content,
+.raw-data-content {
+  padding: 8px;
+  font-family: monospace;
+  font-size: 9px;
+  color: var(--debug-text-secondary, #cccccc);
+  overflow-x: auto;
+  margin: 0;
+  white-space: pre-wrap;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .selection-comparison {
+    grid-template-columns: 1fr;
+  }
+
+  .info-item {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .impact-grid {
+    grid-template-columns: 1fr;
+  }
+}

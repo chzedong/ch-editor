@@ -62,3 +62,6 @@ export {
   type DecoratorRenderContext,
   type DecoratorOptions
 } from './decorator';
+
+// hook
+export { LifecycleHooks, type DocChangeContext, type HookContextMap } from './doc/hooks';

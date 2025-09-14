@@ -1,4 +1,4 @@
-import { Accessor, Component, createSignal, Show } from 'solid-js';
+import { Accessor, Component, createSignal, onCleanup, Show } from 'solid-js';
 import { DebugPanel } from '@ch-editor/debug';
 import { Editor } from './components/Editor';
 import { Toolbar } from './components/Toolbar';
@@ -17,6 +17,15 @@ const App: Component = () => {
     setIsDebugOpen(!isDebugOpen());
   };
 
+  // 处理编辑器准备就绪
+  const handleEditorReady = (editorInstance: EditorType) => {
+    setEditor(editorInstance);
+  };
+
+  onCleanup(() => {
+    // editor()?.destroy();
+  });
+
   return (
     <>
       {/* Debug切换按钮 */}
@@ -29,13 +38,13 @@ const App: Component = () => {
           <Show when={editor()}>
             <Toolbar editor={editor as Accessor<EditorType>} />
           </Show>
-          <Editor onEditorReady={setEditor} />
+          <Editor onEditorReady={handleEditorReady} />
         </div>
 
         {/* Debug侧边栏 */}
         <Show when={editor() && isDebugOpen()}>
           <div class="debug-sidebar">
-            <DebugPanel editor={editor as Accessor<EditorType>}/>
+            <DebugPanel editor={editor as Accessor<EditorType>} />
           </div>
         </Show>
       </div>

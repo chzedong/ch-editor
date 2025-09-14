@@ -1,8 +1,12 @@
-import { Component, createSignal, For, Show, onMount, Accessor } from 'solid-js';
+import { Component, createSignal, For, Show, onMount, onCleanup, Accessor } from 'solid-js';
 import { BlockElement, DocObject, Editor, LineBreaker, TextLine } from '@ch-editor/core';
 import { LineModelVisualizer } from './LineModelVisualizer';
 import { DocInfoPanel } from './DocInfoPanel';
 import { BlockRectVisualizer } from './BlockRectVisualizer';
+import { OperationLogger } from '../operation-logger/operation-logger';
+import { OperationTimeline } from './OperationTimeline';
+import { OperationDetails } from './OperationDetails';
+import { OperationRecord } from '../operation-logger/types';
 import '../styles/debug.css';
 import '../styles/components.css';
 
@@ -25,7 +29,9 @@ export const DebugPanel: Component<DebugPanelProps> = (props) => {
   const [lines, setLines] = createSignal<TextLine[]>([]);
   const [docInfo, setDocInfo] = createSignal<DocObject | null>(null);
   const [blocks, setBlocks] = createSignal<BlockElement[]>([]);
+  const [selectedOperation, setSelectedOperation] = createSignal<OperationRecord | null>(null);
   let updateTimer: number | null = null;
+  let operationLogger: OperationLogger | null = null;
 
   const tabs: DebugPanelTab[] = [
     {
@@ -42,6 +48,28 @@ export const DebugPanel: Component<DebugPanelProps> = (props) => {
       id: 'doc-info',
       label: 'Doc信息',
       component: () => <DocInfoPanel docInfo={docInfo} />
+    },
+    {
+      id: 'operation-timeline',
+      label: '操作记录',
+      component: () => operationLogger ? (
+        <div class="operation-records-panel">
+          <div class="operation-timeline-section">
+            <OperationTimeline
+              logger={operationLogger}
+              maxDisplayCount={100}
+              showFilters={true}
+              onOperationClick={setSelectedOperation}
+            />
+          </div>
+          <div class="operation-details-section">
+            <OperationDetails
+              operation={selectedOperation()}
+              onCollapse={() => setSelectedOperation(null)}
+            />
+          </div>
+        </div>
+      ) : <div class="empty-state">操作记录器未初始化</div>
     }
   ];
 
@@ -81,8 +109,21 @@ export const DebugPanel: Component<DebugPanelProps> = (props) => {
 
   // 将更新方法暴露到组件实例上
   onMount(() => {
-    props.editor().editorDoc.hooks.register('docChange', updateDebugInfo);
-    props.editor().on('selectionChange', updateDebugInfo);
+    const editor = props.editor();
+    if (editor) {
+      editor.editorDoc.hooks.register('docChange', updateDebugInfo);
+      editor.on('selectionChange', updateDebugInfo);
+
+      operationLogger = new OperationLogger();
+      operationLogger.startRecording(editor);
+    }
+  });
+
+  onCleanup(() => {
+    if (operationLogger) {
+      operationLogger.stopRecording();
+      operationLogger.destroy();
+    }
   });
 
   return (

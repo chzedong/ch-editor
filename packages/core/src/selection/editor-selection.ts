@@ -74,7 +74,7 @@ export class EditorSelection {
       this.renderSelectionAsync(isVerticalNavigation);
     }
 
-    this.editor.emit('selectionChange');
+    this.editor.emit('selectionChange', this.editor);
     return this._range;
   }
 

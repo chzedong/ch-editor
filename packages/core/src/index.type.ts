@@ -87,7 +87,10 @@ export interface ShortcutsRecord {
 }
 
 export interface InputHandler {
-  handleKeyDown: (editor: Editor, event: KeyboardEvent) => boolean;
+  handleKeyDown?: (editor: Editor, event: KeyboardEvent) => boolean;
+  handleInput?: (editor: Editor, event: InputEvent) => boolean;
+  handleFocus?: (editor: Editor) => boolean;
+  handleBlur?: (editor: Editor) => boolean;
 }
 
 export type ContainerElement = HTMLDivElement;

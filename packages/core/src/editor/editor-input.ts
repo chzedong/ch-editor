@@ -29,6 +29,14 @@ export class EditorInput {
       return;
     }
 
+    // 处理input事件
+    for (const handler of this.inputHandler) {
+      if (handler.handleInput?.(this.editor, event as InputEvent)) {
+        event.preventDefault();
+        return;
+      }
+    }
+
     // get text position
     if ((event as InputEvent).data) {
       editorInsertText(this.editor, (event as InputEvent).data as string);
@@ -39,7 +47,7 @@ export class EditorInput {
   handleKeyDown = (event: KeyboardEvent) => {
     // this.editor.
     for (const handler of this.inputHandler) {
-      if (handler.handleKeyDown(this.editor, event)) {
+      if (handler.handleKeyDown?.(this.editor, event)) {
         event.preventDefault();
         return;
       }
@@ -48,6 +56,13 @@ export class EditorInput {
 
   // eslint-disable-next-line no-undef
   focus(options: FocusOptions = {}) {
+
+    for (const handler of this.inputHandler) {
+      if (handler.handleFocus?.(this.editor)) {
+        return;
+      }
+    }
+
     setTimeout(() => {
       this.inputElement.focus(options);
     });
@@ -83,6 +98,10 @@ export class EditorInput {
 
   addHandler(handler: InputHandler) {
     this.inputHandler.push(handler);
+  }
+
+  removeHandler(handler: InputHandler) {
+    this.inputHandler = this.inputHandler.filter((h) => h !== handler);
   }
 
   // 获取当前合成状态

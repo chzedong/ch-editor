@@ -137,6 +137,29 @@
   line-height: 1.4;
 }
 
+/* 操作记录面板样式 */
+.operation-records-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 1px;
+  background: var(--debug-border);
+}
+
+.operation-timeline-section {
+  flex: 1;
+  min-height: 200px;
+  background: var(--debug-bg-primary);
+  overflow: hidden;
+}
+
+.operation-details-section {
+  flex: 1;
+  min-height: 200px;
+  background: var(--debug-bg-primary);
+  overflow: hidden;
+}
+
 /* Tab样式 */
 .debug-tabs {
   display: flex;
