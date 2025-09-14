@@ -28,6 +28,8 @@ export interface MergeResult {
   shouldMerge: boolean;
   /** 合并后的快照（如果需要合并） */
   mergedSnapshot?: OperationSnapshot;
+  // 是否熔断
+  isFuse?: boolean;
 }
 
 /**
@@ -109,19 +111,20 @@ export class IMEMergeStrategy extends BaseMergeStrategy {
 
     // 检查是否为相同位置的文本更新操作
     if (!this.isTextUpdateOperation(previousSnapshot, currentSnapshot)) {
-      return { shouldMerge: false };
+      return { shouldMerge: false, isFuse: true };
     }
 
-    // 如果当前正在IME合成中，应该合并
-    if (imeState?.isComposing) {
-      const mergedSnapshot = this.mergeTextSnapshots(previousSnapshot, currentSnapshot);
+    // 如果当前正在IME合成中，应该合并?
+    if (imeState?.compositionText) {
+      // const mergedSnapshot = this.mergeTextSnapshots(previousSnapshot, currentSnapshot);
       return {
-        shouldMerge: true,
-        mergedSnapshot
+        shouldMerge: false,
+        isFuse: true
+        // mergedSnapshot
       };
     }
 
-    return { shouldMerge: false };
+    return { shouldMerge: false, isFuse: false };
   }
 }
 
@@ -145,31 +148,32 @@ export class ContinuousCharMergeStrategy extends BaseMergeStrategy {
 
     // 检查是否为相同位置的文本更新操作
     if (!this.isTextUpdateOperation(previousSnapshot, currentSnapshot)) {
-      return { shouldMerge: false };
+      return { shouldMerge: false, isFuse: true };
     }
 
     // 检查时间间隔
     const timeDiff = this.getTimeDifference(previousSnapshot, currentSnapshot);
     if (timeDiff > this.timeThreshold) {
-      return { shouldMerge: false };
+      return { shouldMerge: false, isFuse: true };
     }
 
     // 检查是否为连续的字符输入
     if (!this.isContinuousCharInput(previousSnapshot, currentSnapshot)) {
-      return { shouldMerge: false };
+      return { shouldMerge: false, isFuse: true };
     }
 
     // 检查合并长度限制
     const mergedLength = this.estimateMergedLength(previousSnapshot, currentSnapshot);
     if (mergedLength > this.maxMergeLength) {
-      return { shouldMerge: false };
+      return { shouldMerge: false, isFuse: true };
     }
 
     const mergedSnapshot = this.mergeTextSnapshots(previousSnapshot, currentSnapshot);
 
     return {
       shouldMerge: true,
-      mergedSnapshot
+      mergedSnapshot,
+      isFuse: true
     };
   }
 
@@ -216,6 +220,25 @@ export class ContinuousCharMergeStrategy extends BaseMergeStrategy {
 }
 
 /**
+ * undoStack 为空时不应该合并
+ */
+export class EmptyUndoStackMergeStrategy extends BaseMergeStrategy {
+  readonly name = 'emptyUndoStack';
+  readonly priority = 100;
+
+  shouldMerge(context: MergeContext): MergeResult {
+    const { editor } = context;
+    const { undoStackSize } = editor.undoManager.getState();
+
+    if (undoStackSize === 0) {
+      return { shouldMerge: false, isFuse: true };
+    }
+
+    return { shouldMerge: false, isFuse: false };
+  }
+}
+
+/**
  * 合并策略管理器
  */
 export class MergeStrategyManager {
@@ -223,6 +246,7 @@ export class MergeStrategyManager {
 
   constructor() {
     // 注册默认策略
+    this.registerStrategy(new EmptyUndoStackMergeStrategy());
     this.registerStrategy(new IMEMergeStrategy());
     this.registerStrategy(new ContinuousCharMergeStrategy());
   }
@@ -259,7 +283,7 @@ export class MergeStrategyManager {
     // 按优先级顺序尝试每个策略
     for (const strategy of this.strategies) {
       const result = strategy.shouldMerge(context);
-      if (result.shouldMerge) {
+      if (result.isFuse) {
         return result;
       }
     }
