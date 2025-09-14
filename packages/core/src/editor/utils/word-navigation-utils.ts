@@ -16,7 +16,7 @@ export enum NavigationElementType {
   /** 中日韩字符（未来扩展） */
   CJK = 'cjk',
   /** 装饰器元素（未来扩展） */
-  DECORATOR = 'decorator'
+  DECORATOR = 'decorator',
 }
 
 /**
@@ -51,6 +51,8 @@ class NavigationElementRecognizers {
     // 注册默认识别器
     this.registerRecognizer(new BoxElementRecognizer());
     this.registerRecognizer(new SpaceElementRecognizer());
+    this.registerRecognizer(new CJKElementRecognizer());
+    this.registerRecognizer(new DecoratorElementRecognizer());
     this.registerRecognizer(new TextElementRecognizer());
   }
 
@@ -127,47 +129,25 @@ class TextElementRecognizer implements NavigationElementRecognizer {
   }
 }
 
-// 全局导航元素识别器实例
-const navigationRecognizers = new NavigationElementRecognizers();
-
-/**
- * 注册自定义导航元素识别器
- * 用于扩展支持新的元素类型（如中日韩字符、装饰器等）
- * @param recognizer 自定义识别器
- */
-export function registerNavigationElementRecognizer(recognizer: NavigationElementRecognizer) {
-  navigationRecognizers.registerRecognizer(recognizer);
-}
-
-/**
- * 导航元素识别器接口（导出供外部实现）
- */
-export interface INavigationElementRecognizer extends NavigationElementRecognizer {}
-
-/**
- * 导航元素信息接口（导出供外部使用）
- */
-export interface INavigationElement extends NavigationElement {}
-
 /**
  * 示例：中日韩字符识别器
  * 展示如何扩展支持新的元素类型
  * 使用方式：registerNavigationElementRecognizer(new CJKElementRecognizer());
  */
-export class CJKElementRecognizer implements INavigationElementRecognizer {
+class CJKElementRecognizer implements NavigationElementRecognizer {
   priority = 60; // 优先级介于空格和文本之间
 
-  recognize(op: DocBlockTextOp, charIndex: number = 0): INavigationElement | null {
+  recognize(op: DocBlockTextOp, charIndex: number = 0): NavigationElement | null {
     if (isTextOp(op) && charIndex < op.insert.length) {
       const char = op.insert[charIndex];
       // 检查是否为中日韩字符（Unicode范围）
       const cjkRanges = [
-        [0x4E00, 0x9FFF], // CJK统一汉字
-        [0x3400, 0x4DBF], // CJK扩展A
-        [0x20000, 0x2A6DF], // CJK扩展B
-        [0x3040, 0x309F], // 平假名
-        [0x30A0, 0x30FF], // 片假名
-        [0xAC00, 0xD7AF] // 韩文音节
+        [0x4e00, 0x9fff], // CJK统一汉字
+        [0x3400, 0x4dbf], // CJK扩展A
+        [0x20000, 0x2a6df], // CJK扩展B
+        [0x3040, 0x309f], // 平假名
+        [0x30a0, 0x30ff], // 片假名
+        [0xac00, 0xd7af] // 韩文音节
       ];
 
       const charCode = char.charCodeAt(0);
@@ -189,10 +169,10 @@ export class CJKElementRecognizer implements INavigationElementRecognizer {
  * 展示如何识别特殊的装饰器元素
  * 使用方式：registerNavigationElementRecognizer(new DecoratorElementRecognizer());
  */
-export class DecoratorElementRecognizer implements INavigationElementRecognizer {
+class DecoratorElementRecognizer implements NavigationElementRecognizer {
   priority = 80; // 高优先级
 
-  recognize(op: DocBlockTextOp, charIndex: number = 0): INavigationElement | null {
+  recognize(op: DocBlockTextOp, charIndex: number = 0): NavigationElement | null {
     if (isTextOp(op) && charIndex < op.insert.length) {
       const char = op.insert[charIndex];
       // 检查是否为装饰器字符（例如：零宽字符、特殊标记等）
@@ -209,6 +189,9 @@ export class DecoratorElementRecognizer implements INavigationElementRecognizer 
     return null;
   }
 }
+
+// 全局导航元素识别器实例
+const navigationRecognizers = new NavigationElementRecognizers();
 
 /**
  * 获取指定偏移量位置的导航元素信息
@@ -266,47 +249,66 @@ export function isSameElementType(element1: NavigationElement | null, element2: 
  * Space规则：作为分隔符，跳过连续的空格
  * @param ops 文本操作数组
  * @param offset 当前偏移量
- * @param currentElementType 当前位置的元素类型
+ * @param currentElement 当前位置的元素
  * @returns 前一个单词的起始偏移量，如果到达开头则返回0，如果当前就在分隔符上则返回-1
  */
-function findPreWordOffset(ops: DocBlockText, offset: number, currentElementType: NavigationElementType): number {
-  // 如果当前在box上，直接返回box的开头位置
-  if (currentElementType === NavigationElementType.BOX) {
+function findPreWordOffset(ops: DocBlockText, offset: number, currentElement: NavigationElement): number {
+
+  // CJK字符、装饰器、box被视为独立的单词，直接返回当前位置
+  if ([NavigationElementType.CJK, NavigationElementType.DECORATOR, NavigationElementType.BOX].includes(currentElement.type)) {
     return offset;
   }
 
-  let isInSeparator = (currentElementType === NavigationElementType.SPACE);
   let currentOffset = offset;
 
+  // 如果当前在空格上，先跳过所有连续的空格
+  if (currentElement.type === NavigationElementType.SPACE) {
+    while (currentOffset > 0) {
+      currentOffset--;
+      const element = getNavigationElementAt(ops, currentOffset);
+      if (!element || element.type !== NavigationElementType.SPACE) {
+        if (element) {
+          currentOffset++; // 回到非空格元素的下一个位置
+        }
+        break;
+      }
+    }
+
+    if (currentOffset === 0) {
+      return 0;
+    }
+
+    // 现在处理非空格元素
+    const element = getNavigationElementAt(ops, currentOffset - 1);
+    if (!element) {
+      return currentOffset;
+    }
+
+    // 如果是BOX、CJK或装饰器，返回其位置
+    if ([NavigationElementType.BOX, NavigationElementType.CJK, NavigationElementType.DECORATOR].includes(element.type)) {
+      return currentOffset - element.length;
+    }
+
+    // 如果是普通文本，继续向前查找单词边界
+    currentElement = element;
+    currentOffset--;
+  }
+
+  // 处理普通文本的单词边界
   while (currentOffset > 0) {
     currentOffset--;
     const element = getNavigationElementAt(ops, currentOffset);
-
     if (!element) {
       break;
     }
 
-    // Box强制隔断，遇到box直接返回box后的位置
-    if (element.type === NavigationElementType.BOX) {
+    // 如果元素类型发生变化（都是文本类型），也认为是单词边界
+    if (currentElement.type !== element.type) {
       return currentOffset + 1;
-    }
-
-    const isSpace = (element.type === NavigationElementType.SPACE);
-
-    // 如果当前在空格中，遇到非空格就返回当前位置的下一个位置
-    if (isSpace && !isInSeparator) {
-      return currentOffset + 1;
-    }
-
-    // 如果遇到非空格，标记不再在分隔符中
-    if (!isSpace) {
-      isInSeparator = false;
     }
   }
 
-  // 如果到达开头且当前在分隔符中，返回-1表示无效
-  // 否则返回0表示到达文档开头
-  return isInSeparator ? -1 : 0;
+  return 0;
 }
 
 /**
@@ -328,12 +330,11 @@ export function editorGetPreWordStart(ops: DocBlockText, offset: number): number
   // 获取当前位置前一个字符的元素信息
   const preOffset = offset - 1;
   const currentElement = getNavigationElementAt(ops, preOffset);
-
   if (!currentElement) {
     return 0;
   }
 
-  const result = findPreWordOffset(ops, preOffset, currentElement.type);
+  const result = findPreWordOffset(ops, preOffset, currentElement);
   return result === -1 ? 0 : result;
 }
 
@@ -344,19 +345,48 @@ export function editorGetPreWordStart(ops: DocBlockText, offset: number): number
  * Space规则：作为分隔符，跳过连续的空格
  * @param ops 文本操作数组
  * @param offset 当前偏移量
- * @param currentElementType 当前位置的元素类型
+ * @param currentElement 当前位置的元素
  * @param len 文本总长度
  * @returns 下一个单词的结束偏移量，如果到达末尾则返回总长度，如果当前就在分隔符上则返回-1
  */
-function findNextWordEnd(ops: DocBlockText, offset: number, currentElementType: NavigationElementType, len: number): number {
-  // 如果当前在box上，直接返回box的结尾位置
-  if (currentElementType === NavigationElementType.BOX) {
-    return offset + 1;
+function findNextWordEnd(ops: DocBlockText, offset: number, currentElement: NavigationElement, len: number): number {
+  // CJK字符、box、装饰器被视为独立的单词，直接返回下一个位置
+  if ([NavigationElementType.CJK, NavigationElementType.DECORATOR, NavigationElementType.BOX].includes(currentElement.type)) {
+    return offset + currentElement.length;
   }
 
-  let isInSeparator = (currentElementType === NavigationElementType.SPACE);
   let currentOffset = offset;
 
+  // 如果当前在空格上，先跳过所有连续的空格
+  if (currentElement.type === NavigationElementType.SPACE) {
+    while (currentOffset < len) {
+      const element = getNavigationElementAt(ops, currentOffset);
+      if (!element || element.type !== NavigationElementType.SPACE) {
+        break;
+      }
+      currentOffset++;
+    }
+
+    if (currentOffset >= len) {
+      return len;
+    }
+
+    // 现在处理非空格元素
+    const element = getNavigationElementAt(ops, currentOffset);
+    if (!element) {
+      return currentOffset;
+    }
+
+    if ([NavigationElementType.BOX, NavigationElementType.CJK, NavigationElementType.DECORATOR].includes(element.type)) {
+      return currentOffset + element.length;
+    }
+
+    // 如果是普通文本，继续向后查找单词边界
+    currentElement = element;
+    currentOffset++;
+  }
+
+  // 处理普通文本的单词边界
   while (currentOffset < len) {
     const element = getNavigationElementAt(ops, currentOffset);
 
@@ -364,29 +394,16 @@ function findNextWordEnd(ops: DocBlockText, offset: number, currentElementType: 
       break;
     }
 
-    // Box强制隔断，遇到box直接返回box的位置
-    if (element.type === NavigationElementType.BOX) {
+    // 如果元素类型发生变化（都是文本类型），也认为是单词边界
+    if (currentElement.type !== element.type) {
       return currentOffset;
     }
 
-    const isSpace = (element.type === NavigationElementType.SPACE);
-
-    // 如果当前在空格中，遇到非空格就返回当前位置
-    if (isSpace && !isInSeparator) {
-      return currentOffset;
-    }
-
-    // 如果遇到非空格，标记不再在分隔符中
-    if (!isSpace) {
-      isInSeparator = false;
-    }
-
+    currentElement = element;
     currentOffset++;
   }
 
-  // 如果到达末尾且当前在分隔符中，返回-1表示无效
-  // 否则返回总长度表示到达文档末尾
-  return isInSeparator ? -1 : len;
+  return len;
 }
 
 /**
@@ -413,6 +430,6 @@ export function editorGetNextWordEnd(ops: DocBlockText, offset: number, len: num
     return len;
   }
 
-  const result = findNextWordEnd(ops, offset, currentElement.type, len);
+  const result = findNextWordEnd(ops, offset, currentElement, len);
   return result === -1 ? len : result;
 }
