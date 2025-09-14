@@ -2,6 +2,7 @@ import { ICommand, CommandType } from './command';
 import { UpdateBlockCommand } from './update-block-command';
 import { InsertBlockCommand } from './insert-block-command';
 import { DeleteBlockCommand } from './delete-block-command';
+import { GroupCommand } from './group-command';
 import { Editor } from '../../editor/editor';
 import { OperationSnapshot } from '../snapshot-collector';
 import { assert } from '../../utils/assert';
@@ -66,5 +67,15 @@ export class CommandFactory {
    */
   static getSupportedTypes(): CommandType[] {
     return Object.values(CommandType);
+  }
+
+  /**
+   * 创建分组命令
+   * @param editor 编辑器实例
+   * @param commands 子命令数组
+   * @returns GroupCommand实例
+   */
+  static createGroupCommand(editor: Editor, commands: ICommand[] = []): GroupCommand {
+    return new GroupCommand(editor, commands);
   }
 }

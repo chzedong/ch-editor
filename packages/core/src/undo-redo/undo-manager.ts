@@ -1,5 +1,6 @@
 import { ICommand } from './commands/command';
 import { CommandFactory } from './commands/command-factory';
+import { GroupCommand } from './commands/group-command';
 import { OperationSnapshot, SnapshotCollector } from './snapshot-collector';
 import { Editor } from '../editor/editor';
 import { assert } from '../utils/assert';
@@ -13,6 +14,9 @@ export class UndoManager {
   private maxStackSize: number = 100;
   private isExecuting: boolean = false;
   private snapshotCollector: SnapshotCollector;
+
+  // 分组相关属性 - 使用栈结构支持嵌套分组
+  private groupStack: Array<GroupCommand> = [];
 
   constructor(private editor: Editor, maxStackSize: number = 100) {
     this.maxStackSize = maxStackSize;
@@ -36,7 +40,7 @@ export class UndoManager {
   }
 
   /**
-   * 处理快照，创建命令并添加到undo栈
+   * 处理快照，创建命令并添加到undo栈或当前分组
    * @param snapshot 操作快照
    */
   private handleSnapshot(snapshot: OperationSnapshot): void {
@@ -47,7 +51,14 @@ export class UndoManager {
 
     const command = CommandFactory.createCommand(this.editor, snapshot);
     if (command) {
-      this.addCommand(command);
+      const currentGroupInfo = this.getCurrentGroupInfo();
+      if (this.isInGroupMode() && currentGroupInfo.group) {
+        // 分组模式下，将命令添加到当前分组（栈顶分组）
+        currentGroupInfo.group.addCommand(command);
+      } else {
+        // 正常模式下，直接添加到undo栈
+        this.addCommand(command);
+      }
     }
   }
 
@@ -238,7 +249,8 @@ export class UndoManager {
       canRedo: this.canRedo(),
       undoStackSize: this.getUndoStackSize(),
       redoStackSize: this.getRedoStackSize(),
-      isExecuting: this.isExecuting
+      isExecuting: this.isExecuting,
+      isGrouping: this.isInGroupMode()
     };
   }
 
@@ -258,9 +270,95 @@ export class UndoManager {
   }
 
   /**
+   * 开始分组操作
+   * @returns 是否成功开始分组
+   */
+  beginGroup(): boolean {
+    assert(!this.isExecuting, 'UndoManager: Cannot start group while executing undo/redo');
+
+    const group = CommandFactory.createGroupCommand(this.editor, []);
+    this.groupStack.push(group);
+
+    return true;
+  }
+
+  /**
+   * 结束分组操作
+   * @returns 是否成功结束分组
+   */
+  endGroup(): boolean {
+    assert(this.groupStack.length, 'UndoManager: Cannot end group when no group is active');
+    const group = this.groupStack.pop();
+    assert(group, 'groupInfo is undefined');
+
+    // 如果这是最外层分组且分组中有命令，则添加到undo栈
+    if (this.groupStack.length === 0 && !group.isEmpty()) {
+      this.addCommand(group);
+    } else if (this.groupStack.length > 0 && !group.isEmpty()) {
+      // 如果还有外层分组，将当前分组作为命令添加到外层分组
+      const parentGroup = this.groupStack[this.groupStack.length - 1];
+      parentGroup.addCommand(group);
+    }
+
+    return true;
+  }
+
+  /**
+   * 在分组中执行操作
+   * @param callback 要执行的操作回调
+   * @param description 分组描述
+   * @returns 执行结果
+   */
+  executeInGroup<T>(callback: () => T ) {
+    const initialStackLength = this.groupStack.length;
+    try {
+      this.beginGroup();
+      const result = callback();
+      assert(this.groupStack.length === initialStackLength + 1, 'groupStack length is not 1');
+      this.endGroup();
+
+      return result;
+    } catch (error) {
+      // 如果执行失败，确保清理到初始状态
+      while (this.groupStack.length > initialStackLength) {
+        this.groupStack.pop();
+      }
+
+      throw error;
+    }
+  }
+
+  /**
+   * 检查是否处于分组模式
+   * @returns 是否处于分组模式
+   */
+  isInGroupMode(): boolean {
+    return this.groupStack.length > 0;
+  }
+
+  /**
+   * 获取当前分组信息
+   * @returns 当前分组信息
+   */
+  getCurrentGroupInfo(): {
+    group?: GroupCommand;
+    depth: number;
+    } {
+    const currentGroup = this.groupStack[this.groupStack.length - 1] ?? null;
+
+    return {
+      group: currentGroup,
+      depth: this.groupStack.length || 0
+    };
+  }
+
+  /**
    * 销毁UndoManager
    */
   destroy(): void {
+    // 清理分组栈状态
+    this.groupStack = [];
+
     this.clear();
     this.snapshotCollector.destroy();
   }

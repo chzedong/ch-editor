@@ -60,4 +60,5 @@ export enum CommandType {
   UPDATE_BLOCK = 'update',
   INSERT_BLOCK = 'insert',
   DELETE_BLOCK = 'delete',
+  GROUP = 'group',
 }
