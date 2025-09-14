@@ -12,12 +12,15 @@ import {
 import { SelectionRangeSnapshot } from '../selection/selection-range';
 import { Editor } from '../editor/editor';
 import { DocBlock } from '../index.type';
+import { MergeStrategyManager, MergeContext } from './merge-strategy';
+import { assert } from '../utils/assert';
 
 /**
  * SnapshotCollector事件接口
  */
 interface SnapshotCollectorEvents {
   snapshot: (snapshot: OperationSnapshot) => void;
+  snapshotMerged: (mergedSnapshot: OperationSnapshot, originalSnapshot: OperationSnapshot) => void;
 }
 
 // 操作快照接口
@@ -38,9 +41,11 @@ export class SnapshotCollector extends TypedEmitter<SnapshotCollectorEvents> {
   private maxSnapshotCount: number = 100;
   private currentOperation: Partial<OperationSnapshot> | null = null;
   private unregisterCallbacks: (() => void)[] = [];
+  private mergeStrategyManager: MergeStrategyManager;
 
   constructor(private editor: Editor, private hooks: LifecycleHooks) {
     super();
+    this.mergeStrategyManager = new MergeStrategyManager();
     this.registerHooks();
   }
 
@@ -129,18 +134,79 @@ export class SnapshotCollector extends TypedEmitter<SnapshotCollectorEvents> {
    * 保存快照
    */
   private saveSnapshot(snapshot: OperationSnapshot): void {
-    this.operationSnapshots.push(snapshot);
+    // 尝试与上一个快照合并
+    const mergedSnapshot = this.tryMergeWithLastSnapshot(snapshot);
 
     // 限制快照数量，移除最旧的快照
     if (this.operationSnapshots.length > this.maxSnapshotCount) {
       this.operationSnapshots.shift();
     }
 
-    // 发布快照事件
-    this.emit('snapshot', snapshot);
+    // 更新操作快照数组中的最后一个快照
+    if (mergedSnapshot) {
+      this.operationSnapshots[this.operationSnapshots.length - 1] = mergedSnapshot;
+      // 发布合并事件
+      const lastSnapshot = this.getLastSnapshot();
+      assert(lastSnapshot, 'lastSnapshot should exist');
+      this.emit('snapshotMerged', mergedSnapshot, lastSnapshot);
+    } else {
+      this.operationSnapshots.push(snapshot);
+      // 发布快照事件
+      this.emit('snapshot', snapshot);
+    }
 
     // 清空当前操作
     this.currentOperation = null;
+  }
+
+  /**
+   * 尝试与上一个快照合并
+   */
+  private tryMergeWithLastSnapshot(currentSnapshot: OperationSnapshot): OperationSnapshot | null {
+
+    const lastSnapshot = this.getLastSnapshot();
+
+    if (!lastSnapshot) {
+      return null;
+    }
+
+    // 构建合并上下文
+    const mergeContext: MergeContext = {
+      editor: this.editor,
+      currentSnapshot,
+      previousSnapshot: lastSnapshot,
+      imeState: this.editor.input.getCompositionState()
+    };
+
+    // 评估是否应该合并
+    const mergeResult = this.mergeStrategyManager.evaluateMerge(mergeContext);
+
+    if (mergeResult.mergedSnapshot) {
+      return mergeResult.mergedSnapshot;
+    }
+
+    return null;
+  }
+
+  /**
+   * 获取合并策略管理器
+   */
+  getMergeStrategyManager(): MergeStrategyManager {
+    return this.mergeStrategyManager;
+  }
+
+  /**
+   * 获取最后一个快照
+   */
+  getLastSnapshot(): OperationSnapshot | null {
+    return this.operationSnapshots[this.operationSnapshots.length - 1] || null;
+  }
+
+  /**
+   * 获取快照数量
+   */
+  getSnapshotCount(): number {
+    return this.operationSnapshots.length;
   }
 
   /**

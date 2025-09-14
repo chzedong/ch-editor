@@ -28,6 +28,11 @@ export class UndoManager {
     this.snapshotCollector.on('snapshot', (snapshot: OperationSnapshot) => {
       this.handleSnapshot(snapshot);
     });
+
+    // 监听快照合并事件
+    this.snapshotCollector.on('snapshotMerged', (mergedSnapshot: OperationSnapshot) => {
+      this.handleSnapshotMerged(mergedSnapshot);
+    });
   }
 
   /**
@@ -43,6 +48,29 @@ export class UndoManager {
     const command = CommandFactory.createCommand(this.editor, snapshot);
     if (command) {
       this.addCommand(command);
+    }
+  }
+
+  /**
+   * 处理快照合并事件
+   * @param mergedSnapshot 合并后的快照
+   */
+  private handleSnapshotMerged(mergedSnapshot: OperationSnapshot): void {
+    if (this.isExecuting) {
+      // 正在执行undo/redo操作时，不处理合并
+      return;
+    }
+
+    // 如果undo栈中有命令，需要更新最后一个命令
+    if (this.undoStack.length > 0) {
+      // 创建新的合并命令来替换最后一个命令
+      const mergedCommand = CommandFactory.createCommand(this.editor, mergedSnapshot);
+      if (mergedCommand) {
+        this.undoStack[this.undoStack.length - 1] = mergedCommand;
+
+        // 触发状态变化事件
+        this.emitStateChange();
+      }
     }
   }
 
@@ -212,6 +240,13 @@ export class UndoManager {
       redoStackSize: this.getRedoStackSize(),
       isExecuting: this.isExecuting
     };
+  }
+
+  /**
+   * 获取快照收集器
+   */
+  getSnapshotCollector(): SnapshotCollector {
+    return this.snapshotCollector;
   }
 
   /**
