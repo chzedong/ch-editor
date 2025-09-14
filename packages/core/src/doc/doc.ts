@@ -104,6 +104,13 @@ export class Doc {
     return deletedBlock;
   }
 
+  updateBlock(containerId: string, blockIndex: number, blockData: DocBlock) {
+    const blocks = this.getContainerBlocks(containerId);
+    assert(blocks[blockIndex], 'no block');
+    blocks[blockIndex] = blockData;
+    return blockData;
+  }
+
   // ==================== Box 数据操作 ====================
 
   /**

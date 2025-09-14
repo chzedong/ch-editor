@@ -9,6 +9,7 @@ import { LineBreaker } from '../text/line/text-line';
 import { removeBackgrounds } from '../text/text-dom';
 
 import { BlockElement } from '../index.type';
+import { isEmbedKindBlock } from '../embed/embed-utils';
 
 export class EditorSelection {
   readonly caret: Caret;
@@ -203,6 +204,12 @@ export class EditorSelection {
     const targetBlock = editor.getBlockById(blockId);
     const blockTextLength = editor.getBlockTextLength(targetBlock);
 
+    // 检查是否为embed块，embed块长度固定为1
+    const isEmbedBlock = isEmbedKindBlock(editor, targetBlock);
+    if (isEmbedBlock && blockTextLength !== 1) {
+      console.warn('Embed block text length should be 1, but got:', blockTextLength);
+    }
+
     // 计算该block的选中范围
     let anchor: number;
     let focus: number;
@@ -228,6 +235,11 @@ export class EditorSelection {
     // 确定position type
     const getPositionType = (offset: number): SimpleBlockPositionType => {
       if (range.isCollapsed()) return range.anchor.type;
+
+      // 对于embed块，只有home和end两种状态
+      if (isEmbedBlock) {
+        return offset === 0 ? 'home' : 'end';
+      }
 
       if (offset === 0) return 'home';
       if (offset === blockTextLength) return 'end';

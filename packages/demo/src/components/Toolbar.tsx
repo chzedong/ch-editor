@@ -1,4 +1,4 @@
-import { Editor, applyMarkToSelection, toggleMark, MentionBox } from '@ch-editor/core';
+import { Editor, applyMarkToSelection, toggleMark, MentionBox, createEmbedBlockData } from '@ch-editor/core';
 import { Component, Accessor, createSignal } from 'solid-js';
 
 interface ToolbarProps {
@@ -16,26 +16,26 @@ const mockUsers = {
     userId: 'user1',
     username: 'zhangsan',
     displayName: '张三',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=zhangsan'
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=zhangsan',
   },
   user2: {
     userId: 'user2',
     username: 'lisi',
     displayName: '李四',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=lisi'
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=lisi',
   },
   user3: {
     userId: 'user3',
     username: 'wangwu',
     displayName: '王五',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=wangwu'
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=wangwu',
   },
   user4: {
     userId: 'user4',
     username: 'zhaoliu',
     displayName: '赵六',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=zhaoliu'
-  }
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=zhaoliu',
+  },
 };
 
 /**
@@ -82,20 +82,13 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
     const userData = mockUsers[user as keyof typeof mockUsers];
     if (userData) {
       // 创建提及数据
-      const mentionData = MentionBox.createMentionData(
-        userData.userId,
-        userData.username,
-        {
-          displayName: userData.displayName,
-          avatar: userData.avatar
-        }
-      );
+      const mentionData = MentionBox.createMentionData(userData.userId, userData.username, {
+        displayName: userData.displayName,
+        avatar: userData.avatar,
+      });
 
       // 创建提及BoxData
-      const boxData = MentionBox.createMentionBoxData(
-        generateId(),
-        mentionData
-      );
+      const boxData = MentionBox.createMentionBoxData(generateId(), mentionData);
 
       // 插入到编辑器
       editor.insertBox(boxData);
@@ -111,83 +104,41 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
   return (
     <div id="toolbar">
       {/* 格式化按钮 */}
-      <button
-        class="toolbar-btn"
-        title="粗体"
-        onClick={() => handleFormat('bold')}
-      >
+      <button class="toolbar-btn" title="粗体" onClick={() => handleFormat('bold')}>
         B
       </button>
 
-      <button
-        class="toolbar-btn"
-        title="斜体"
-        onClick={() => handleFormat('italic')}
-      >
+      <button class="toolbar-btn" title="斜体" onClick={() => handleFormat('italic')}>
         I
       </button>
 
-      <button
-        class="toolbar-btn"
-        title="下划线"
-        onClick={() => handleFormat('underline')}
-      >
+      <button class="toolbar-btn" title="下划线" onClick={() => handleFormat('underline')}>
         U
       </button>
 
-      <button
-        class="toolbar-btn"
-        title="删除线"
-        onClick={() => handleFormat('strikethrough')}
-      >
+      <button class="toolbar-btn" title="删除线" onClick={() => handleFormat('strikethrough')}>
         S
       </button>
 
-      <button
-        class="toolbar-btn"
-        title="代码"
-        onClick={() => handleFormat('code')}
-      >
+      <button class="toolbar-btn" title="代码" onClick={() => handleFormat('code')}>
         &lt;/&gt;
       </button>
 
-      <button
-        class="toolbar-btn"
-        title="上标"
-        onClick={() => handleFormat('superscript')}
-      >
+      <button class="toolbar-btn" title="上标" onClick={() => handleFormat('superscript')}>
         x²
       </button>
 
-      <button
-        class="toolbar-btn"
-        title="下标"
-        onClick={() => handleFormat('subscript')}
-      >
+      <button class="toolbar-btn" title="下标" onClick={() => handleFormat('subscript')}>
         x₂
       </button>
 
       {/* 颜色选择器 */}
-      <input
-        type="color"
-        class="toolbar-btn"
-        title="文字颜色"
-        onInput={(e) => handleColorChange(e.currentTarget.value, 'text')}
-      />
+      <input type="color" class="toolbar-btn" title="文字颜色" onInput={(e) => handleColorChange(e.currentTarget.value, 'text')} />
 
-      <input
-        type="color"
-        class="toolbar-btn"
-        title="背景颜色"
-        onInput={(e) => handleColorChange(e.currentTarget.value, 'background')}
-      />
+      <input type="color" class="toolbar-btn" title="背景颜色" onInput={(e) => handleColorChange(e.currentTarget.value, 'background')} />
 
       {/* 字体大小选择 */}
-      <select
-        class="toolbar-btn"
-        title="字体大小"
-        onChange={(e) => handleFontSizeChange(e.currentTarget.value)}
-      >
+      <select class="toolbar-btn" title="字体大小" onChange={(e) => handleFontSizeChange(e.currentTarget.value)}>
         <option value="12">12px</option>
         <option value="14">14px</option>
         <option value="16">16px</option>
@@ -200,26 +151,39 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
       <div class="toolbar-separator"></div>
 
       {/* 提及功能 */}
-      <button
-        class="toolbar-btn"
-        title="插入提及"
-        onClick={handleMention}
-      >
+      <button class="toolbar-btn" title="插入提及" onClick={handleMention}>
         @
       </button>
 
-      <select
-        class="toolbar-btn"
-        title="选择用户"
-        value={selectedUser()}
-        onChange={(e) => setSelectedUser(e.currentTarget.value)}
-      >
+      <select class="toolbar-btn" title="选择用户" value={selectedUser()} onChange={(e) => setSelectedUser(e.currentTarget.value)}>
         <option value="">选择用户...</option>
         <option value="user1">张三</option>
         <option value="user2">李四</option>
         <option value="user3">王五</option>
         <option value="user4">赵六</option>
       </select>
+
+      {/* 插入嵌入块 */}
+      <button
+        class="toolbar-btn"
+        title="插入嵌入块"
+        onClick={() => {
+          const editor = props.editor();
+          if (editor) {
+            // 创建嵌入块数据
+            const embedData = createEmbedBlockData('twitter', {
+              tweetId: '1234567890',
+            });
+
+            const focus = editor.selection.range.focus.blockId;
+            const blockIndex = editor.editorDoc.getBlockIndexById('root', focus);
+            // 插入到编辑器
+            editor.insertBlock('root', blockIndex, embedData);
+          }
+        }}
+      >
+        插入Twitter嵌入
+      </button>
     </div>
   );
 };

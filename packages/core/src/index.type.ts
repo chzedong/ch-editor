@@ -28,15 +28,14 @@ export interface BoxAttributeMap extends AttributeMap {
 
 export interface DocBlockTextOp {
   insert: string;
-  attributes?: AttributeMap | BoxAttributeMap
+  attributes?: AttributeMap | BoxAttributeMap;
 }
-
 
 export interface DocBlockAttributes {
   [index: string]: unknown;
 }
 
-export type DocBlockText = DocBlockTextOp[]
+export type DocBlockText = DocBlockTextOp[];
 
 export type DocBlock = {
   type: string;
@@ -44,19 +43,27 @@ export type DocBlock = {
   text?: DocBlockText;
 } & DocBlockAttributes;
 
+// Embed块专用数据类型
+export interface DocEmbedBlock extends DocBlock {
+  type: 'embed';
+  embedType: string; // embed块的具体类型，如 'image', 'video', 'code' 等
+  data: Record<string, any>; // embed块的数据
+}
+
 export interface DocObject {
   blocks: DocBlock[];
 }
 
-export type BlockKind = 'text' | 'embed' | 'complex'
+export type BlockKind = 'text' | 'embed' | 'complex';
 
 export interface Block {
   blockType: string;
   blockKing: BlockKind;
-  createBlockContent: (editor: Editor, path: BlockPath, container: Element, blockElement: BlockElement, block: DocBlock) => Element
+  createBlockContent: (editor: Editor, path: BlockPath, container: Element, blockElement: BlockElement, block: DocBlock) => Element;
   deleteBlock?: (editor: Editor, block: BlockElement) => void;
+  updateBlock?: (editor: Editor, block: BlockElement, blockData: DocBlock) => void;
 
-  setBlockText: (editor: Editor, block: BlockElement, text: DocBlockText) => void;
+  setBlockText?: (editor: Editor, block: BlockElement, text: DocBlockText) => void;
 
   getBlockTextLength: (block: DocBlock) => number;
 
@@ -69,9 +76,9 @@ export interface Block {
 export type BlockPathComponent = {
   containerId: string;
   blockIndex: number;
-}
+};
 
-export type BlockPath = BlockPathComponent[]
+export type BlockPath = BlockPathComponent[];
 
 export interface DocBlockTextActionOp {
   insert?: string;
@@ -80,7 +87,7 @@ export interface DocBlockTextActionOp {
   attributes?: AttributeMap;
 }
 
-export type DocBlockTextActions = DocBlockTextActionOp[]
+export type DocBlockTextActions = DocBlockTextActionOp[];
 
 export interface ShortcutsRecord {
   [key: string]: (editor: Editor, event: KeyboardEvent) => boolean;

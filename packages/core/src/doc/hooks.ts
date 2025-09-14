@@ -18,7 +18,7 @@ interface BaseHookContext {
 
 // beforeUpdateBlock 钩子上下文
 export interface BeforeUpdateBlockContext extends BaseHookContext {
-  actions: DocBlockTextActions;
+  actions?: DocBlockTextActions;
 }
 
 // beforeInsertBlock 钩子上下文

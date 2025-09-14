@@ -6,6 +6,9 @@ export { default as TextBlock } from './text/text-block';
 export { EditorSelection } from './selection/editor-selection';
 export { TextLine, LineBreaker } from './text/line/text-line';
 
+// Embed system exports
+export { isEmbedKindBlock, createEmbedBlockData } from './embed/embed-utils';
+
 // Types
 export * from './index.type';
 

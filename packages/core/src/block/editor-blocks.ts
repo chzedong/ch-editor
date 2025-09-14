@@ -45,10 +45,11 @@ export default class EditorBlocks {
    */
   forceRenderBlock(blockElement: BlockElement) {
     const blockData = this.editor.getBlockData(blockElement);
+    const blockClass = this.getBlockClass(blockData.type);
     if (isTextBlock(blockData)) {
-      const blockClass = this.getBlockClass(blockData.type);
-      blockClass.setBlockText(this.editor, blockElement, blockData.text);
+      blockClass.setBlockText?.(this.editor, blockElement, blockData.text);
     }
+    blockClass.updateBlock?.(this.editor, blockElement, blockData);
   }
 }
 

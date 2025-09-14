@@ -77,7 +77,7 @@ export class EditorDoc {
     const block = this.editor.getBlockById(blockData.id);
     assert(isTextKindBlock(this.editor, block), 'block is not text kind');
     const type = getBlockType(block);
-    this.editor.editorBlocks.getBlockClass(type).setBlockText(this.editor, block, newText);
+    this.editor.editorBlocks.getBlockClass(type).setBlockText?.(this.editor, block, newText);
 
     // 选区更新
     this.editor.selection.setSelection(newRange.anchor, newRange.focus, { syncRender: false });
@@ -193,7 +193,7 @@ export class EditorDoc {
     const block = this.editor.getBlockById(blockData.id);
     assert(isTextKindBlock(this.editor, block), 'block is not text kind');
     const type = getBlockType(block);
-    this.editor.editorBlocks.getBlockClass(type).setBlockText(this.editor, block, newText);
+    this.editor.editorBlocks.getBlockClass(type).setBlockText?.(this.editor, block, newText);
 
     // 选区设置
     const newRange = transformSelection(this.editor, blockData.id, insertAction);
@@ -228,7 +228,7 @@ export class EditorDoc {
     assert(isTextKindBlock(this.editor, block), 'block is not text kind');
 
     const type = getBlockType(block);
-    this.editor.editorBlocks.getBlockClass(type).setBlockText(this.editor, block, newText);
+    this.editor.editorBlocks.getBlockClass(type).setBlockText?.(this.editor, block, newText);
 
     // 选区设置
     const newRange = transformSelection(this.editor, blockData.id, deleteAction);
@@ -243,5 +243,35 @@ export class EditorDoc {
     });
 
     return result;
+  }
+
+  localUpdateBlock(containerId: string, blockIndex: number, blockData: DocBlock) {
+    // 触发before钩子
+    this.hooks.trigger('beforeUpdateBlock', {
+      containerId,
+      blockIndex
+    });
+
+    // 数据层处理
+    const updatedBlock = this.doc.updateBlock(containerId, blockIndex, blockData);
+
+    // 渲染处理
+    const block = this.editor.getBlockById(blockData.id);
+    const type = getBlockType(block);
+    const blockClass = this.editor.editorBlocks.getBlockClass(type);
+
+    if (blockClass.updateBlock) {
+      blockClass.updateBlock(this.editor, block, updatedBlock);
+    }
+
+    // 触发文档变化事件
+    this.hooks.trigger('docChange', {
+      type: 'update',
+      containerId,
+      blockIndex,
+      blockData: updatedBlock
+    });
+
+    return updatedBlock;
   }
 }

@@ -19,6 +19,7 @@ import { scrollIntoView } from '../utils/scroll-into-view';
 
 import { BlockElement, BoxData, ContainerElement, DocBlock, EditorOptions } from '../index.type';
 import { UndoManager } from '../undo-redo/undo-manager';
+import EmbedBlock from '../embed/embed-block';
 
 export class Editor extends TypedEmitter<any> {
   parent: HTMLElement;
@@ -51,6 +52,7 @@ export class Editor extends TypedEmitter<any> {
     this.parent = parent;
     this.editorDoc = new EditorDoc(this, options.initDoc);
     this.editorBlocks.registerBlockClass(TextBlock);
+    this.editorBlocks.registerBlockClass(EmbedBlock);
     // 初始化Mark管理器
     this.markManager = new MarkManager(this);
     this.markManager.registerAll(getBuiltInMarks());
