@@ -20,7 +20,7 @@ export function selectWordLeft(editor: Editor) {
     if (!isFirstBlock(block)) {
       const prevBlock = getPrevBlock(block);
       const prevBlockPos = getBlockEndPosition(editor, prevBlock);
-      editor.selection.setSelection(prevBlockPos, prevBlockPos);
+      editor.selection.setSelection(editor.selection.range.anchor, prevBlockPos);
       return true;
     }
   }
@@ -45,7 +45,7 @@ export function selectWordLeft(editor: Editor) {
 
     if (!isTextKindBlock(editor, prevBlock)) {
       const prevBlockPos = getBlockEndPosition(editor, prevBlock);
-      editor.selection.setSelection(prevBlockPos, prevBlockPos);
+      editor.selection.setSelection(editor.selection.range.anchor, prevBlockPos);
       return true;
     }
 

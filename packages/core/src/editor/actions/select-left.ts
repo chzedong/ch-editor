@@ -25,7 +25,7 @@ export function selectLeft(editor: Editor) {
 
     if (!isTextKindBlock(editor, prevBlock)) {
       const prevBlockPos = getBlockEndPosition(editor, prevBlock);
-      editor.selection.setSelection(prevBlockPos, prevBlockPos);
+      editor.selection.setSelection(editor.selection.range.anchor, prevBlockPos);
       return true;
     }
 

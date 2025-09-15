@@ -27,7 +27,7 @@ export function selectRight(editor: Editor) {
 
     if (!isTextKindBlock(editor, nextBlock)) {
       const nextBlockPos = getBlockStartPosition(editor, nextBlock);
-      editor.selection.setSelection(nextBlockPos, nextBlockPos);
+      editor.selection.setSelection(editor.selection.range.anchor, nextBlockPos);
       return true;
     }
 
