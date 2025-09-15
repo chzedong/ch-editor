@@ -1,9 +1,10 @@
-import { getBlockId, getBlockType, isFirstBlock } from '../../block/block-dom';
+import { findPrevBlock, getBlockId, getBlockType, getPrevBlock, isFirstBlock } from '../../block/block-dom';
 import { Editor } from '../editor';
 import { EditorBlockPosition } from '../../selection/block-position';
 import { isTextKindBlock } from '../../text';
 import { editorGetPreWordStart } from '../utils/word-navigation-utils';
 import { assert } from '../../utils/assert';
+import { getBlockEndPosition } from '../utils/navigation-utils';
 
 import { BlockElement, DocBlockText } from '../../index.type';
 
@@ -15,6 +16,17 @@ export function moveWordLeft(editor: Editor) {
   const blockLen = blockClass.getBlockTextLength(editor.getBlockData(block));
   assert(focusPos.offset <= blockLen, 'focusPos.offset not <= blockLen');
   const blockData = editor.getBlockData(block);
+
+  if (!isTextKindBlock(editor, block)) {
+    const preBlock = findPrevBlock(block);
+    if (!preBlock) {
+      return false;
+    }
+    const pos = getBlockEndPosition(editor, preBlock);
+    editor.selection.setSelection(pos, pos);
+    return true;
+  }
+
   assert(isTextKindBlock(editor, block), 'not text kind block');
 
   if (focusPos.offset > 0) {
@@ -32,6 +44,12 @@ export function moveWordLeft(editor: Editor) {
 
   if (!isFirstBlock(block)) {
     const prevBlock = block.previousElementSibling as BlockElement;
+
+    if (!isTextKindBlock(editor, prevBlock)) {
+      const prevBlockPos = getBlockEndPosition(editor, prevBlock);
+      editor.selection.setSelection(prevBlockPos, prevBlockPos);
+      return true;
+    }
 
     assert(isTextKindBlock(editor, prevBlock), 'no next block');
 

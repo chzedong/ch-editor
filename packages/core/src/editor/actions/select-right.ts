@@ -5,6 +5,7 @@ import { isTextKindBlock } from '../../text';
 import { assert } from '../../utils/assert';
 
 import { BlockElement } from '../../index.type';
+import { getBlockStartPosition } from '../utils/navigation-utils';
 
 export function selectRight(editor: Editor) {
 
@@ -23,6 +24,12 @@ export function selectRight(editor: Editor) {
 
   if (!isLastBlock(block)) {
     const nextBlock = block.nextElementSibling as BlockElement;
+
+    if (!isTextKindBlock(editor, nextBlock)) {
+      const nextBlockPos = getBlockStartPosition(editor, nextBlock);
+      editor.selection.setSelection(nextBlockPos, nextBlockPos);
+      return true;
+    }
 
     assert(isTextKindBlock(editor, nextBlock), 'not text kind block');
 

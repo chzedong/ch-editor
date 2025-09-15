@@ -3,6 +3,7 @@ import { Editor } from '../editor';
 import { EditorBlockPosition } from '../../selection/block-position';
 import { isTextKindBlock } from '../../text';
 import { assert } from '../../utils/assert';
+import { getBlockEndPosition } from '../utils/navigation-utils';
 
 export function selectLeft(editor: Editor) {
 
@@ -21,6 +22,12 @@ export function selectLeft(editor: Editor) {
 
   if (!isFirstBlock(block)) {
     const prevBlock = getPrevBlock(block);
+
+    if (!isTextKindBlock(editor, prevBlock)) {
+      const prevBlockPos = getBlockEndPosition(editor, prevBlock);
+      editor.selection.setSelection(prevBlockPos, prevBlockPos);
+      return true;
+    }
 
     assert(isTextKindBlock(editor, prevBlock), 'no next block');
 

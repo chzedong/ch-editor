@@ -184,6 +184,12 @@ export class Editor extends TypedEmitter<any> {
     const range = this.selection.range;
     const focusPos = range.focus;
     const block = this.getBlockById(focusPos.blockId);
+
+    if (!isTextKindBlock(this, block)) {
+      this.setTargetColumnX(0);
+      return;
+    }
+
     assert(isTextKindBlock(this, block), 'not text kind block');
 
     const lineBreaker = assertLineBreaker(block, weakMap);

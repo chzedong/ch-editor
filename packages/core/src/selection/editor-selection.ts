@@ -1,12 +1,11 @@
 import { Editor } from '../editor/editor';
 import { EditorSelectionRange, SelectionRangeSnapshot } from './selection-range';
 import { getRangeBlocks, updateSelection } from './selection-dom';
-import { getBlockId } from '../block/block-dom';
+import { getBlockId, getBlockType } from '../block/block-dom';
 import { Caret } from '../caret/caret-render';
 import { EditorBlockPosition, SimpleBlockPositionType } from './block-position';
 import { assert } from '../utils/assert';
 import { LineBreaker } from '../text/line/text-line';
-import { removeBackgrounds } from '../text/text-dom';
 
 import { BlockElement } from '../index.type';
 import { isEmbedKindBlock } from '../embed/embed-utils';
@@ -153,7 +152,12 @@ export class EditorSelection {
     this.scheduleDomOperation(() => {
       outerBlocks.forEach((blockId) => {
         const block = this.editor.findBlockById(blockId);
-        block && removeBackgrounds(block);
+        if (!block) {
+          return;
+        }
+        const type = getBlockType(block);
+        const blockClass = this.editor.editorBlocks.getBlockClass(type);
+        blockClass?.updateSelection(this.editor, block, -1, -1);
       });
     });
   }

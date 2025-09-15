@@ -2,6 +2,7 @@ import { getBlockIndex } from '../block/block-dom';
 import { getParentContainer, getContainerId } from '../container/container-dom';
 import { BlockElement } from '../index.type';
 import { Editor, LineBreaker, assert } from '../main';
+import { isTextKindBlock } from '../text';
 import { assertLineBreaker } from '../text/line/text-line';
 import { getDocTextLength } from '../text/text-op';
 import { EditorSelectionRange } from './selection-range';
@@ -11,6 +12,11 @@ export function updateSelection(editor: Editor, weakMap?: WeakMap<BlockElement, 
   editor.selection.getSelectedBlocks().forEach((selectedBlockInfo) => {
     const blockData = editor.getBlockData(selectedBlockInfo.block);
     const blockClass = editor.editorBlocks.getBlockClass(blockData.type);
+
+    if (!isTextKindBlock(editor, selectedBlockInfo.block)) {
+      blockClass?.updateSelection(editor, selectedBlockInfo.block, selectedBlockInfo.anchor, selectedBlockInfo.focus);
+      return;
+    }
 
     const lineBreaker = assertLineBreaker(selectedBlockInfo.block, weakMap);
 

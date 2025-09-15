@@ -6,6 +6,7 @@ import { editorGetPreWordStart } from '../utils/word-navigation-utils';
 import { assert } from '../../utils/assert';
 
 import { DocBlockText } from '../../index.type';
+import { getBlockEndPosition } from '../utils/navigation-utils';
 
 export function selectWordLeft(editor: Editor) {
   const focusPos = editor.selection.range.focus;
@@ -14,6 +15,16 @@ export function selectWordLeft(editor: Editor) {
   const blockLen = blockClass.getBlockTextLength(editor.getBlockData(block));
   assert(focusPos.offset <= blockLen, 'focusPos.offset not <= blockLen');
   const blockData = editor.getBlockData(block);
+
+  if (!isTextKindBlock(editor, block)) {
+    if (!isFirstBlock(block)) {
+      const prevBlock = getPrevBlock(block);
+      const prevBlockPos = getBlockEndPosition(editor, prevBlock);
+      editor.selection.setSelection(prevBlockPos, prevBlockPos);
+      return true;
+    }
+  }
+
   assert(isTextKindBlock(editor, block), 'not text kind block');
 
   if (focusPos.offset > 0) {
@@ -31,6 +42,12 @@ export function selectWordLeft(editor: Editor) {
 
   if (!isFirstBlock(block)) {
     const prevBlock = getPrevBlock(block);
+
+    if (!isTextKindBlock(editor, prevBlock)) {
+      const prevBlockPos = getBlockEndPosition(editor, prevBlock);
+      editor.selection.setSelection(prevBlockPos, prevBlockPos);
+      return true;
+    }
 
     assert(isTextKindBlock(editor, prevBlock), 'no next block');
 

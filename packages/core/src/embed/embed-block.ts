@@ -2,7 +2,7 @@ import { Editor } from '../editor/editor';
 import { getBlockId } from '../block/block-dom';
 import { EditorBlockPosition } from '../selection/block-position';
 import { createElement } from '../utils/dom';
-
+import './embed.scss';
 import { Block, BlockElement, BlockPath, DocBlock, DocEmbedBlock } from '../index.type';
 
 function createBlockContent(editor: Editor, path: BlockPath, container: Element, blockElement: Element, blockData: DocBlock) {
@@ -60,12 +60,12 @@ function getCursorRect(editor: Editor, block: BlockElement, position: EditorBloc
 }
 
 function updateSelection(editor: Editor, block: BlockElement, from: number, to: number) {
-  if (from === 0 && to === 1) {
-    // 整个块被选中
-    block.classList.add('selected');
-  } else {
+  if (from === -1 && to === -1) {
     // 恢复默认样式
     block.classList.remove('selected');
+  } else {
+    // 整个块被选中
+    block.classList.add('selected');
   }
 }
 

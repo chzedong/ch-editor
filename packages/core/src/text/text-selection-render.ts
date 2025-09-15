@@ -6,6 +6,11 @@ import { Editor } from '../editor/editor';
 export function updateSelection(editor: Editor, block: BlockElement, from: number, to: number, lineBreaker?: LineBreaker): void {
   const isCollapsed = editor.selection.range.isCollapsed();
 
+  if (from === -1 && to === -1) {
+    removeBackgrounds(block);
+    return;
+  }
+
   if (isCollapsed && from === to) {
     removeBackgrounds(block);
     return;

@@ -1,4 +1,4 @@
-import { getBlockId, isFirstBlock, isLastBlock, findPrevBlock, findNextBlock } from '../../block/block-dom';
+import { getBlockId, isFirstBlock, isLastBlock, findPrevBlock, findNextBlock, getBlockType } from '../../block/block-dom';
 import { Editor } from '../editor';
 import { EditorBlockPosition } from '../../selection/block-position';
 import { isTextKindBlock } from '../../text/text-block';
@@ -87,15 +87,16 @@ export function findDownPosition(
 ) {
   const block = editor.getBlockById(focusPos.blockId);
 
+  if (!isTextKindBlock(editor, block)) {
+    return moveDownToNextBlock(editor, block);
+  }
+
   assert(isTextKindBlock(editor, block), 'not text kind block');
   const lineBreaker = new LineBreaker(block);
 
   // 处理空块的情况
   if (lineBreaker.lineCount === 0) {
-    if (!isLastBlock(block)) {
-      return moveDownToNextBlock(editor, block);
-    }
-    return null;
+    return moveDownToNextBlock(editor, block);
   }
 
   const currentLineIndex = lineBreaker.getLineIndex(focusPos);
@@ -128,10 +129,14 @@ function moveDownToNextBlock(editor: Editor, currentBlock: BlockElement) {
     return null;
   }
 
+  if (!isTextKindBlock(editor, nextBlock)) {
+    return getBlockStartPosition(editor, nextBlock);
+  }
+
   const targetX = getOrInitializeTargetX(editor);
   const targetLine = getTargetLineInBlock(nextBlock, NavigationDirection.DOWN);
 
-  assert(!!targetX, 'targetX is null');
+  assert(typeof targetX === 'number', 'targetX is null');
   // 在目标行中找到最接近目标X坐标的位置
   const targetPos = findPositionByX(editor, getBlockId(nextBlock), targetLine, targetX);
 
@@ -142,15 +147,16 @@ function moveDownToNextBlock(editor: Editor, currentBlock: BlockElement) {
 export function findUpPosition(editor: Editor, focusPos: EditorBlockPosition) {
   const block = editor.getBlockById(focusPos.blockId);
 
+  if (!isTextKindBlock(editor, block)) {
+    return moveUpToPreviousBlock(editor, block);
+  }
+
   assert(isTextKindBlock(editor, block), 'not text kind block');
   const lineBreaker = new LineBreaker(block);
 
   // 处理空块的情况
   if (lineBreaker.lineCount === 0) {
-    if (!isFirstBlock(block)) {
-      return moveUpToPreviousBlock(editor, block);
-    }
-    return null;
+    return moveUpToPreviousBlock(editor, block);
   }
 
   const currentLineIndex = lineBreaker.getLineIndex(focusPos);
@@ -175,6 +181,15 @@ export function findUpPosition(editor: Editor, focusPos: EditorBlockPosition) {
   return null;
 }
 
+export function getBlockEndPosition(editor: Editor, block: BlockElement) {
+  const blockClass = editor.editorBlocks.getBlockClass(getBlockType(block));
+  const len = blockClass.getBlockTextLength(editor.getBlockData(block));
+  return new EditorBlockPosition(getBlockId(block), len, 'end');
+}
+
+export function getBlockStartPosition(editor: Editor, block: BlockElement) {
+  return new EditorBlockPosition(getBlockId(block), 0, 'home');
+}
 
 /**
  * 移动到上一个块
@@ -185,10 +200,14 @@ function moveUpToPreviousBlock(editor: Editor, currentBlock: BlockElement) {
     return null;
   }
 
+  if (!isTextKindBlock(editor, prevBlock)) {
+    return getBlockEndPosition(editor, prevBlock);
+  }
+
   const targetX = getOrInitializeTargetX(editor);
   const targetLine = getTargetLineInBlock(prevBlock, NavigationDirection.UP);
 
-  assert(!!targetX, 'targetX is null');
+  assert(typeof targetX === 'number', 'targetX is null');
   // 在目标行中找到最接近目标X坐标的位置
   return findPositionByX(editor, getBlockId(prevBlock), targetLine, targetX);
 }

@@ -41,7 +41,7 @@ export class RootContainer {
     const blockClass = this.editor.editorBlocks.getBlockClass(type);
 
     const weakMap = new WeakMap();
-    const lineBreaker = assertLineBreaker(block, weakMap);
+    const lineBreaker = isTextKindBlock(this.editor, block) ?  assertLineBreaker(block, weakMap) : undefined;
 
     const pos = blockClass.getRangeFormPoint(this.editor, block, clientX, clientY, lineBreaker);
     const startPos = new EditorBlockPosition(block.id, pos.offset, pos.type);
