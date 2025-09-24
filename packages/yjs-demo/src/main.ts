@@ -34,7 +34,7 @@ class YjsDemo {
 
   constructor() {
     this.docApi = new DocApi({
-      enableWebsocket: false, // 默认关闭WebSocket，使用本地模式
+      enableWebsocket: true, // 默认关闭WebSocket，使用本地模式
       roomName: 'yjs-demo-room'
     });
 

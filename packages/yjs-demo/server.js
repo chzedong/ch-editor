@@ -1,12 +1,12 @@
 // 简单的 YJS WebSocket 服务器
 // 运行: node server.js
 
-const WebSocket = require('ws');
-const http = require('http');
-const { setupWSConnection } = require('y-websocket/bin/utils');
+import { WebSocketServer } from 'ws';
+import http from 'http';
+import { setupWSConnection } from 'y-websocket/bin/utils';
 
 const server = http.createServer();
-const wss = new WebSocket.Server({ server });
+const wss = new WebSocketServer({ server });
 
 console.log('YJS WebSocket Server starting...');
 
