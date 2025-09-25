@@ -135,6 +135,19 @@ export class YjsProvider {
     };
   }
 
+  onAwarenessChange(listener: (awareness: any) => void): () => void {
+    const awareness = this.getAwareness();
+    if (awareness) {
+      awareness.on('change', listener);
+    }
+    return () => {
+      const awareness = this.getAwareness();
+      if (awareness) {
+        awareness.off('change', listener);
+      }
+    };
+  }
+
   /**
    * 获取协同用户信息（如果支持）
    */
@@ -159,13 +172,13 @@ export class YjsProvider {
     const awareness = this.getAwareness();
     if (!awareness) return [];
 
+    // WebSocket 模式：从 awareness 获取所有用户
     const users: Array<{ clientId: number; user: any }> = [];
     awareness.getStates().forEach((state: any, clientId: number) => {
       if (state.user) {
         users.push({ clientId, user: state.user });
       }
     });
-
     return users;
   }
 

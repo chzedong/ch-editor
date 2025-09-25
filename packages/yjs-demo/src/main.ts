@@ -32,6 +32,13 @@ class YjsDemo {
   private textPositionFormatInput!: HTMLInputElement;
   private formatLengthInput!: HTMLInputElement;
 
+  // 用户信息相关元素
+  private currentUserInfo!: HTMLElement;
+  private onlineUsersList!: HTMLElement;
+  private userNameInput!: HTMLInputElement;
+  private userColorInput!: HTMLInputElement;
+  private updateUserBtn!: HTMLButtonElement;
+
   constructor() {
     this.docApi = new DocApi({
       enableWebsocket: true, // 默认关闭WebSocket，使用本地模式
@@ -74,6 +81,12 @@ class YjsDemo {
     this.textPositionFormatInput = document.getElementById('text-position-format') as HTMLInputElement;
     this.formatLengthInput = document.getElementById('format-length') as HTMLInputElement;
 
+    // 用户信息相关元素
+    this.currentUserInfo = document.getElementById('current-user-info')!;
+    this.onlineUsersList = document.getElementById('online-users-list')!;
+    this.userNameInput = document.getElementById('user-name-input') as HTMLInputElement;
+    this.userColorInput = document.getElementById('user-color-input') as HTMLInputElement;
+    this.updateUserBtn = document.getElementById('update-user-btn') as HTMLButtonElement;
   }
 
   private setupEventListeners(): void {
@@ -97,6 +110,14 @@ class YjsDemo {
     this.docApi.onConnectionChange((connected) => {
       this.updateConnectionStatus(connected);
     });
+
+    // 监听协同用户变化
+    this.docApi.onAwarenessChange((awareness) => {
+      this.updateUserDisplay();
+    });
+
+    // 用户信息更新
+    this.updateUserBtn.addEventListener('click', () => this.updateUserInfo());
 
     this.insertTextBtn.addEventListener('click', () => this.insertText());
     this.deleteTextBtn.addEventListener('click', () => this.deleteText());
@@ -132,16 +153,108 @@ class YjsDemo {
   private async initialize(): Promise<void> {
     try {
       await this.docApi.initialize();
+
+      // 设置随机用户信息
+      this.setupRandomUser();
+
       this.isInitialized = true;
       this.updateVisualization();
       this.updateDocumentStructure();
       this.updateConnectionStatus(this.docApi.isConnected());
+      this.updateUserDisplay();
 
       console.log('YJS Demo initialized successfully');
     } catch (error) {
       console.error('Failed to initialize YJS Demo:', error);
       this.showError('初始化失败: ' + (error as Error).message);
     }
+  }
+
+  /**
+   * 设置随机用户信息
+   */
+  private setupRandomUser(): void {
+    const userNames = ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank', 'Grace', 'Henry'];
+    const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F'];
+
+    const randomName = userNames[Math.floor(Math.random() * userNames.length)];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    const userId = Math.random().toString(36).substr(2, 9);
+
+    const userName = `${randomName}_${userId}`;
+
+    this.docApi.setCurrentUser(userName, randomColor);
+    console.log(`设置用户信息: ${userName} (${randomColor})`);
+  }
+
+  /**
+   * 更新用户信息
+   */
+  private updateUserInfo(): void {
+    const name = this.userNameInput.value.trim();
+    const color = this.userColorInput.value;
+
+    if (!name) {
+      this.showError('请输入用户名');
+      return;
+    }
+
+    this.docApi.setCurrentUser(name, color);
+    this.updateUserDisplay();
+    this.showSuccess(`用户信息已更新: ${name}`);
+  }
+
+  /**
+   * 更新用户信息显示
+   */
+  private updateUserDisplay(): void {
+    const onlineUsers = this.docApi.getOnlineUsers();
+
+    // 更新当前用户信息显示
+    if (onlineUsers.length > 0) {
+      const currentUser = onlineUsers[0]; // 在本地模式下，第一个就是当前用户
+      this.updateCurrentUserDisplay(currentUser.user);
+    }
+
+    // 更新在线用户列表
+    this.updateOnlineUsersList(onlineUsers);
+  }
+
+  /**
+   * 更新当前用户信息显示
+   */
+  private updateCurrentUserDisplay(user: any): void {
+    const nameSpan = this.currentUserInfo.querySelector('.user-name') as HTMLElement;
+    const colorSpan = this.currentUserInfo.querySelector('.user-color') as HTMLElement;
+
+    if (nameSpan && colorSpan) {
+      nameSpan.textContent = user.name || '未设置';
+      colorSpan.style.backgroundColor = user.color || '#ccc';
+    }
+
+    // 同步到输入框
+    this.userNameInput.value = user.name || '';
+    this.userColorInput.value = user.color || '#FF6B6B';
+  }
+
+  /**
+   * 更新在线用户列表
+   */
+  private updateOnlineUsersList(users: Array<{ clientId: number; user: any }>): void {
+    if (users.length === 0) {
+      this.onlineUsersList.innerHTML = '<div>暂无在线用户</div>';
+      return;
+    }
+
+    const usersHtml = users.map(({ clientId, user }) => `
+      <div class="user-item">
+        <span class="user-name">${user.name || '未知用户'}</span>
+        <span class="user-color" style="background-color: ${user.color || '#ccc'}"></span>
+        <span class="user-client-id">ID: ${clientId}</span>
+      </div>
+    `).join('');
+
+    this.onlineUsersList.innerHTML = usersHtml;
   }
 
   private async connect(): Promise<void> {

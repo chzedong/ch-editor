@@ -273,6 +273,11 @@ export class DocApi {
     return this.provider.onDocumentUpdate(callback);
   }
 
+
+  onAwarenessChange(callback: (awareness: any) => void): () => void {
+    return this.provider.onAwarenessChange(callback);
+  }
+
   /**
    * 获取在线用户
    */
