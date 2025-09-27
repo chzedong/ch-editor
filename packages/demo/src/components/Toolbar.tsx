@@ -16,26 +16,26 @@ const mockUsers = {
     userId: 'user1',
     username: 'zhangsan',
     displayName: '张三',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=zhangsan',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=zhangsan'
   },
   user2: {
     userId: 'user2',
     username: 'lisi',
     displayName: '李四',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=lisi',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=lisi'
   },
   user3: {
     userId: 'user3',
     username: 'wangwu',
     displayName: '王五',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=wangwu',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=wangwu'
   },
   user4: {
     userId: 'user4',
     username: 'zhaoliu',
     displayName: '赵六',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=zhaoliu',
-  },
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=zhaoliu'
+  }
 };
 
 /**
@@ -84,7 +84,7 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
       // 创建提及数据
       const mentionData = MentionBox.createMentionData(userData.userId, userData.username, {
         displayName: userData.displayName,
-        avatar: userData.avatar,
+        avatar: userData.avatar
       });
 
       // 创建提及BoxData
@@ -172,7 +172,7 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
           if (editor) {
             // 创建嵌入块数据
             const embedData = createEmbedBlockData('twitter', {
-              tweetId: '1234567890',
+              tweetId: '1234567890'
             });
 
             const focus = editor.selection.range.focus.blockId;

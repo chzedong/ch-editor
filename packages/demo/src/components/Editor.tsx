@@ -1,5 +1,6 @@
 import { Component, onMount, onCleanup, createSignal } from 'solid-js';
 import { Doc, Editor as CoreEditor } from '@ch-editor/core';
+import { UndoManager } from '@ch-editor/undo-redo';
 
 interface EditorProps {
   onEditorReady?: (editor: CoreEditor) => void;
@@ -53,7 +54,8 @@ export const Editor: Component<EditorProps> = (props) => {
 
       // 创建编辑器实例
       const editor = new CoreEditor(editorContainer, {
-        initDoc: new Doc(initDoc)
+        initDoc: new Doc(initDoc),
+        initUndoManager: (editor) => new UndoManager(editor)
       });
 
       editor.focus();

@@ -105,9 +105,19 @@ export type BlockElement = HTMLDivElement;
 export type BlockContentElement = HTMLDivElement;
 export type TextBlockContentChild = HTMLSpanElement;
 
+export interface UndoManager {
+  undo: () => boolean;
+  redo: () => boolean;
+  canUndo: () => boolean;
+  canRedo: () => boolean;
+  getState: () => any;
+  executeInGroup: <T>(callback: () => T) => T;
+}
+
 // Editor related types
 export interface EditorOptions {
   initDoc?: import('./doc/doc').Doc;
+  initUndoManager:  (editor: Editor) => UndoManager;
 }
 
 /**

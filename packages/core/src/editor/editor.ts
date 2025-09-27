@@ -17,8 +17,7 @@ import { DecoratorManager, CompositionWidgetDecorator } from '../decorator';
 import { assert } from '../utils/assert';
 import { scrollIntoView } from '../utils/scroll-into-view';
 
-import { BlockElement, BoxData, ContainerElement, DocBlock, EditorOptions } from '../index.type';
-import { UndoManager } from '../undo-redo/undo-manager';
+import { BlockElement, BoxData, ContainerElement, DocBlock, EditorOptions, UndoManager } from '../index.type';
 import EmbedBlock from '../embed/embed-block';
 
 export class Editor extends TypedEmitter<any> {
@@ -74,7 +73,7 @@ export class Editor extends TypedEmitter<any> {
     this.input.addHandler(shortcuts);
     shortcuts.shortcuts = [defaultShortcuts];
 
-    this.undoManager = new UndoManager(this);
+    this.undoManager = options.initUndoManager(this);
   }
 
   focus(autoScroll: boolean = true, weakMap?: WeakMap<BlockElement, LineBreaker>) {

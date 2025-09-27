@@ -18,7 +18,7 @@ export type HookType =
   | 'afterUpdateBlock';
 
 // 基础钩子上下文
-interface BaseHookContext {
+export interface BaseHookContext {
   containerId: string;
   blockIndex: number;
   // 需要判断操作来源的字段，可能是个枚举类型
