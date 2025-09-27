@@ -9,12 +9,11 @@ import { BoxData, DocBlock, DocBlockTextActions } from '../index.type';
 export class EditorDoc {
   private doc: Doc;
   public readonly hooks: LifecycleHooks; // 公开钩子系统供外部扩展使用
-  private defaultHookHandlers: DefaultHookHandlers;
 
   constructor(private editor: Editor, doc?: Doc) {
     this.doc = doc || new Doc();
     this.hooks = new LifecycleHooks();
-    this.defaultHookHandlers = new DefaultHookHandlers(this.editor, this.hooks);
+    new DefaultHookHandlers(this.editor, this.hooks);
   }
 
   getDoc(): Doc {
