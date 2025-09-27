@@ -2,6 +2,9 @@ import AttributeMap from 'quill-delta/dist/AttributeMap';
 import { Editor } from './editor/editor';
 import { EditorBlockPosition } from './selection/block-position';
 import { LineBreaker } from './main';
+import type { EmbedPlugin, EmbedRenderContext } from './embed/embed-plugin';
+
+export { EmbedPlugin, EmbedRenderContext };
 
 export interface BoxData {
   /** Box 的唯一标识符 */
@@ -118,6 +121,7 @@ export interface UndoManager {
 export interface EditorOptions {
   initDoc?: import('./doc/doc').Doc;
   initUndoManager:  (editor: Editor) => UndoManager;
+  embedPlugins?: EmbedPlugin[];
 }
 
 /**

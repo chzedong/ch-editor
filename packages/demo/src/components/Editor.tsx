@@ -1,6 +1,7 @@
 import { Component, onMount, onCleanup, createSignal } from 'solid-js';
 import { Doc, Editor as CoreEditor } from '@ch-editor/core';
 import { UndoManager } from '@ch-editor/undo-redo';
+import { twitterEmbedPlugin } from '../embed-plugins/twitter';
 
 interface EditorProps {
   onEditorReady?: (editor: CoreEditor) => void;
@@ -55,7 +56,8 @@ export const Editor: Component<EditorProps> = (props) => {
       // 创建编辑器实例
       const editor = new CoreEditor(editorContainer, {
         initDoc: new Doc(initDoc),
-        initUndoManager: (editor) => new UndoManager(editor)
+        initUndoManager: (editor) => new UndoManager(editor),
+        embedPlugins: [twitterEmbedPlugin],
       });
 
       editor.focus();
@@ -86,8 +88,7 @@ export const Editor: Component<EditorProps> = (props) => {
     const editor = editorInstance();
     if (editor) {
       // 清理事件监听器
-      // 注意：这里需要根据实际的API来清理事件监听器
-      console.log('Cleaning up editor');
+      editor.unmount();
     }
   });
 

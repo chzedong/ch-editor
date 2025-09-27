@@ -16,8 +16,10 @@ import { MarkManager, getBuiltInMarks } from '../mark';
 import { DecoratorManager, CompositionWidgetDecorator } from '../decorator';
 import { assert } from '../utils/assert';
 import { scrollIntoView } from '../utils/scroll-into-view';
+import { EmbedPluginManager } from '../embed/embed-plugin-manager';
 
-import { BlockElement, BoxData, ContainerElement, DocBlock, EditorOptions, UndoManager } from '../index.type';
+
+import { BlockElement, BoxData, ContainerElement, DocBlock, EditorOptions, UndoManager, EmbedPlugin } from '../index.type';
 import EmbedBlock from '../embed/embed-block';
 
 export class Editor extends TypedEmitter<any> {
@@ -36,6 +38,8 @@ export class Editor extends TypedEmitter<any> {
   editorBlocks: EditorBlocks = new EditorBlocks(this);
 
   editorBoxes: EditorBoxes = new EditorBoxes();
+
+  editorEmbeds: EmbedPluginManager = new EmbedPluginManager();
 
   markManager: MarkManager;
 
@@ -62,6 +66,13 @@ export class Editor extends TypedEmitter<any> {
     this.decoratorManager.registerAllWidgets([
       new CompositionWidgetDecorator()
     ]);
+
+    // 注册 Embed 插件
+    if (options.embedPlugins) {
+      options.embedPlugins.forEach(plugin => {
+        this.editorEmbeds.register(plugin);
+      });
+    }
 
     // this.options = options;
     this.input = new EditorInput(this);
@@ -265,5 +276,13 @@ export class Editor extends TypedEmitter<any> {
    */
   getUndoRedoState() {
     return this.undoManager.getState();
+  }
+
+  /**
+   * 卸载编辑器
+   */
+  unmount() {
+    this.editorEmbeds.destroy();
+    this.selection.destroy();
   }
 }

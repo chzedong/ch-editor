@@ -3,20 +3,36 @@ import { getBlockId } from '../block/block-dom';
 import { EditorBlockPosition } from '../selection/block-position';
 import { createElement } from '../utils/dom';
 import './embed.scss';
+
 import { Block, BlockElement, BlockPath, DocBlock, DocEmbedBlock } from '../index.type';
 
 function createBlockContent(editor: Editor, path: BlockPath, container: Element, blockElement: Element, blockData: DocBlock) {
   const embedData = blockData as DocEmbedBlock;
-  const content = createElement('div', ['embed-content'], null);
+  const content = createElement('div', ['embed-content'], null) as HTMLElement;
   content.setAttribute('data-type', 'block-content');
-  content.setAttribute('data-embed-type', embedData.type);
+  content.setAttribute('data-embed-type', embedData.embedType);
 
-  // 创建内容显示
-  const contentDisplay = createElement('div', ['embed-display'], null);
-  contentDisplay.textContent = `Embed Block: ${embedData.type}`;
-  contentDisplay.style.textAlign = 'center';
-  contentDisplay.style.color = '#666';
-  content.appendChild(contentDisplay);
+  // 插件渲染委托
+  const plugin = editor.editorEmbeds.get(embedData.embedType);
+  if (plugin) {
+    const created = plugin.create({
+      editor,
+      path,
+      blockElement: blockElement as BlockElement,
+      data: embedData,
+      contentRoot: content
+    });
+    if (created instanceof HTMLElement) {
+      content.appendChild(created);
+    }
+  } else {
+    // 回退占位
+    const contentDisplay = createElement('div', ['embed-display'], null);
+    contentDisplay.textContent = `No plugin for embed: ${embedData.embedType}`;
+    contentDisplay.style.textAlign = 'center';
+    contentDisplay.style.color = '#666';
+    content.appendChild(contentDisplay);
+  }
 
   if (blockElement) {
     blockElement.appendChild(content);
@@ -27,7 +43,17 @@ function createBlockContent(editor: Editor, path: BlockPath, container: Element,
 
 function updateBlock(editor: Editor, block: BlockElement, blockData: DocBlock) {
   const embedData = blockData as DocEmbedBlock;
-  const content = block.querySelector('[data-type="block-content"]') as HTMLElement;
+  const content = block.querySelector('[data-type="block-content"]') as HTMLElement | null;
+  const plugin = editor.editorEmbeds.get(embedData.embedType);
+  if (plugin && content) {
+    plugin.update?.({
+      editor,
+      path: [],
+      blockElement: block,
+      data: embedData,
+      contentRoot: content
+    });
+  }
 }
 
 function getBlockTextLength(block: DocBlock) {
@@ -69,6 +95,23 @@ function updateSelection(editor: Editor, block: BlockElement, from: number, to: 
   }
 }
 
+function deleteBlock(editor: Editor, block: BlockElement) {
+  // 删除embed块，先通知插件清理
+  const content = block.querySelector('[data-type="block-content"]') as HTMLElement | null;
+  const blockData = editor.getBlockData(block) as DocEmbedBlock;
+  const plugin = editor.editorEmbeds.get(blockData.embedType);
+  if (plugin && content) {
+    plugin.destroy?.({
+      editor,
+      path: [],
+      blockElement: block,
+      data: blockData,
+      contentRoot: content
+    });
+  }
+  block.remove();
+}
+
 const EmbedBlock: Block = {
   blockKing: 'embed',
   blockType: 'embed',
@@ -77,7 +120,8 @@ const EmbedBlock: Block = {
   getBlockTextLength,
   getRangeFormPoint,
   updateSelection,
-  getCursorRect
+  getCursorRect,
+  deleteBlock
 };
 
 export default EmbedBlock;
