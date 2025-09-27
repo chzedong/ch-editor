@@ -1,6 +1,5 @@
 import { BoxData } from '../index.type';
 import { assert } from '../main';
-import { MentionBox } from './extensions/mention-box';
 
 /**
  * Box 构造函数接口
@@ -47,7 +46,7 @@ export class EditorBoxes {
    */
   private _initializeDefaultBoxes(): void {
     // 注册默认的 box 类型
-    this.registerBoxClass('mention', MentionBox);
+    // this.registerBoxClass('mention', MentionBox);
   }
 
   /**

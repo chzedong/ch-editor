@@ -1,6 +1,5 @@
-import { BoxInstance } from '../../box/editor-boxes';
+import { BoxInstance, BoxData } from '@ch-editor/core';
 import './mention-box.css';
-import { BoxData } from '../../index.type';
 
 /**
  * 提及数据接口

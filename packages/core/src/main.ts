@@ -23,6 +23,7 @@ export { RichText } from './utils/delta';
 
 // Box system exports
 export { EditorBoxes } from './box/editor-boxes';
+export type { BoxInstance } from './box/editor-boxes';
 export {
   createBoxWrapper,
   isBoxWrapper,
@@ -33,7 +34,6 @@ export {
   getBoxContent
 } from './box/box-dom';
 export { isBoxOp, createBoxInsertOp } from './box/box-op';
-export { MentionBox } from './box/extensions/mention-box';
 
 // Mark system exports
 export {

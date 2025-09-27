@@ -21,7 +21,7 @@
     "lodash-es": "^4.17.21",
     "nanoid": "^4.0.0",
     "quill-delta": "^5.1.0",
-    "snabbdom": "3.6.2",
+    "snabbdom": "3.3.1",
     "tiny-typed-emitter": "^2.1.0"
   },
   "devDependencies": {

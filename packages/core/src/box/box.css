@@ -4,7 +4,6 @@
 
   /* Box 包装器基础样式 */
   [data-box-type] {
-    display: inline-block;
     position: relative;
     vertical-align: baseline;
     user-select: none;

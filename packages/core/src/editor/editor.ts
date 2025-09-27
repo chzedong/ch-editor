@@ -74,6 +74,13 @@ export class Editor extends TypedEmitter<any> {
       });
     }
 
+    // 注册box
+    if (options.boxes) {
+      Object.entries(options.boxes).forEach(([type, boxClass]) => {
+        this.editorBoxes.registerBoxClass(type, boxClass);
+      });
+    }
+
     // this.options = options;
     this.input = new EditorInput(this);
     this.selection = new EditorSelection(this);

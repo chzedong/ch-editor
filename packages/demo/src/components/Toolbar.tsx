@@ -1,5 +1,6 @@
-import { Editor, applyMarkToSelection, toggleMark, MentionBox, createEmbedBlockData } from '@ch-editor/core';
+import { Editor, applyMarkToSelection, toggleMark, createEmbedBlockData } from '@ch-editor/core';
 import { Component, Accessor, createSignal } from 'solid-js';
+import { MentionBox } from '../box-plugins/mention-box';
 
 interface ToolbarProps {
   editor: Accessor<Editor>;
@@ -138,7 +139,7 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
       <input type="color" class="toolbar-btn" title="背景颜色" onInput={(e) => handleColorChange(e.currentTarget.value, 'background')} />
 
       {/* 字体大小选择 */}
-      <select class="toolbar-btn" title="字体大小" onChange={(e) => handleFontSizeChange(e.currentTarget.value)}>
+      <select class="toolbar-btn toolbar-select" title="字体大小" onChange={(e) => handleFontSizeChange(e.currentTarget.value)}>
         <option value="12">12px</option>
         <option value="14">14px</option>
         <option value="16">16px</option>
@@ -155,7 +156,7 @@ export const Toolbar: Component<ToolbarProps> = (props) => {
         @
       </button>
 
-      <select class="toolbar-btn" title="选择用户" value={selectedUser()} onChange={(e) => setSelectedUser(e.currentTarget.value)}>
+      <select class="toolbar-btn toolbar-select" title="选择用户" value={selectedUser()} onChange={(e) => setSelectedUser(e.currentTarget.value)}>
         <option value="">选择用户...</option>
         <option value="user1">张三</option>
         <option value="user2">李四</option>

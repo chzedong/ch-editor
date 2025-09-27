@@ -23,7 +23,6 @@ body {
   display: flex;
   height: 100%;
   position: relative;
-  transition: all 0.3s ease;
 }
 
 /* Debug切换按钮 */
@@ -66,7 +65,6 @@ body {
 /* Debug侧边栏 */
 .debug-sidebar {
   width: 400px;
-  flex-shrink: 0;
   border-left: 1px solid #3e3e42;
   overflow: hidden;
   transition: all 0.3s ease;
@@ -80,8 +78,6 @@ body {
   gap: 8px;
   padding: 12px;
   background: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 6px;
   flex-wrap: wrap;
 }
 
@@ -167,12 +163,11 @@ body {
 #editor {
   flex: 1;
   min-height: 0;
-  border: 1px solid #2e2f30;
-  border-radius: 6px;
+  border: 1px solid #d6dadf;
   text-align: left;
   background: white;
   overflow-y: auto;
   overflow-x: hidden;
-  margin-left: 40px;
-  margin-right: 40px;
+  margin-left: 20px;
+  margin-right: 20px;
 }

@@ -2,6 +2,7 @@ import { Component, onMount, onCleanup, createSignal } from 'solid-js';
 import { Doc, Editor as CoreEditor } from '@ch-editor/core';
 import { UndoManager } from '@ch-editor/undo-redo';
 import { twitterEmbedPlugin } from '../embed-plugins/twitter';
+import { MentionBox } from '../box-plugins/mention-box';
 
 interface EditorProps {
   onEditorReady?: (editor: CoreEditor) => void;
@@ -58,6 +59,9 @@ export const Editor: Component<EditorProps> = (props) => {
         initDoc: new Doc(initDoc),
         initUndoManager: (editor) => new UndoManager(editor),
         embedPlugins: [twitterEmbedPlugin],
+        boxes: {
+          mention: MentionBox,
+        },
       });
 
       editor.focus();

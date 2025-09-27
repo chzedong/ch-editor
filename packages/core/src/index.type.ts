@@ -2,6 +2,8 @@ import AttributeMap from 'quill-delta/dist/AttributeMap';
 import { Editor } from './editor/editor';
 import { EditorBlockPosition } from './selection/block-position';
 import { LineBreaker } from './main';
+import { BoxConstructor } from './box/editor-boxes';
+
 import type { EmbedPlugin, EmbedRenderContext } from './embed/embed-plugin';
 
 export { EmbedPlugin, EmbedRenderContext };
@@ -122,6 +124,7 @@ export interface EditorOptions {
   initDoc?: import('./doc/doc').Doc;
   initUndoManager:  (editor: Editor) => UndoManager;
   embedPlugins?: EmbedPlugin[];
+  boxes?: Record<string, BoxConstructor>;
 }
 
 /**

@@ -45,8 +45,8 @@ importers:
         specifier: ^5.1.0
         version: 5.1.0
       snabbdom:
-        specifier: 3.6.2
-        version: 3.6.2
+        specifier: 3.3.1
+        version: 3.3.1
       tiny-typed-emitter:
         specifier: ^2.1.0
         version: 2.1.0
@@ -1191,9 +1191,9 @@ packages:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
 
-  snabbdom@3.6.2:
-    resolution: {integrity: sha512-ig5qOnCDbugFntKi6c7Xlib8bA6xiJVk8O+WdFrV3wxbMqeHO0hXFQC4nAhPVWfZfi8255lcZkNhtIBINCc4+Q==}
-    engines: {node: '>=12.17.0'}
+  snabbdom@3.3.1:
+    resolution: {integrity: sha512-FR9u20dCkktPd+qbedqwYNjMXzYhizhqlKTQzYZimLNeCJY0/5qgs0DtLVSmzIEL1bN3Dyb9sQpiHGCxUjyLnQ==}
+    engines: {node: '>=8.3.0'}
 
   solid-js@1.9.9:
     resolution: {integrity: sha512-A0ZBPJQldAeGCTW0YRYJmt7RCeh5rbFfPZ2aOttgYnctHE7HgKeHCBB/PVc2P7eOfmNXqMFFFoYYdm3S4dcbkA==}
@@ -2321,7 +2321,7 @@ snapshots:
 
   shebang-regex@3.0.0: {}
 
-  snabbdom@3.6.2: {}
+  snabbdom@3.3.1: {}
 
   solid-js@1.9.9:
     dependencies:
