@@ -1,5 +1,6 @@
 import { assert } from '../utils/assert';
-import { BoxData, DocBlock, DocBlockTextActions } from '../index.type';
+import { BoxData, DocBlock, DocBlockTextActions, DocBlockText } from '../index.type';
+import { EditorSelectionRange } from '../selection/selection-range';
 
 // 生命周期钩子类型定义
 export type HookType =
@@ -8,12 +9,20 @@ export type HookType =
   | 'beforeDeleteBlock'
   | 'beforeInsertBox'
   | 'beforeDeleteBox'
-  | 'docChange';
+  | 'docChange'
+  | 'afterUpdateBlockText'
+  | 'afterInsertBlock'
+  | 'afterDeleteBlock'
+  | 'afterInsertBox'
+  | 'afterDeleteBox'
+  | 'afterUpdateBlock';
 
 // 基础钩子上下文
 interface BaseHookContext {
   containerId: string;
   blockIndex: number;
+  // 需要判断操作来源的字段，可能是个枚举类型
+  source: 'remote' | 'local'
 }
 
 // beforeUpdateBlock 钩子上下文
@@ -50,6 +59,40 @@ export interface DocChangeContext extends BaseHookContext {
   boxData?: BoxData;
 }
 
+// afterUpdateBlockText 钩子上下文
+export interface AfterUpdateBlockTextContext extends BaseHookContext {
+  blockData: DocBlock;
+  newText: DocBlockText;
+  actions: DocBlockTextActions;
+}
+
+// afterInsertBlock 钩子上下文
+export interface AfterInsertBlockContext extends BaseHookContext {
+  blockData: DocBlock;
+}
+
+// afterDeleteBlock 钩子上下文
+export interface AfterDeleteBlockContext extends BaseHookContext {
+  deletedBlock: DocBlock;
+  newRange?: EditorSelectionRange;
+}
+
+// afterInsertBox 钩子上下文
+export interface AfterInsertBoxContext extends BaseHookContext {
+  newText: DocBlockText;
+  insertAction: DocBlockTextActions;
+}
+
+// afterDeleteBox 钩子上下文
+export interface AfterDeleteBoxContext extends BaseHookContext {
+  newText: DocBlockText;
+}
+
+// afterUpdateBlock 钩子上下文
+export interface AfterUpdateBlockContext extends BaseHookContext {
+  blockData: DocBlock;
+}
+
 // 钩子上下文类型映射
 export interface HookContextMap {
   beforeUpdateBlock: BeforeUpdateBlockContext;
@@ -58,6 +101,12 @@ export interface HookContextMap {
   beforeInsertBox: BeforeInsertBoxContext;
   beforeDeleteBox: BeforeDeleteBoxContext;
   docChange: DocChangeContext;
+  afterUpdateBlockText: AfterUpdateBlockTextContext;
+  afterInsertBlock: AfterInsertBlockContext;
+  afterDeleteBlock: AfterDeleteBlockContext;
+  afterInsertBox: AfterInsertBoxContext;
+  afterDeleteBox: AfterDeleteBoxContext;
+  afterUpdateBlock: AfterUpdateBlockContext;
 }
 
 // 钩子回调函数类型
