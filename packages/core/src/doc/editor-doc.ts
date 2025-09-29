@@ -1,5 +1,5 @@
 import { Editor } from '../editor/editor';
-import { Doc } from './doc';
+import { Doc, DocType } from './doc';
 import { LifecycleHooks } from './hooks';
 import { DefaultHookHandlers } from './default-hooks';
 import { EditorSelectionRange } from '../selection/selection-range';
@@ -7,20 +7,20 @@ import { EditorSelectionRange } from '../selection/selection-range';
 import { BoxData, DocBlock, DocBlockTextActions } from '../index.type';
 
 export class EditorDoc {
-  private doc: Doc;
+  private doc: DocType;
   public readonly hooks: LifecycleHooks; // 公开钩子系统供外部扩展使用
 
-  constructor(private editor: Editor, doc?: Doc) {
+  constructor(private editor: Editor, doc?: DocType) {
     this.doc = doc || new Doc();
     this.hooks = new LifecycleHooks();
     new DefaultHookHandlers(this.editor, this.hooks);
   }
 
-  getDoc(): Doc {
+  getDoc(): DocType {
     return this.doc;
   }
 
-  setDoc(doc: Doc): void {
+  setDoc(doc: DocType): void {
     this.doc = doc;
   }
 

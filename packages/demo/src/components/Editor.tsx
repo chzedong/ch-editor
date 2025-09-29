@@ -1,40 +1,14 @@
-import { Component, onMount, onCleanup, createSignal } from 'solid-js';
-import { Doc, Editor as CoreEditor } from '@ch-editor/core';
+import { Component, createSignal, onMount, onCleanup } from 'solid-js';
+import { Editor as CoreEditor, DocObject, DocType } from '@ch-editor/core';
 import { UndoManager } from '@ch-editor/undo-redo';
 import { twitterEmbedPlugin } from '../embed-plugins/twitter';
+import { DocProvider } from '../doc-providers/doc-provider';
 import { MentionBox } from '../box-plugins/mention-box';
 
 interface EditorProps {
   onEditorReady?: (editor: CoreEditor) => void;
-}
-
-/**
- * 本地存储键名常量
- */
-const STORAGE_KEY = 'ch-editor-doc';
-
-/**
- * 从本地存储加载文档数据
- */
-function loadDocFromStorage(): any {
-  try {
-    const docData = localStorage.getItem(STORAGE_KEY);
-    return docData ? JSON.parse(docData) : null;
-  } catch (error) {
-    console.warn('Failed to load document from localStorage:', error);
-    return null;
-  }
-}
-
-/**
- * 保存文档数据到本地存储
- */
-function saveDocToStorage(docData: any): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(docData));
-  } catch (error) {
-    console.error('Failed to save document to localStorage:', error);
-  }
+  docProvider: DocProvider;
+  createDocInstance: (initDocData?: DocObject) => DocType;
 }
 
 /**
@@ -43,20 +17,25 @@ function saveDocToStorage(docData: any): void {
 export const Editor: Component<EditorProps> = (props) => {
   const [editorInstance, setEditorInstance] = createSignal<CoreEditor | null>(null);
   let editorContainer: HTMLDivElement | undefined;
+  let docProvider: DocProvider;
 
-  onMount(() => {
+  onMount(async () => {
     try {
       // 确保容器元素已经被引用
       if (!editorContainer) {
         throw new Error('Editor container not found');
       }
 
+      // 使用传入的文档提供者，或默认使用本地存储提供者
+      docProvider = props.docProvider;
+
       // 加载初始文档数据
-      const initDoc = loadDocFromStorage();
+      const initDocData = await Promise.resolve(docProvider.loadInitialDoc());
+      const initDoc = props.createDocInstance(initDocData ?? void 0);
 
       // 创建编辑器实例
       const editor = new CoreEditor(editorContainer, {
-        initDoc: new Doc(initDoc),
+        initDoc,
         initUndoManager: (editor) => new UndoManager(editor),
         embedPlugins: [twitterEmbedPlugin],
         boxes: {
@@ -66,13 +45,6 @@ export const Editor: Component<EditorProps> = (props) => {
 
       editor.focus();
       setEditorInstance(editor);
-
-      // 设置事件监听
-      const docChangeHandler = () => {
-        saveDocToStorage(editor.editorDoc.getDoc().doc);
-      };
-
-      editor.editorDoc.hooks.register('docChange', docChangeHandler);
 
       // 将编辑器实例暴露到全局（仅用于调试）
       if (typeof window !== 'undefined') {
@@ -93,6 +65,11 @@ export const Editor: Component<EditorProps> = (props) => {
     if (editor) {
       // 清理事件监听器
       editor.unmount();
+    }
+
+    // 清理文档提供者资源
+    if (docProvider?.dispose) {
+      docProvider.dispose();
     }
   });
 

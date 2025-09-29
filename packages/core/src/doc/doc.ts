@@ -4,7 +4,7 @@ import { assert } from '../utils/assert';
 import { createBoxInsertOp, isBoxOp } from '../box/box-op';
 import { isTextOp } from '../text/text-op';
 
-import { DocBlock, DocBlockTextActions, DocObject, BoxData } from '../index.type';
+import { DocBlock, DocBlockTextActions, DocBlockText, DocObject, BoxData } from '../index.type';
 
 export interface DocType {
   doc: DocObject;
@@ -19,14 +19,14 @@ export interface DocType {
   forEachContainer(callback: (containerId: string) => boolean | void): boolean;
   forEachBlock(callback: (containerId: string, blockIndex: number, blockData: DocBlock) => boolean | void): boolean;
 
-  updateBlock(containerId: string, blockIndex: number, newData: DocBlock): void;
-  insertBlock(containerId: string, blockIndex: number, blockData: DocBlock): void;
-  deleteBlock(containerId: string, blockIndex: number): void;
+  updateBlock(containerId: string, blockIndex: number, newData: DocBlock): DocBlock;
+  insertBlock(containerId: string, blockIndex: number, blockData: DocBlock): DocBlock;
+  deleteBlock(containerId: string, blockIndex: number): DocBlock;
 
-  updateBlockText(containerId: string, blockIndex: number, actions: DocBlockTextActions): void;
+  updateBlockText(containerId: string, blockIndex: number, actions: DocBlockTextActions): { newText: DocBlockText; blockData: DocBlock };
 
-  insertBox(containerId: string, blockIndex: number, offset: number, boxData: BoxData): void;
-  deleteBox(containerId: string, blockIndex: number, offset: number): void;
+  insertBox(containerId: string, blockIndex: number, offset: number, boxData: BoxData): { newText: DocBlockText; insertAction: DocBlockTextActions };
+  deleteBox(containerId: string, blockIndex: number, offset: number): { newText: DocBlockText; deleteAction: DocBlockTextActions; deletedBoxData: BoxData };
 }
 
 

@@ -1,8 +1,8 @@
 import { Accessor, Component, createSignal, onCleanup, Show } from 'solid-js';
 import { DebugPanel } from '@ch-editor/debug';
-import { Editor } from './components/Editor';
-import { Toolbar } from './components/Toolbar';
-import './style.css';
+import { Editor } from '../components/Editor';
+import { Toolbar } from '../components/Toolbar';
+import { createDocInstance, LocalDocProvider } from './local-doc-provider';
 
 import { Editor as EditorType } from '@ch-editor/core';
 
@@ -13,6 +13,8 @@ const App: Component = () => {
   const [editor, setEditor] = createSignal<EditorType | null>(null);
   const [isDebugOpen, setIsDebugOpen] = createSignal(false);
 
+  const docProvider = new LocalDocProvider();
+
   const toggleDebug = () => {
     setIsDebugOpen(!isDebugOpen());
   };
@@ -20,6 +22,9 @@ const App: Component = () => {
   // 处理编辑器准备就绪
   const handleEditorReady = (editorInstance: EditorType) => {
     setEditor(editorInstance);
+    editorInstance.editorDoc.hooks.register('docChange', () => {
+      docProvider.saveDoc?.(editorInstance.editorDoc.getDoc().doc);
+    });
   };
 
   onCleanup(() => {
@@ -38,7 +43,7 @@ const App: Component = () => {
           <Show when={editor()}>
             <Toolbar editor={editor as Accessor<EditorType>} />
           </Show>
-          <Editor onEditorReady={handleEditorReady} />
+          <Editor onEditorReady={handleEditorReady} docProvider={docProvider} createDocInstance={createDocInstance} />
         </div>
 
         {/* Debug侧边栏 */}
