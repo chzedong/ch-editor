@@ -3,10 +3,10 @@ import { Editor } from './editor/editor';
 import { EditorBlockPosition } from './selection/block-position';
 import { LineBreaker } from './main';
 import { BoxConstructor } from './box/editor-boxes';
-
+import type { DocType } from './doc/doc';
 import type { EmbedPlugin, EmbedRenderContext } from './embed/embed-plugin';
 
-export { EmbedPlugin, EmbedRenderContext };
+export { EmbedPlugin, EmbedRenderContext, DocType };
 
 export interface BoxData {
   /** Box 的唯一标识符 */
@@ -121,7 +121,7 @@ export interface UndoManager {
 
 // Editor related types
 export interface EditorOptions {
-  initDoc?: import('./doc/doc').Doc;
+  initDoc?: DocType;
   initUndoManager:  (editor: Editor) => UndoManager;
   embedPlugins?: EmbedPlugin[];
   boxes?: Record<string, BoxConstructor>;

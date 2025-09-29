@@ -6,7 +6,31 @@ import { isTextOp } from '../text/text-op';
 
 import { DocBlock, DocBlockTextActions, DocObject, BoxData } from '../index.type';
 
-export class Doc {
+export interface DocType {
+  doc: DocObject;
+
+  getBlockIndexById(containerId: string, id: string): number;
+  getBlockByIndex(containerId: string, index: number): DocBlock;
+  getBlockById(id: string): DocBlock;
+  getContainerId(blockId: string): string;
+  getContainerBlocks(containerId: string): DocBlock[];
+  getBlockData(containerId: string, blockIndex: number): DocBlock;
+
+  forEachContainer(callback: (containerId: string) => boolean | void): boolean;
+  forEachBlock(callback: (containerId: string, blockIndex: number, blockData: DocBlock) => boolean | void): boolean;
+
+  updateBlock(containerId: string, blockIndex: number, newData: DocBlock): void;
+  insertBlock(containerId: string, blockIndex: number, blockData: DocBlock): void;
+  deleteBlock(containerId: string, blockIndex: number): void;
+
+  updateBlockText(containerId: string, blockIndex: number, actions: DocBlockTextActions): void;
+
+  insertBox(containerId: string, blockIndex: number, offset: number, boxData: BoxData): void;
+  deleteBox(containerId: string, blockIndex: number, offset: number): void;
+}
+
+
+export class Doc implements DocType {
   doc: DocObject;
   constructor(doc?: DocObject) {
     if (doc) {
