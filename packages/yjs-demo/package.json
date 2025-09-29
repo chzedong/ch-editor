@@ -3,23 +3,19 @@
   "version": "0.0.1",
   "type": "module",
   "private": true,
+  "main": "src/index.js",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "serve": "vite preview",
-    "ts:check": "tsc --noEmit",
-    "server": "node server.js",
-    "dev:full": "concurrently \"npm run server\" \"npm run dev\""
+    "server": "node server.js"
   },
   "dependencies": {
     "yjs": "^13.6.10",
     "y-websocket": "^2.0.4",
     "y-protocols": "^1.0.6",
+    "tiny-typed-emitter": "^2.1.0",
     "@ch-editor/core": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^4.3.2",
-    "vite": "^5.0.0",
     "concurrently": "^8.2.2",
     "ws": "^8.14.2"
   }

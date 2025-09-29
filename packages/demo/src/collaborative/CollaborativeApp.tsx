@@ -1,8 +1,8 @@
 import { Accessor, Component, createSignal, onCleanup, Show } from 'solid-js';
 import { DebugPanel } from '@ch-editor/debug';
 import { Editor } from '../components/Editor';
+import { RemoteDocProvider } from '@ch-editor/yjs-demo';
 import { Toolbar } from '../components/Toolbar';
-import { createDocInstance, LocalDocProvider } from '../local/local-doc-provider';
 import './collaborative-style.css';
 
 import { Editor as EditorType } from '@ch-editor/core';
@@ -13,11 +13,19 @@ import { Editor as EditorType } from '@ch-editor/core';
 const CollaborativeApp: Component = () => {
   const [editor, setEditor] = createSignal<EditorType | null>(null);
   const [isDebugOpen, setIsDebugOpen] = createSignal(false);
+  const [isConnected, setIsConnected] = createSignal(false);
+  const [collaborators, setCollaborators] = createSignal<string[]>([]);
 
-  const docProvider = new LocalDocProvider();
+  // 创建RemoteDocProvider实例
+  const docProvider = new RemoteDocProvider();
 
   const toggleDebug = () => {
     setIsDebugOpen(!isDebugOpen());
+  };
+
+  // 创建RemoteDoc实例的工厂函数
+  const createDocInstance = () => {
+    return docProvider.getRemoteDoc()
   };
 
   // 处理编辑器准备就绪
@@ -29,19 +37,20 @@ const CollaborativeApp: Component = () => {
   };
 
   onCleanup(() => {
-    // editor()?.destroy();
+    docProvider.dispose?.();
   });
 
-  const [isConnected, setIsConnected] = createSignal(false);
-  const [collaborators, setCollaborators] = createSignal<string[]>([]);
-
-  // 模拟连接状态切换
+  // 连接状态切换
   const toggleConnection = () => {
-    setIsConnected(!isConnected());
     if (isConnected()) {
-      setCollaborators(['用户A', '用户B']);
-    } else {
+      docProvider.disconnect?.();
+      setIsConnected(false);
       setCollaborators([]);
+    } else {
+      docProvider.connect?.();
+      setIsConnected(true);
+      // 模拟协作者
+      setCollaborators(['用户A', '用户B']);
     }
   };
 

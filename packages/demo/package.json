@@ -13,7 +13,10 @@
     "@ch-editor/core": "workspace:*",
     "@ch-editor/debug": "workspace:*",
     "@ch-editor/undo-redo": "workspace:*",
-    "solid-js": "^1.8.11"
+    "@ch-editor/yjs-demo": "workspace:*",
+    "solid-js": "^1.8.11",
+    "yjs": "^13.6.10",
+    "y-websocket": "^2.0.4"
   },
   "devDependencies": {
     "sass": "^1.83.0",

@@ -1,3 +1,4 @@
+import { TypedEmitter } from 'tiny-typed-emitter';
 import { RichText } from '../utils/delta';
 import { createEmptyDoc } from './doc-utils';
 import { assert } from '../utils/assert';
@@ -5,8 +6,18 @@ import { createBoxInsertOp, isBoxOp } from '../box/box-op';
 import { isTextOp } from '../text/text-op';
 
 import { DocBlock, DocBlockTextActions, DocBlockText, DocObject, BoxData } from '../index.type';
+import { EditorSelectionRange } from '../main';
 
-export interface DocType {
+export interface DocEventMap {
+  afterUpdateBlockText: (event: { containerId: string; blockIndex: number; blockData: DocBlock; newText: DocBlockText; actions: DocBlockTextActions; source: 'local' | 'remote' }) => void;
+  afterInsertBlock: (event: { containerId: string; blockIndex: number; blockData: DocBlock; source: 'local' | 'remote' }) => void;
+  afterDeleteBlock: (event: { containerId: string; blockIndex: number; deletedBlock: DocBlock; source: 'local' | 'remote'; newRange?: EditorSelectionRange }) => void;
+  afterUpdateBlock: (event: { containerId: string; blockIndex: number; blockData: DocBlock; source: 'local' | 'remote' }) => void;
+  afterInsertBox: (event: { containerId: string; blockIndex: number; offset: number; boxData: BoxData; newText: DocBlockText; insertAction: DocBlockTextActions; source: 'local' | 'remote' }) => void;
+  afterDeleteBox: (event: { containerId: string; blockIndex: number; offset: number; deletedBoxData: BoxData; newText: DocBlockText; deleteAction: DocBlockTextActions; source: 'local' | 'remote' }) => void;
+}
+
+export interface DocType extends TypedEmitter<DocEventMap>{
   doc: DocObject;
 
   getBlockIndexById(containerId: string, id: string): number;
@@ -30,9 +41,10 @@ export interface DocType {
 }
 
 
-export class Doc implements DocType {
+export class Doc extends TypedEmitter<DocEventMap> implements DocType {
   doc: DocObject;
   constructor(doc?: DocObject) {
+    super();
     if (doc) {
       this.doc = doc;
     } else {
@@ -111,12 +123,29 @@ export class Doc implements DocType {
     assert(blockData.text, 'no text');
     const newText = RichText.apply(blockData.text, actions);
     blockData.text = newText;
+
+    this.emit('afterUpdateBlockText', {
+      containerId,
+      blockIndex,
+      blockData,
+      newText,
+      actions,
+      source: 'local'
+    });
     return { newText, blockData };
   }
 
   insertBlock(containerId: string, blockIndex: number, blockData: DocBlock) {
     const blocks = this.getContainerBlocks(containerId);
     blocks.splice(blockIndex, 0, blockData);
+
+    this.emit('afterInsertBlock', {
+      containerId,
+      blockIndex,
+      blockData,
+      source: 'local'
+    });
+
     return blockData;
   }
 
@@ -125,6 +154,14 @@ export class Doc implements DocType {
     assert(blocks[blockIndex], 'no block');
     const deletedBlock = blocks[blockIndex];
     blocks.splice(blockIndex, 1);
+
+    this.emit('afterDeleteBlock', {
+      containerId,
+      blockIndex,
+      deletedBlock,
+      source: 'local'
+    });
+
     return deletedBlock;
   }
 
@@ -132,6 +169,13 @@ export class Doc implements DocType {
     const blocks = this.getContainerBlocks(containerId);
     assert(blocks[blockIndex], 'no block');
     blocks[blockIndex] = blockData;
+
+    this.emit('afterUpdateBlock', {
+      containerId,
+      blockIndex,
+      blockData,
+      source: 'local'
+    });
     return blockData;
   }
 
@@ -162,6 +206,17 @@ export class Doc implements DocType {
     // 应用操作到文本
     const newText = RichText.apply(blockData.text, insertAction);
     blockData.text = newText;
+
+    // 触发后置动作hook，让协同服务或其他扩展处理渲染和选区更新
+    this.emit('afterInsertBox', {
+      containerId,
+      blockIndex,
+      offset,
+      boxData,
+      newText,
+      insertAction,
+      source: 'local'
+    });
 
     return { newText, insertAction };
   }
@@ -200,6 +255,18 @@ export class Doc implements DocType {
     // 应用操作到文本
     const newText = RichText.apply(blockData.text, deleteAction);
     blockData.text = newText;
+
+
+    // 触发后置动作hook，让协同服务或其他扩展处理渲染和选区更新
+    this.emit('afterDeleteBox', {
+      containerId,
+      blockIndex,
+      offset,
+      deletedBoxData,
+      newText,
+      deleteAction,
+      source: 'local'
+    });
 
     return { newText, deleteAction, deletedBoxData };
   }
